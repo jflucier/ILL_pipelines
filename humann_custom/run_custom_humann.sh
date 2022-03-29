@@ -19,13 +19,13 @@ echo "outputting humann custom slurm script to ${OUPUT_PATH}/human.slurm.sh"
 echo '#!/bin/bash' > ${OUPUT_PATH}/custom_human.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D ${OUPUT_PATH}
-#SBATCH -o ${OUPUT_PATH}/custom_humann-%A_%a.out
-#SBATCH --time=${SLURM_WALLTIME}
-#SBATCH --mem=${SLURM_MEMORY}
+#SBATCH -D '${OUPUT_PATH}'
+#SBATCH -o '${OUPUT_PATH}'/custom_humann-%A_%a.out
+#SBATCH --time='${SLURM_WALLTIME}'
+#SBATCH --mem='${SLURM_MEMORY}'
 #SBATCH -N 1
-#SBATCH -n ${SLURM_NBR_THREADS}
-#SBATCH -A ${SLURM_ALLOCATION}
+#SBATCH -n '${SLURM_NBR_THREADS}'
+#SBATCH -A '${SLURM_ALLOCATION}'
 #SBATCH -J humann
 
 newgrp def-ilafores
@@ -37,7 +37,7 @@ module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugq
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-export __sample_line=$(cat ${SAMPLE_TSV} | awk "NR==$SLURM_ARRAY_TASK_ID")
+export __sample_line=$(cat '${SAMPLE_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -d$'\t' -f1)
 export __fastq_file=$(echo -e "$__sample_line" | cut -d$'\t' -f2)
 
@@ -48,7 +48,7 @@ echo "running humann"
 mkdir -p $SLURM_TMPDIR/${__sample}
 echo "outputting to $SLURM_TMPDIR/${__sample}"
 humann \
--v --threads ${SLURM_NBR_THREADS} \
+-v --threads '${SLURM_NBR_THREADS}' \
 --input $SLURM_TMPDIR/${__fastq_file} \
 --output $SLURM_TMPDIR/${__sample} --output-basename ${__sample} \
 --nucleotide-database ${NT_DB} \
@@ -110,8 +110,8 @@ for i in $__FILES; do
 done
 
 
-echo "copying results to ${OUPUT_PATH}/${__sample}"
-cp -r $SLURM_TMPDIR/${__sample} ${OUPUT_PATH}
+echo "copying results to '${OUPUT_PATH}'/${__sample}"
+cp -r $SLURM_TMPDIR/${__sample} '${OUPUT_PATH}'
 
 echo "done"
 ' >> ${OUPUT_PATH}/custom_human.slurm.sh
