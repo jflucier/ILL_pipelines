@@ -1,4 +1,4 @@
-# E2EAssembler 1.0 User Manual
+# ILL Humann custom pipeline User Manual
 
 End to end chromosome assembly for long read sequencing data.
 
