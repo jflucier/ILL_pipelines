@@ -1,6 +1,6 @@
 # ILL Humann custom pipeline User Manual
 
-End to end chromosome assembly for long read sequencing data.
+Slightly modified humann pipeline to optimse performance.
 
 ----
 
@@ -15,9 +15,10 @@ End to end chromosome assembly for long read sequencing data.
 
 ## Requirements ##
 
-1. [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) (tested with version >= 2.3.5)
-2. [samtools](http://www.htslib.org/) (version >= 1.14)
-3. [diamond](https://github.com/bbuchfink/diamond) (version >= 2.0.14)
+1. [humann](https://huttenhower.sph.harvard.edu/humann/) (version >= 3.0)
+2. [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) (tested with version >= 2.3.5)
+3. [samtools](http://www.htslib.org/) (version >= 1.14)
+4. [diamond](https://github.com/bbuchfink/diamond) (version >= 2.0.14)
 
 Please install the required software in a location of your choice and put in PATH variable.
 
