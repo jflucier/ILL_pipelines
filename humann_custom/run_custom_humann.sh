@@ -52,8 +52,8 @@ humann \
 -v --threads '${SLURM_NBR_THREADS}' \
 --input $SLURM_TMPDIR/${__fastq_file} \
 --output $SLURM_TMPDIR/${__sample} --output-basename ${__sample} \
---nucleotide-database ${NT_DB} \
---protein-database ${PROT_DB} \
+--nucleotide-database '${NT_DB}' \
+--protein-database '${PROT_DB}' \
 --bypass-prescreen --bypass-nucleotide-index
 
 echo "removing uneccesary files"
