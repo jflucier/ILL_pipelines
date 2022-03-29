@@ -39,7 +39,8 @@ export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PA
 
 export __sample_line=$(cat '${SAMPLE_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f1)
-export __fastq_file=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f2)
+export __fastq=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f2)
+export __fastq_file=$(basename $__fastq)
 
 echo "copying fastq $__fastq"
 cp $__fastq $SLURM_TMPDIR/${__fastq_file}
