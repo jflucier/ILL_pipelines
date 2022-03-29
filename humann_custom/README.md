@@ -16,7 +16,7 @@ Slightly modified humann pipeline to optimse performance.
 ## Requirements ##
 
 1. [humann](https://huttenhower.sph.harvard.edu/humann/) (version >= 3.0)
-2. [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) (tested with version >= 2.3.5)
+2. [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) (version >= 2.3.5)
 3. [samtools](http://www.htslib.org/) (version >= 1.14)
 4. [diamond](https://github.com/bbuchfink/diamond) (version >= 2.0.14)
 
