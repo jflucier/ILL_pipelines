@@ -132,5 +132,15 @@ else
     echo "## SLURM_MEMORY: $SLURM_MEMORY"
 fi
 
+if [[ -z "${SLURM_DB_COPY_LOCALSCRATCH}" ]]; then
+    echo "##**********************************"
+    echo "## WARNING: SLURM_DB_COPY_LOCALSCRATCH is not defined. To set, edit config file: export SLURM_DB_COPY_LOCALSCRATCH=<<0 or 1>>"
+    echo "## Will set SLURM_DB_COPY_LOCALSCRATCH to default SLURM_DB_COPY_LOCALSCRATCH=0 to desactivate database copy on compute node localscratch"
+    echo "##**********************************"
+    echo "##"
+    export SLURM_DB_COPY_LOCALSCRATCH=0
+else
+    echo "## SLURM_DB_COPY_LOCALSCRATCH: $SLURM_DB_COPY_LOCALSCRATCH"
+fi
 
 echo "################################################################################################################"

@@ -44,17 +44,31 @@ export __fastq_file=$(basename $__fastq)
 
 echo "copying fastq $__fastq"
 cp $__fastq $SLURM_TMPDIR/${__fastq_file}
+' >> ${OUPUT_PATH}/custom_human.slurm.sh
 
-# echo "copying nucleotide bowtie index '${NT_DB}'"
-# export __NT_DB_BT2=$(basename '${NT_DB}')
-# cp '${NT_DB}'.tar.gz $SLURM_TMPDIR/
-# pigz -dc -p '${SLURM_NBR_THREADS}' $SLURM_TMPDIR/${__NT_DB_BT2}.tar.gz | tar xvf -
-#
-# echo "copying protein diamond index '${PROT_DB}'"
-# export __PROT_DIA_IDX=$(basename '${PROT_DB}')
-# cp -r '${PROT_DB}' $SLURM_TMPDIR/
+if [[ "$SLURM_DB_COPY_LOCALSCRATCH" -eq "0" ]]
+then
+echo '
+export __NT_DB='${NT_DB}'
+export __PROT_DB='${PROT_DB}'
+' >> ${OUPUT_PATH}/custom_human.slurm.sh
+else
+echo '
+mkdir $SLURM_TMPDIR/db
+echo "copying nucleotide bowtie index '${NT_DB}'"
+export __NT_DB_BT2=$(basename '${NT_DB}')
+cp '${NT_DB}'*.bt2l $SLURM_TMPDIR/db/
 
+echo "copying protein diamond index '${PROT_DB}'"
+export __PROT_DIA_IDX=$(basename '${PROT_DB}')
+cp -r '${PROT_DB}' $SLURM_TMPDIR/db
 
+export __NT_DB=$SLURM_TMPDIR/db/${__NT_DB_BT2}
+export __PROT_DB=$SLURM_TMPDIR/db/${__PROT_DIA_IDX}
+' >> ${OUPUT_PATH}/custom_human.slurm.sh
+fi
+
+echo '
 echo "running humann"
 mkdir -p $SLURM_TMPDIR/${__sample}
 echo "outputting to $SLURM_TMPDIR/${__sample}"
@@ -63,8 +77,8 @@ humann \
 --o-log '${OUPUT_PATH}'/custom_humann-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.humann.out \
 --input $SLURM_TMPDIR/${__fastq_file} \
 --output $SLURM_TMPDIR/${__sample} --output-basename ${__sample} \
---nucleotide-database '${NT_DB}' \
---protein-database '${PROT_DB}' \
+--nucleotide-database $__NT_DB \
+--protein-database $__PROT_DB \
 --bypass-prescreen --bypass-nucleotide-index
 
 rm -f $SLURM_TMPDIR/${__sample}/*cpm*
