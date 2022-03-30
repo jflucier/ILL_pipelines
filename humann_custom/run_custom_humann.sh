@@ -56,10 +56,8 @@ humann \
 --protein-database '${PROT_DB}' \
 --bypass-prescreen --bypass-nucleotide-index
 
-echo "removing uneccesary files"
-rm $SLURM_TMPDIR/${__sample}/*cpm*
-rm -r $SLURM_TMPDIR/${__sample}/*community_tables
-
+rm -f $SLURM_TMPDIR/${__sample}/*cpm*
+rm -f $SLURM_TMPDIR/${__sample}/*relab*
 for norm_method in cpm relab;
 do
 	if [[ $norm_method == "cpm" ]]; then
@@ -104,10 +102,12 @@ do
 done
 
 echo "...creating community-level profiles"
-mkdir $SLURM_TMPDIR/${__sample}/${__sample}_community_tables
-__FILES=$(ls $SLURM_TMPDIR/${__sample}/*.tsv)
-for i in $__FILES; do
-	grep -v "|" ${i} > $SLURM_TMPDIR/${__sample}/${__sample}_community_tables/${i//.tsv/}_community.tsv
+rm -fr $SLURM_TMPDIR/${__sample}/${__sample}_community_tables/*
+mkdir -p $SLURM_TMPDIR/${__sample}/${__sample}_community_tables
+for f in $SLURM_TMPDIR/${__sample}/*.tsv
+do
+    b=$(basename $f)
+	grep -v "|" ${f} > $SLURM_TMPDIR/${__sample}/${__sample}_community_tables/${b//.tsv/}_community.tsv
 done
 
 
