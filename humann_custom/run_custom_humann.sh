@@ -45,6 +45,16 @@ export __fastq_file=$(basename $__fastq)
 echo "copying fastq $__fastq"
 cp $__fastq $SLURM_TMPDIR/${__fastq_file}
 
+# echo "copying nucleotide bowtie index '${NT_DB}'"
+# export __NT_DB_BT2=$(basename '${NT_DB}')
+# cp '${NT_DB}'.tar.gz $SLURM_TMPDIR/
+# pigz -dc -p '${SLURM_NBR_THREADS}' $SLURM_TMPDIR/${__NT_DB_BT2}.tar.gz | tar xvf -
+#
+# echo "copying protein diamond index '${PROT_DB}'"
+# export __PROT_DIA_IDX=$(basename '${PROT_DB}')
+# cp -r '${PROT_DB}' $SLURM_TMPDIR/
+
+
 echo "running humann"
 mkdir -p $SLURM_TMPDIR/${__sample}
 echo "outputting to $SLURM_TMPDIR/${__sample}"
