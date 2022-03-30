@@ -60,7 +60,7 @@ mkdir -p $SLURM_TMPDIR/${__sample}
 echo "outputting to $SLURM_TMPDIR/${__sample}"
 humann \
 -v --threads '${SLURM_NBR_THREADS}' \
---o-log '${OUPUT_PATH}'/custom_humann-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.humann.out
+--o-log '${OUPUT_PATH}'/custom_humann-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.humann.out \
 --input $SLURM_TMPDIR/${__fastq_file} \
 --output $SLURM_TMPDIR/${__sample} --output-basename ${__sample} \
 --nucleotide-database '${NT_DB}' \
