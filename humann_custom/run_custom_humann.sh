@@ -14,7 +14,7 @@ fi
 source $1
 ${EXE_PATH}/00_check_environment.sh
 
-echo "outputting humann custom slurm script to ${OUPUT_PATH}/human.slurm.sh"
+echo "outputting humann custom slurm script to ${OUPUT_PATH}/custom_human.slurm.sh"
 
 echo '#!/bin/bash' > ${OUPUT_PATH}/custom_human.slurm.sh
 echo '

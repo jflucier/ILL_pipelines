@@ -42,6 +42,11 @@ To install humann_custom you need to:
 
     Note: Creating a clone of the repository requires [Github](https://github.com/) to be installed.
 
+
+----
+
+## How to run ##
+
 * Copy example humann_custom configuration file /path/to/ILL_pipelines/humann_custom/my.example.config and edit with your required analysis parameters.
 
 ```
@@ -49,10 +54,7 @@ cp /path/to/ILL_pipelines/humann_custom/my.example.config my_analysis.config"
 vi my_analysis.config
 ```
 
-----
-
-## How to run ##
-
+Run custom humann pipeline
 
 ```
 
