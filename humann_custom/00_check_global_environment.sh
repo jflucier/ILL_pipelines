@@ -4,7 +4,7 @@ set -e
 
 echo "################################################################################################################"
 
-echo "## Checking all software dependencies"
+echo "## Checking global software dependencies"
 
 if ! command -v "bowtie2" &> /dev/null
 then
@@ -26,27 +26,6 @@ then
     exit 1
 fi
 
-if ! command -v "diamond" &> /dev/null
-then
-    echo "##**** diamond could not be found ****"
-    echo "## Please install diamond and and put in PATH variable"
-    echo "## export PATH=/path/to/diamond:\$PATH"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
-
-if ! command -v "humann" &> /dev/null
-then
-    echo "##**** humann could not be found ****"
-    echo "## Please install humann and and put in PATH variable"
-    echo "## export PATH=/path/to/humann:\$PATH"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
-
-
 echo "## checking if all humann custom variables are properly defined"
 
 if [ ! -d "${OUPUT_PATH}" ]
@@ -58,35 +37,6 @@ then
     echo "##**********************************"
     echo "##"
 fi
-
-if [ ! -f "${NT_DB}.1.bt2l" ]
-then
-
-    echo "##**** Bowtie2 nucleotide db index not found. ****"
-    echo "## Please verify. An index file with the following name should be found: ${NT_DB}.1.bt2l"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
-
-if [ ! -f ${PROT_DB}/*.dmnd ]
-then
-
-    echo "##**** Protein database not found. ****"
-    echo "## Please verify. A a diamond file index (*.dmnd) should be found in: ${PROT_DB}"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
-
-if [[ -z "${SAMPLE_TSV}" ]]; then
-    echo "## FATAL: SAMPLE_TSV variable must be defined. To set, edit config file: export SAMPLE_TSV=/path/to/sample.tsv"
-    exit 1
-elif [ ! -f "$SAMPLE_TSV" ]; then
-    echo "## FATAL: $SAMPLE_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export SAMPLE_TSV=/path/to/sample.tsv"
-    exit 1
-fi
-echo "## SAMPLE_TSV datapath: $SAMPLE_TSV"
 
 if [[ -z "${SLURM_WALLTIME}" ]]; then
     echo "##**********************************"

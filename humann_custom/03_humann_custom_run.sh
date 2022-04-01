@@ -12,7 +12,8 @@ if [ -z ${1+x} ]; then
 fi
 
 source $1
-${EXE_PATH}/00_check_environment.sh
+${EXE_PATH}/00_check_global_environment.sh
+${EXE_PATH}/00_check_humann_custom_environment.sh
 
 echo "outputting humann custom slurm script to ${OUPUT_PATH}/custom_human.slurm.sh"
 

@@ -50,7 +50,7 @@ To install humann_custom you need to:
 * Copy example humann_custom configuration file /path/to/ILL_pipelines/humann_custom/my.example.config and edit with your required analysis parameters.
 
 ```
-cp /path/to/ILL_pipelines/humann_custom/my.example.config my_analysis.config"
+cp /path/to/ILL_pipelines/humann_custom/humann_custom.example.config my_analysis.config"
 vi my_analysis.config
 ```
 
@@ -58,7 +58,7 @@ Run custom humann pipeline
 
 ```
 
-$ bash /path/to/ILL_pipelines/humann_custom/run_custom_humann.sh my_analysis.config
+$ bash /path/to/ILL_pipelines/humann_custom/humann_custom_run.sh my_analysis.config
 
 ```
 
