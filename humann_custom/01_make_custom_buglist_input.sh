@@ -34,9 +34,6 @@ echo "loading env"
 export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
 module use $MUGQIC_INSTALL_HOME/modulefiles
 
-module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
-export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
-
 export __sample_line=$(cat '${CUSTOM_DB_SAMPLE_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f1)
 export __fastq1=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f2)
@@ -48,6 +45,9 @@ echo "copying fastq $__fastq1"
 cp $__fastq1 $SLURM_TMPDIR/${__fastq_file1}
 echo "copying fastq $__fastq2"
 cp $__fastq2 $SLURM_TMPDIR/${__fastq_file2}
+
+module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/trimmomatic/0.39 mugqic/TRF/4.09 mugqic/fastqc/0.11.5 mugqic/samtools/1.14
+export PATH=/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39:$PATH
 
 ### Preproc
 source /project/def-ilafores/common/kneaddata/bin/activate
