@@ -13,7 +13,7 @@ fi
 
 source $1
 ${EXE_PATH}/00_check_global_environment.sh
-${EXE_PATH}/00_check_makecustom_buglist_environment.sh
+${EXE_PATH}/00_check_make_custom_buglist_environment.sh
 
 echo "outputting make custom buglist db slurm script to ${OUPUT_PATH}/make_custom_buglist.slurm.sh"
 
