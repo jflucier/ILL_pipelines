@@ -37,7 +37,7 @@ module use $MUGQIC_INSTALL_HOME/modulefiles
 module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-export __sample_line=$(cat '${SAMPLE_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
+export __sample_line=$(cat '${CUSTOM_DB_SAMPLE_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f1)
 export __fastq1=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f2)
 export __fastq2=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f3)
