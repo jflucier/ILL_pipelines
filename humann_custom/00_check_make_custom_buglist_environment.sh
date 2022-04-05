@@ -13,7 +13,7 @@ elif [ ! -f "$CUSTOM_DB_SAMPLE_TSV" ]; then
     echo "## FATAL: $CUSTOM_DB_SAMPLE_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export CUSTOM_DB_SAMPLE_TSV=/path/to/sample.tsv"
     exit 1
 fi
-echo "## SAMPLE_TSV datapath: $SAMPLE_TSV"
+echo "## SAMPLE_TSV datapath: $CUSTOM_DB_SAMPLE_TSV"
 
 if [ ! -f "${KNEADDATA_DB}.1.bt2" ]
 then
@@ -64,7 +64,7 @@ if [[ -z "${BOWTIE2_OPTIONS}" ]]; then
     echo "##"
     export BOWTIE2_OPTIONS="--very-sensitive"
 else
-    echo "## TRIMMOMATIC options: $BOWTIE2_OPTIONS"
+    echo "## BOWTIE2_OPTIONS options: $BOWTIE2_OPTIONS"
 fi
 
 

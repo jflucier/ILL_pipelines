@@ -146,56 +146,8 @@ grep "|s" $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT
 
 cp -r $SLURM_TMPDIR/${__sample} '$OUPUT_PATH'
 
-
-
-#### old stuff!!
-
-
-# bracken \
-# -d '${KRAKEN2_DB_PATH}' \
-# -i $SLURM_TMPDIR/${__sample}/${__sample}.kreport \
-# -o $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_S.bracken \
-# -w $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_bracken_species.kreport \
-# -r '$READ_LEN' \
-# -l '$TAXONOMIC_LEVEL'
-
-# echo "creating kronagrams"
-# mkdir -p $SLURM_TMPDIR/${__sample}/${__sample}_kronagrams
-# echo "running krakentools. Output: $SLURM_TMPDIR/${__sample}/${__sample}_kronagrams/${__sample}_species.krona"
-# python /project/def-ilafores/common/KrakenTools/kreport2krona.py \
-# -r $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_bracken_species.kreport \
-# -o $SLURM_TMPDIR/${__sample}/${__sample}_kronagrams/${__sample}_species.krona
-#
-# ktImportText \
-# $SLURM_TMPDIR/${__sample}/${__sample}_kronagrams/${__sample}_species.krona \
-# -o $SLURM_TMPDIR/${__sample}/${__sample}_kronagrams/${__sample}_species.html
-#
-# #rm $__EXP_DIR/${__EXP_NAME}_kronagrams/${__EXP_NAME}_species.krona
-#
-# ### ici je crée le fichier du sample; on va merger ces fichiers ensuite.
-# ### Le 5 reads or less est un peu arbitraire mais cest ce que Sarah veut pour linstant.
-# ### Le awk est nécessaire pour "cheat" humann à reconnaître un fichier pas créé par metaphlan.
-# echo "converting kraken report to MPA-style for use as HUMAnN input taxonomic profile"
-# python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
-# -r $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_bracken_species.kreport \
-# -o $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT
-#
-# grep "|s" $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT \
-# | egrep -w -v '"'"'1|2|3|4|5'"'"' - \
-# | awk '"'"'{printf("%s\t\n", $0)}'"'"' - \
-# | awk '"'"'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1'"'"' - > $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}-bugs_list.MPA.TXT
-#
-# #rm temp.MPA.TXT
-#
-# cp -r $SLURM_TMPDIR/${__sample} '$OUPUT_PATH'
-
-### finalement, je prends tous les MPA de tous les samples et les combine ainsi :
-# __KREPORTS=$(ls boreal_moss/tax_profile_full/*/*_bracken/*species.kreport)
-#
-# /project/def-ilafores/common/KrakenTools/combine_kreports.py -r $__KREPORTS -o boreal_moss/tax_profile_full/boreal_moss.kreport --only-combined --no-headers
-
 ' >> ${OUPUT_PATH}/make_custom_buglist.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-read sample_nbr f <<< $(wc -l ${SAMPLE_TSV})
+read sample_nbr f <<< $(wc -l ${CUSTOM_DB_SAMPLE_TSV})
 echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/make_custom_buglist.slurm.sh"
