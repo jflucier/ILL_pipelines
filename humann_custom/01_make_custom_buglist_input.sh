@@ -87,6 +87,7 @@ export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
 
 echo "running kraken. Kraken ouptut: $SLURM_TMPDIR/${__sample}/"
 kraken2 \
+--memory-mapping \
 --paired \
 --threads '${SLURM_NBR_THREADS}' \
 --db '${KRAKEN2_DB_PATH}' \
