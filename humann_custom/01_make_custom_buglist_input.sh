@@ -16,7 +16,7 @@ ${EXE_PATH}/00_check_global_environment.sh
 ${EXE_PATH}/00_check_make_custom_buglist_environment.sh
 
 echo "outputting make custom buglist db slurm script to ${OUPUT_PATH}/make_custom_buglist.slurm.sh"
-
+__all_taxas=$(echo "${TAXONOMIC_LEVEL[@]}")
 echo '#!/bin/bash' > ${OUPUT_PATH}/make_custom_buglist.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
@@ -54,6 +54,7 @@ source /project/def-ilafores/common/kneaddata/bin/activate
 mkdir -p $SLURM_TMPDIR/${__sample}
 
 echo "running kneaddata. kneaddata ouptut: $SLURM_TMPDIR/${__sample}/"
+###### pas de decontamine, output = $SLURM_TMPDIR/${__sample}/*repeats* --> peut changer etape pour fastp et cutadapt
 kneaddata -v \
 --input $SLURM_TMPDIR/${__fastq_file1} \
 --input $SLURM_TMPDIR/${__fastq_file2} \
@@ -101,7 +102,8 @@ mkdir -p $SLURM_TMPDIR/${__sample}/${__sample}_bracken
 echo "running bracken. Bracken Output: $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_S.bracken"
 
 mkdir $SLURM_TMPDIR/${__sample}/${__sample}_kronagrams
-for taxa_str in '${TAXONOMIC_LEVEL}'
+
+for taxa_str in '$__all_taxas'
 do
     taxa_oneletter=${taxa_str%%:*}
     taxa_name=${taxa_str#*:}
