@@ -94,7 +94,8 @@ export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PA
 
 ### gen python chocphlan cusotm db
 cd '$OUPUT_PATH'
-python '${EXE_PATH}'/create_prescreen_db.py '$CHOCOPHLAN_DB' '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT
+echo "runnin create prescreen db. This step might take long"
+python -u '${EXE_PATH}'/create_prescreen_db.py '$CHOCOPHLAN_DB' '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT
 ### gen bowtie index on db
 mv _custom_chocophlan_database.ffn '$CUSTOM_CHOCOPHLAN_DB_NAME'.ffn
 bowtie2-build --threads '${SLURM_NBR_THREADS}' '$CUSTOM_CHOCOPHLAN_DB_NAME'.ffn  '$CUSTOM_CHOCOPHLAN_DB_NAME'
