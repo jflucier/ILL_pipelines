@@ -56,6 +56,7 @@ mkdir -p $SLURM_TMPDIR/${__sample}
 echo "running kneaddata. kneaddata ouptut: $SLURM_TMPDIR/${__sample}/"
 ###### pas de decontamine, output = $SLURM_TMPDIR/${__sample}/*repeats* --> peut changer etape pour fastp et cutadapt
 kneaddata -v \
+--log '${OUPUT_PATH}'/make_custom_buglist-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.kneaddata.out \
 --input $SLURM_TMPDIR/${__fastq_file1} \
 --input $SLURM_TMPDIR/${__fastq_file2} \
 -db '$KNEADDATA_DB' \
@@ -146,7 +147,7 @@ grep "|s" $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT
 | awk '"'"'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1'"'"' - > $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}-bugs_list.MPA.TXT
 
 #rm temp.MPA.TXT
-
+echo "echo cpopying all results to '$OUPUT_PATH'/${__sample}"
 cp -r $SLURM_TMPDIR/${__sample} '$OUPUT_PATH'
 
 ' >> ${OUPUT_PATH}/make_custom_buglist.slurm.sh

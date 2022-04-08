@@ -63,18 +63,30 @@ for taxa_str in ${TAXONOMIC_LEVEL}
 do
     taxa_oneletter=${taxa_str%%:*}
     taxa_name=${taxa_str#*:}
+
     echo "JOINT TAXONOMIC TABLES using taxonomic level-specific bracken reestimated abundances for $taxa_name"
+
+    for report_f in $OUPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.kreport
+    do
+        python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
+        -r $report_f -o ${report_f//.kreport/}.MPA.TXT --display-header
+    done
+
+    echo "runinng combine for $taxa_name"
     python /project/def-ilafores/common/KrakenTools/combine_mpa.py \
     -i $OUPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.MPA.TXT \
     -o $OUPUT_PATH/temp_${taxa_oneletter}.tsv
 
     sed -i "s/_bracken_${taxa_oneletter}.kreport//g" $OUPUT_PATH/temp_${taxa_oneletter}.tsv
 
-    if [[ ${taxa_oneletter} == "D" ]]; then
-        taxa_oneletter="K";
+    if [[ ${taxa_oneletter_tmp} == "D" ]]
+    then
+        taxa_oneletter_tmp="K"
+    else
+        taxa_oneletter_tmp=${taxa_oneletter_tmp};
     fi
 
-    grep -E "(${taxa_oneletter:0:1}__)|(#Classification)" $OUPUT_PATH/temp_${taxa_oneletter}.tsv > $OUPUT_PATH/taxtable_${taxa_oneletter}.tsv
+    grep -E "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $OUPUT_PATH/temp_${taxa_oneletter}.tsv > $OUPUT_PATH/taxtable_${taxa_oneletter}.tsv
 done
 
 ### gen python chocphlan cusotm db
