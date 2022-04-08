@@ -89,7 +89,13 @@ do
     grep -E "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $OUPUT_PATH/temp_${taxa_oneletter}.tsv > $OUPUT_PATH/taxtable_${taxa_oneletter}.tsv
 done
 
+
+source /project/def-ilafores/common/humann3/bin/activate
+export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
+
 ### gen python chocphlan cusotm db
+python ${EXE_PATH}/create_prescreen_db.py $CHOCOPHLAN_DB $OUPUT_PATH/all_samples-bugs_list.MPA.TXT
 ### gen bowtie index on db
+
 
 echo "done!"
