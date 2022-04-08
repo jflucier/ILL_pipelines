@@ -55,8 +55,8 @@ python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
 
 echo "modify mpa for humann support"
 grep "|s" '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'_temp_S.MPA.TXT \
-| awk "{printf(\"%s\t\n\", $0)}" - \
-| awk "BEGIN{printf(\"#mpa_v30_CHOCOPhlAn_201901\n\")}1" - > '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT
+| awk '"'"'{printf("%s\t\n", $0)}'"'"' - \
+| awk '"'"'BEGIN{printf(\"#mpa_v30_CHOCOPhlAn_201901\n\")}1'"'"' - > '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT
 
 for taxa_str in '$__all_taxas'
 do
