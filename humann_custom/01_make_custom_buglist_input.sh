@@ -27,7 +27,7 @@ echo '
 #SBATCH -N 1
 #SBATCH -n '${SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
-#SBATCH -J humann
+#SBATCH -J buglist
 
 newgrp def-ilafores
 echo "loading env"
