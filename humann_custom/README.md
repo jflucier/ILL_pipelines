@@ -54,9 +54,11 @@ To run pipelines in this repository you first need to COPY and EDIT example conf
 file /path/to/ILL_pipelines/humann_custom/my.example.config
 
 ```
-cp /path/to/ILL_pipelines/humann_custom/my.example.config .
-cp /path/to/ILL_pipelines/humann_custom/buglist.sample.test.tsv .
-cp /path/to/ILL_pipelines/humann_custom/humann.sample.tsv .
+on ip29: HUMANN_CUSTOM_INSTALL=/project/def-ilafores/common/ILL_pipelines/humann_custom
+export HUMANN_CUSTOM_INSTALL=/path/to/ILL_pipelines/humann_custom
+cp ${HUMANN_CUSTOM_INSTALL}/my.example.config .
+cp ${HUMANN_CUSTOM_INSTALL}/buglist.sample.test.tsv .
+cp ${HUMANN_CUSTOM_INSTALL}/humann.sample.tsv .
 vi my_analysis.config
 ```
 
@@ -84,7 +86,7 @@ and 02_make_humann_buglist_db.sh steps sucessfully complete.
 
 ```
 
-$ bash /path/to/ILL_pipelines/humann_custom/01_make_custom_buglist_input.sh my.example.config
+$ bash ${HUMANN_CUSTOM_INSTALL}/01_make_custom_buglist_input.sh my.example.config
 
 ```
 
@@ -92,7 +94,7 @@ $ bash /path/to/ILL_pipelines/humann_custom/01_make_custom_buglist_input.sh my.e
 
 ```
 
-$ bash /path/to/ILL_pipelines/humann_custom/02_make_humann_buglist_db.sh my.example.config
+$ bash ${HUMANN_CUSTOM_INSTALL}/02_make_humann_buglist_db.sh my.example.config
 
 ```
 
@@ -100,7 +102,7 @@ $ bash /path/to/ILL_pipelines/humann_custom/02_make_humann_buglist_db.sh my.exam
 
 ```
 
-$ bash /path/to/ILL_pipelines/humann_custom/03_humann_custom_run.sh my.example.config
+$ bash ${HUMANN_CUSTOM_INSTALL}/03_humann_custom_run.sh my.example.config
 
 ```
 
