@@ -1,6 +1,6 @@
 # ILL Humann custom pipeline User Manual
 
-Slightly modified humann pipeline to optimse performance.
+Slightly modified humann pipeline to optimise performance.
 
 ----
 
