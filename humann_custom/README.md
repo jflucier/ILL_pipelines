@@ -54,20 +54,13 @@ To run pipelines in this repository you first need to COPY and EDIT example conf
 file /path/to/ILL_pipelines/humann_custom/my.example.config
 
 ```
-cp /path/to/ILL_pipelines/humann_custom/my.example.config ."
+cp /path/to/ILL_pipelines/humann_custom/my.example.config .
+cp /path/to/ILL_pipelines/humann_custom/buglist.sample.test.tsv .
+cp /path/to/ILL_pipelines/humann_custom/humann.sample.tsv .
 vi my_analysis.config
 ```
 
 As mentionned in example configuration file, you need to defined the HUMANN_RUN_SAMPLE_TSV and CUSTOM_DB_SAMPLE_TSV variables.
-
-HUMANN_RUN_SAMPLE_TSV is a tab seperated files with 2 columns similar to this table:
-
-| sample1 	| /path/to/sample1.fastq 	|
-| sample2 	| /path/to/sample2.fastq 	|
-| etc...  	| etc...                 	|
-
-**TSV files must not have header line.**
-
 
 CUSTOM_DB_SAMPLE_TSV is a tab seperated files with 3 columns similar to this table:
 
@@ -76,6 +69,15 @@ CUSTOM_DB_SAMPLE_TSV is a tab seperated files with 3 columns similar to this tab
 | etc...  	| etc...                    	| etc...                    	|
 
 **TSV files must not have header line.**
+
+HUMANN_RUN_SAMPLE_TSV is a tab seperated files with 2 columns similar to this table:
+
+| sample1 	| /path/to/sample1.fastq 	|
+| sample2 	| /path/to/sample2.fastq 	|
+| etc...  	| etc...                 	|
+
+**TSV files must not have header line.** This listing can be performed after the 01_make_custom_buglist_input.sh
+and 02_make_humann_buglist_db.sh steps sucessfully complete.
 
 
 ### Make custom buglist input ###
@@ -90,7 +92,7 @@ $ bash /path/to/ILL_pipelines/humann_custom/01_make_custom_buglist_input.sh my.e
 
 ```
 
-$ bash /path/to/ILL_pipelines/humann_custom/01_make_custom_buglist_db.sh my.example.config
+$ bash /path/to/ILL_pipelines/humann_custom/02_make_humann_buglist_db.sh my.example.config
 
 ```
 
