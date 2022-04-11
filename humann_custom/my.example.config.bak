@@ -1,35 +1,34 @@
 #!/bin/bash
 
+set -e
 
 ### EDit these variables BEFORE running
 
 ### Global analysis parameters
-export OUPUT_PATH=/project/def-ilafores/analysis/20220316_humann_pipeline_dev/test_make_custom_buglist_input
+export OUPUT_PATH=/project/def-ilafores/analysis/20220316_humann_pipeline_dev
 
 ### HUMANN run parameters
 #sample file: 2 columns
 #sample_name\t/path/to/fastq
 # NO HEADERS!!!
-export HUMANN_RUN_SAMPLE_TSV="/project/def-ilafores/analysis/20220316_humann_pipeline_dev/test_make_custom_buglist_input/humann.sample.tsv"
-export NT_DB="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/boreal_moss"
+export HUMANN_RUN_SAMPLE_TSV="/project/def-ilafores/analysis/20220316_humann_pipeline_dev/sample.tsv"
+export NT_DB="/project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/custom_chocophlan/custom_chocophlan_database"
 export PROT_DB="/project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref"
-export CHOCOPHLAN_DB="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan"
-export CUSTOM_CHOCOPHLAN_DB_NAME="boreal_moss"
 
 ### Make custom buglist db parameters
 #sample file: 3 columns
 #sample_name\t/path/to/fastq1\t/path/to/fastq2
 # NO HEADERS!!!
-export CUSTOM_DB_SAMPLE_TSV="/project/def-ilafores/analysis/20220316_humann_pipeline_dev/test_make_custom_buglist_input/buglist.sample.test.tsv"
+export CUSTOM_DB_SAMPLE_TSV="/project/def-ilafores/analysis/20220316_humann_pipeline_dev/make.sample.tsv"
 
 # KNEADDATA options
-export KNEADDATA_DB="/nfs3_ib/ip29-ib//ssdpool/shared/ilafores_group/host_genomes/Ppatens_index/Ppatens"
-export SEQUENCER="TruSeq3"
-export TRIMMOMATIC="SLIDINGWINDOW:4:30 MINLEN:50"
+export KNEADDATA_DB="/nfs3_ib/ip29-ib/ip29/ilafores_group/sarahi/host_genomes/Ppatens_index/Ppatens"
+export SEQUENCER"TruSeq3"
+export TRIMMOMATIC="MINLEN:50 SLIDINGWINDOW:4:30"
 export BOWTIE2_OPTIONS="--very-sensitive"
 
 #kraken options
-export KRAKEN2_DB_PATH="/nfs3_ib/ip29-ib/ssdpool/private/jflucier/kraken2_dbs/k2_pluspfp_16gb_20210517"
+export KRAKEN2_DB_PATH="/project/def-ilafores/common/kraken2/data/kraken2_dbs/kraken2_PlusPFP_202202"
 
 # bracken options
 export READ_LEN="150"
