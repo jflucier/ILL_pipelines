@@ -57,7 +57,7 @@ $SLURM_TMPDIR/${__sample}/assembly/metaspades/contigs
 
 echo "realigning reads on metaspades contigs and keeping unmapped"
 bowtie2 --threads ${SLURM_NBR_THREADS} --very-sensitive \
--x $SLURM_TMPDIR/${__sample}/assembly/metaspades/final_assembly \
+-x $SLURM_TMPDIR/${__sample}/assembly/metaspades/contigs \
 -1 $SLURM_TMPDIR/${__sample}/${__sample}_paired_1.fastq \
 -2 $SLURM_TMPDIR/${__sample}/${__sample}_paired_2.fastq \
 | samtools view --threads ${SLURM_NBR_THREADS} -S -b -f 4 \
@@ -69,7 +69,7 @@ samtools fastq --threads ${SLURM_NBR_THREADS} $SLURM_TMPDIR/${__sample}/assembly
 -2 $SLURM_TMPDIR/${__sample}/assembly/metaspades/unmapped.R2.fastq.gz -0 /dev/null -s /dev/null -n
 
 echo "running megahit"
-mkdir $SLURM_TMPDIR/${__sample}/assembly/megahit
+export PATH=/project/def-ilafores/common/megahit/build:$PATH
 ## on active --presets meta-large: if the metagenome is complex (i.e., bio-diversity is high, for example soil metagenomes) ????
 megahit -t ${SLURM_NBR_THREADS} \
 -1 $SLURM_TMPDIR/${__sample}/assembly/metaspades/unmapped.R1.fastq.gz \
@@ -79,13 +79,18 @@ megahit -t ${SLURM_NBR_THREADS} \
 echo "combine metaspades & megahit contigs"
 ### quickmerge???
 cat \
-$SLURM_TMPDIR/${__sample}/assembly/metaspades/final_assembly.fasta \
-$SLURM_TMPDIR/${__sample}/assembly/megahit/contigs.fasta \
+$SLURM_TMPDIR/${__sample}/assembly/metaspades/contigs.fasta \
+$SLURM_TMPDIR/${__sample}/assembly/megahit/final.contigs.fa \
 > $SLURM_TMPDIR/${__sample}/assembly/${__sample}.contigs.fasta
 
 echo "binning contigs using concoct"
+singularity exec --writable-tmpfs -e -B $SLURM_TMPDIR/${__sample}/assembly:/out concoct.1.1.0.sif ls /out
 
-
+cut_up_fasta.py original_contigs.fa -c 10000 -o 0 --merge_last -b contigs_10K.bed > contigs_10K.fa
+concoct_coverage_table.py contigs_10K.bed mapping/Sample*.sorted.bam > coverage_table.tsv
+concoct --composition_file contigs_10K.fa --coverage_file coverage_table.tsv -b concoct_output/
+mkdir concoct_output/fasta_bins
+extract_fasta_bins.py original_contigs.fa concoct_output/clustering_merged.csv --output_path concoct_output/fasta_bins
 
 
 
