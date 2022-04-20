@@ -6,25 +6,25 @@ echo "##########################################################################
 
 echo "## Checking humann software dependencies"
 
-if ! command -v "diamond" &> /dev/null
-then
-    echo "##**** diamond could not be found ****"
-    echo "## Please install diamond and and put in PATH variable"
-    echo "## export PATH=/path/to/diamond:\$PATH"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
-
-if ! command -v "humann" &> /dev/null
-then
-    echo "##**** humann could not be found ****"
-    echo "## Please install humann and and put in PATH variable"
-    echo "## export PATH=/path/to/humann:\$PATH"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
+# if ! command -v "diamond" &> /dev/null
+# then
+#     echo "##**** diamond could not be found ****"
+#     echo "## Please install diamond and and put in PATH variable"
+#     echo "## export PATH=/path/to/diamond:\$PATH"
+#     echo "##**********************************"
+#     echo "##"
+#     exit 1
+# fi
+#
+# if ! command -v "humann" &> /dev/null
+# then
+#     echo "##**** humann could not be found ****"
+#     echo "## Please install humann and and put in PATH variable"
+#     echo "## export PATH=/path/to/humann:\$PATH"
+#     echo "##**********************************"
+#     echo "##"
+#     exit 1
+# fi
 
 echo "## checking if all humann custom variables are properly defined"
 

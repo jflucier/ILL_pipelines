@@ -6,25 +6,25 @@ echo "##########################################################################
 
 echo "## Checking global software dependencies"
 
-if ! command -v "bowtie2" &> /dev/null
-then
-    echo "##**** bowtie2 could not be found ****"
-    echo "## Please install bowtie2 and and put in PATH variable"
-    echo "## export PATH=/path/to/bowtie2:\$PATH"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
-
-if ! command -v "samtools" &> /dev/null
-then
-    echo "##**** samtools could not be found ****"
-    echo "## Please install samtools and and put in PATH variable"
-    echo "## export PATH=/path/to/samtools:\$PATH"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
+# if ! command -v "bowtie2" &> /dev/null
+# then
+#     echo "##**** bowtie2 could not be found ****"
+#     echo "## Please install bowtie2 and and put in PATH variable"
+#     echo "## export PATH=/path/to/bowtie2:\$PATH"
+#     echo "##**********************************"
+#     echo "##"
+#     exit 1
+# fi
+#
+# if ! command -v "samtools" &> /dev/null
+# then
+#     echo "##**** samtools could not be found ****"
+#     echo "## Please install samtools and and put in PATH variable"
+#     echo "## export PATH=/path/to/samtools:\$PATH"
+#     echo "##**********************************"
+#     echo "##"
+#     exit 1
+# fi
 
 echo "## checking if all humann custom variables are properly defined"
 
