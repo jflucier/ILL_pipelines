@@ -59,7 +59,7 @@ export HUMANN_CUSTOM_INSTALL=/path/to/ILL_pipelines/humann_custom
 cp ${HUMANN_CUSTOM_INSTALL}/my.example.config .
 cp ${HUMANN_CUSTOM_INSTALL}/buglist.sample.test.tsv .
 cp ${HUMANN_CUSTOM_INSTALL}/humann.sample.tsv .
-vi my_analysis.config
+vi my.example.config
 ```
 
 As mentionned in example configuration file, you need to defined the HUMANN_RUN_SAMPLE_TSV and CUSTOM_DB_SAMPLE_TSV variables.

@@ -1,28 +1,48 @@
 ## concoct
+module load singularity/3.7
+cd /project/def-ilafores/common/ILL_pipelines/metawrap_custom
 
-cd /project/def-ilafores/common/
-git clone https://github.com/BinPro/CONCOCT.git
-cd CONCOCT
+## build metawrap
+module load singularity/3.7
+singularity build --force --fakeroot metawrap.1.3.sif metawrap.1.3.def
+#test
+singularity shell --writable-tmpfs -e metawrap.1.3.sif
+
 
 ## manual compilation not working, will use docker image instead
+module load singularity/3.7
+singularity build --force --fakeroot concoct.1.1.0.sif concoct.1.1.0.def
+singularity exec --writable-tmpfs -e \
+-B $SLURM_TMPDIR/${__sample}/assembly:/out \
+concoct.1.1.0.sif \
+concoct -h
 
-singularity build concoct.sif docker://binpro/concoct_latest
-singularity exec -B /home/USER/Data:/opt/Data --pwd concoct.sif concoct -h
 
+## metabat
+module load singularity/3.7
+cd /project/def-ilafores/common/ILL_pipelines/metawrap_custom
 
+# on laptop and transfert to ip29:/project/def-ilafores/common/ILL_pipelines/metawrap_custom
+sudo singularity build --force metabat.2.15.5.sif docker://metabat/metabat:latest
+singularity exec --writable-tmpfs -e \
+metabat.2.15.5.sif \
+runMetaBat.sh
 
-## not working
-module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2
-virtualenv $PWD
-source $PWD/bin/activate
-module load mugqic/bedtools/2.30.0 mugqic/MUMmer/3.23 mugqic/samtools/1.14
-export DISPLAY=:99.0
-pip install -r requirements.txt
-wget https://github.com/BinPro/integration_test_data/archive/v1.0.tar.gz
-mkdir tests/test_data/integration_test_data
-tar -xvzf v1.0.tar.gz -C tests/test_data/integration_test_data --strip-components=1
-pip install gsl[antlr,yaml]
-export CPATH=/project/def-ilafores/common/gsl-2.7/include:$CPATH
-export LD_LIBRARY_PATH=/project/def-ilafores/common/gsl-2.7/lib:$LD_LIBRARY_PATH
-export LIBRARY_PATH=/project/def-ilafores/common/gsl-2.7/lib:$LIBRARY_PATH
-python setup.py install
+-B $SLURM_TMPDIR/${__sample}/assembly:/out \
+docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest runMetaBat.sh test/contigs.fa  test/contigs-1000.fastq.bam
+
+# ## not working
+# module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2
+# virtualenv $PWD
+# source $PWD/bin/activate
+# module load mugqic/bedtools/2.30.0 mugqic/MUMmer/3.23 mugqic/samtools/1.14
+# export DISPLAY=:99.0
+# pip install -r requirements.txt
+# wget https://github.com/BinPro/integration_test_data/archive/v1.0.tar.gz
+# mkdir tests/test_data/integration_test_data
+# tar -xvzf v1.0.tar.gz -C tests/test_data/integration_test_data --strip-components=1
+# pip install gsl[antlr,yaml]
+# export CPATH=/project/def-ilafores/common/gsl-2.7/include:$CPATH
+# export LD_LIBRARY_PATH=/project/def-ilafores/common/gsl-2.7/lib:$LD_LIBRARY_PATH
+# export LIBRARY_PATH=/project/def-ilafores/common/gsl-2.7/lib:$LIBRARY_PATH
+# python setup.py install

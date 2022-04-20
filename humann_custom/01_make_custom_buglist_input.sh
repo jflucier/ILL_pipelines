@@ -141,10 +141,19 @@ python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
 -r $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_bracken_S.kreport \
 -o $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT
 
+# grep "|s" $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT \
+# | egrep -w -v '"'"'1|2|3|4|5'"'"' - \
+# | awk '"'"'{printf("%s\t\n", $0)}'"'"' - \
+# | awk '"'"'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1'"'"' - > $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}-bugs_list.MPA.TXT
+
+top_bugs=`wc -l $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT | awk '"'"'{print $1}'"'"'`
+
 grep "|s" $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT \
-| egrep -w -v '"'"'1|2|3|4|5'"'"' - \
+| sort -k 2 -r -n - \
+| head -n $((top_bugs / 50)) - `#selects top 2 percent bugs` \
 | awk '"'"'{printf("%s\t\n", $0)}'"'"' - \
-| awk '"'"'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1'"'"' - > $SLURM_TMPDIR/${__sample}/${__sample}_bracken/${__sample}-bugs_list.MPA.TXT
+| awk '"'"'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1'"'"' - \
+> $__EXP_DIR/${__EXP_NAME}-bugs_list.MPA.TXT
 
 #rm temp.MPA.TXT
 echo "echo cpopying all results to '$OUPUT_PATH'/${__sample}"
