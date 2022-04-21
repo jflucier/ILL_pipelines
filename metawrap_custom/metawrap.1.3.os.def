@@ -1,0 +1,95 @@
+# build new image using this command: singularity build --force --fakeroot concoct.1.1.0.sif concoct.1.1.0.def
+
+BootStrap: docker
+From: ubuntu:20.04
+
+%setup
+
+%environment
+    # export PATH=/metaWRAP/bin:${PATH}
+    export PATH=/miniconda3/bin:$PATH
+    #conda init bash
+    # . /miniconda3/etc/profile.d/conda.sh
+    # conda activate metawrap-env
+%post
+    apt-get update && apt-get -y upgrade
+
+    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+
+    apt-get -y install \
+    build-essential \
+    wget \
+    bzip2 \
+    ca-certificates \
+    libglib2.0-0 \
+    libxext6 \
+    libsm6 \
+    libxrender1 \
+    git \
+    tzdata
+
+    rm -rf /var/lib/apt/lists/*
+    apt-get clean
+
+    #Installing Anaconda 3 https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+    cd /
+    wget -c https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+    /bin/bash Miniconda3-py39_4.11.0-Linux-x86_64.sh -bfp /miniconda3
+    export PATH=/miniconda3/bin:$PATH
+
+    # conda init bash
+    # . /miniconda3/etc/profile.d/conda.sh
+    # conda create -y --name metawrap-env python=2.7
+    # conda activate metawrap-env
+
+    # echo '. "/miniconda3/etc/profile.d/conda.sh"' >> $SINGULARITY_ENVIRONMENT
+    # echo "conda activate metawrap-env" >> $SINGULARITY_ENVIRONMENT
+
+    #Conda configuration of channels from .condarc file
+    # conda config --file /miniconda3/.condarc --add channels defaults
+    # conda config --file /miniconda3/.condarc --add channels conda-forge
+    # conda config --file /miniconda3/.condarc --add channels bioconda
+    # conda config --file /miniconda3/.condarc --add channels ursky
+    # conda update conda
+    # conda init bash
+    # . /miniconda3/etc/profile.d/conda.sh
+    #
+    # conda install -y mamba -n base
+    #
+    # mamba create -y --name metawrap-env python=2.7
+    # conda activate metawrap-env
+
+    # mamba install -y blas=2.5 mkl
+    # mamba install -y biopython
+    # mamba install -y blas=2.5
+    # mamba install -y blast=2.6.0
+    # mamba install -y bmtagger
+    # mamba install -y bowtie2
+    # mamba install -y bwa
+    # mamba install -y checkm-genome
+    # mamba install -y fastqc
+    # mamba install -y kraken=1.1
+    # mamba install -y kraken2
+    # mamba install -y krona=2.7
+    # mamba install -y matplotlib
+    # mamba install -y maxbin2
+    # mamba install -y megahit
+    # mamba install -y metabat2
+    # mamba install -y pandas
+    # mamba install -y prokka
+    # mamba install -y quast
+    # mamba install -y libnghttp2
+    # mamba install -y openssl
+    # mamba install -y krb5
+    # mamba install -y r-ggplot2
+    # mamba install -y r-recommended
+    # mamba install -y salmon
+    # mamba install -y samtools=1.9
+    # mamba install -y seaborn
+    # mamba install -y spades
+    # mamba install -y trim-galore
+    # mamba install -y metawrap-mg=1.3.2
+
+# %runscript
+#     . "/miniconda3/etc/profile.d/conda.sh"
+#     conda activate metawrap-env

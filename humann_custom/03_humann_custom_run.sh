@@ -92,10 +92,10 @@ do
 		echo "...normalizing abundances as relative abundance"
 	fi
 
-	humann_renorm_table \
-    --input $SLURM_TMPDIR/${__sample}/*_genefamilies.tsv \
-	--output $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies-${norm_method}.tsv \
-    --units ${norm_method} --update-snames
+	# humann_renorm_table \
+    # --input $SLURM_TMPDIR/${__sample}/*_genefamilies.tsv \
+	# --output $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies-${norm_method}.tsv \
+    # --units ${norm_method} --update-snames
 
 	for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
     do
