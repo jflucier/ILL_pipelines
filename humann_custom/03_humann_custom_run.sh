@@ -84,47 +84,34 @@ humann \
 
 rm -f $SLURM_TMPDIR/${__sample}/*cpm*
 rm -f $SLURM_TMPDIR/${__sample}/*relab*
-for norm_method in cpm relab;
+
+for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
 do
-	if [[ $norm_method == "cpm" ]]; then
-		echo "...normalizing abundances as copies per millions"
+	if [[ $uniref_db == *"rxn"* ]]; then
+		__NAMES=metacyc-rxn
+        __MAP=mc-rxn
+	elif [[ $uniref_db == *"ko"* ]]; then
+		__NAMES=kegg-orthology
+        __MAP=kegg
+	elif [[ $uniref_db == *"level4ec"* ]]; then
+		__NAMES=ec
+        __MAP=level4ec
 	else
-		echo "...normalizing abundances as relative abundance"
+		__NAMES=${uniref_db/uniref90_/}
+        __MAP=$__NAMES
 	fi
 
-	# humann_renorm_table \
-    # --input $SLURM_TMPDIR/${__sample}/*_genefamilies.tsv \
-	# --output $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies-${norm_method}.tsv \
-    # --units ${norm_method} --update-snames
+	echo "...regrouping genes to $__NAMES reactions"
+	humann_regroup_table \
+    --input $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies.tsv \
+	--output $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
+    --groups ${uniref_db}
 
-	for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
-    do
-		if [[ $uniref_db == *"rxn"* ]]; then
-			__NAMES=metacyc-rxn
-            __MAP=mc-rxn
-		elif [[ $uniref_db == *"ko"* ]]; then
-			__NAMES=kegg-orthology
-            __MAP=kegg
-		elif [[ $uniref_db == *"level4ec"* ]]; then
-			__NAMES=ec
-            __MAP=level4ec
-		else
-			__NAMES=${uniref_db/uniref90_/}
-            __MAP=$__NAMES
-		fi
-
-		echo "...regrouping genes to $__NAMES reactions"
-		humann_regroup_table \
-        --input $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies-${norm_method}.tsv \
-		--output $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies-${norm_method}_${__MAP}.tsv \
-        --groups ${uniref_db}
-
-		echo  "...attaching names to $__MAP codes" ## For convenience
-		humann_rename_table \
-        --input $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies-${norm_method}_${__MAP}.tsv \
-		--output $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies-${norm_method}_${__MAP}_named.tsv \
-        --names $__NAMES
-	done
+	echo  "...attaching names to $__MAP codes" ## For convenience
+	humann_rename_table \
+    --input $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
+	--output $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies_${__MAP}_named.tsv \
+    --names $__NAMES
 done
 
 echo "...creating community-level profiles"
