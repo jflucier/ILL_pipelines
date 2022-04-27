@@ -8,7 +8,11 @@ singularity build --force --fakeroot metawrap.1.3.sif metawrap.1.3.def
 #test
 singularity shell --writable-tmpfs -e metawrap.1.3.sif
 
+singularity exec --writable-tmpfs -e metawrap.1.3.sif metaWRAP -h
 
+
+
+#### other soft tests
 ## manual compilation not working, will use docker image instead
 module load singularity/3.7
 singularity build --force --fakeroot concoct.1.1.0.sif concoct.1.1.0.def
