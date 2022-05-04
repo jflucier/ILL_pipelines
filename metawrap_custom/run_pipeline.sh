@@ -142,12 +142,17 @@ cp $SLURM_TMPDIR/${__sample}/${__sample}_paired_2.sort.fastq $SLURM_TMPDIR/${__s
 mkdir $SLURM_TMPDIR/${__sample}/binning/
 export BINNING_MEM=$(echo $SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
--B $SLURM_TMPDIR/${__sample}:/out $METAWRAP_PATH/metawrap.1.3.sif \
+-B $SLURM_TMPDIR/${__sample}:/out \
+-B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
+$METAWRAP_PATH/metawrap.1.3.sif \
 metaWRAP binning --metabat2 --maxbin2 --concoct --run-checkm \
 -m $BINNING_MEM -t $SLURM_NBR_THREADS \
 -a /out/assembly/final_assembly.fasta \
 -o /out/binning/ \
 /out/${__sample}_paired_sorted_1.fastq /out/${__sample}_paired_sorted_2.fastq
+
+
+
 
 echo "binning refinement with metawrap"
 singularity exec --writable-tmpfs -e \

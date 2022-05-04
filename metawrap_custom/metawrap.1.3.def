@@ -8,7 +8,7 @@ From: ubuntu:20.04
 %environment
     export PATH=/miniconda3/bin:$PATH
     export PATH=/miniconda3/envs/metawrap-env/bin/:$PATH
-
+    export CHECKM_DATA_PATH=/checkm
 %post
     apt-get update && apt-get -y upgrade
 
@@ -84,6 +84,8 @@ From: ubuntu:20.04
     dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
     mamba install -y samtools=1.15
 
+    mamba install -y concoct
+
 
     cd /
     git clone https://github.com/bxlab/metaWRAP.git
@@ -93,3 +95,6 @@ From: ubuntu:20.04
     cp /metaWRAP/bin/config-metawrap $PREFIX/bin/
     cp -r /metaWRAP/bin/metawrap-modules $PREFIX/bin/
     cp -r /metaWRAP/bin/metawrap-scripts $PREFIX/bin/
+
+    #checkm data setRoot /checkm
+    sed -i 's/\/srv\/db\/checkm_data\/1.0.0/\/checkm/g' /miniconda3/envs/metawrap-env/lib/python2.7/site-packages/checkm/DATA_CONFIG
