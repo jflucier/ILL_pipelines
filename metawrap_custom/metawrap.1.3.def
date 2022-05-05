@@ -84,7 +84,7 @@ From: ubuntu:20.04
     dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
     mamba install -y samtools=1.15
 
-    mamba install -y concoct
+    #mamba install -y concoct
 
 
     cd /

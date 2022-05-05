@@ -49,7 +49,7 @@ then
 fi
 
 if [[ -z "${HUMANN_RUN_SAMPLE_TSV}" ]]; then
-    echo "## FATAL: SAMPLE_TSV variable must be defined. To set, edit config file: export HUMANN_RUN_SAMPLE_TSV=/path/to/sample.tsv"
+    echo "## FATAL: HUMANN_RUN_SAMPLE_TSV variable must be defined. To set, edit config file: export HUMANN_RUN_SAMPLE_TSV=/path/to/sample.tsv"
     exit 1
 elif [ ! -f "$HUMANN_RUN_SAMPLE_TSV" ]; then
     echo "## FATAL: $HUMANN_RUN_SAMPLE_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export HUMANN_RUN_SAMPLE_TSV=/path/to/sample.tsv"
