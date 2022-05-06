@@ -15,13 +15,15 @@ source $1
 ${EXE_PATH}/00_check_global_environment.sh
 ${EXE_PATH}/00_check_humann_custom_environment.sh
 
+mkdir -p ${OUPUT_PATH}/slurm_logs/
+
 echo "outputting humann custom slurm script to ${OUPUT_PATH}/custom_human.slurm.sh"
 
 echo '#!/bin/bash' > ${OUPUT_PATH}/custom_human.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/custom_humann-%A_%a.slurm.out
+#SBATCH -o '${OUPUT_PATH}'/slurm_logs/custom_humann-%A_%a.slurm.out
 #SBATCH --time='${SLURM_WALLTIME}'
 #SBATCH --mem='${SLURM_MEMORY}'
 #SBATCH -N 1
