@@ -62,9 +62,9 @@ cp ${HUMANN_CUSTOM_INSTALL}/humann.sample.tsv .
 vi my.example.config
 ```
 
-As mentionned in example configuration file, you need to defined the HUMANN_RUN_SAMPLE_TSV and CUSTOM_DB_SAMPLE_TSV variables.
+As mentionned in example configuration file, you need to defined the PREPROC_SAMPLES_LIST_TSV and RAW_SAMPLES_LIST_TSV variables.
 
-CUSTOM_DB_SAMPLE_TSV is a tab seperated files with 3 columns similar to this table:
+RAW_SAMPLES_LIST_TSV is a tab seperated files with 3 columns similar to this table:
 
 | sample1 	| /path/to/sample1.R1.fastq 	| /path/to/sample1.R2.fastq 	|
 | sample2 	| /path/to/sample2.R1.fastq 	| /path/to/sample2.R2.fastq 	|
@@ -72,7 +72,7 @@ CUSTOM_DB_SAMPLE_TSV is a tab seperated files with 3 columns similar to this tab
 
 **TSV files must not have header line.**
 
-HUMANN_RUN_SAMPLE_TSV is a tab seperated files with 2 columns similar to this table:
+PREPROC_SAMPLES_LIST_TSV is a tab seperated files with 2 columns similar to this table:
 
 | sample1 	| /path/to/sample1.fastq 	|
 | sample2 	| /path/to/sample2.fastq 	|

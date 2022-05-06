@@ -38,7 +38,7 @@ module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugq
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-export __sample_line=$(cat '${HUMANN_RUN_SAMPLE_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
+export __sample_line=$(cat '${PREPROC_SAMPLES_LIST_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f1)
 export __fastq=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f2)
 export __fastq_file=$(basename $__fastq)
@@ -131,5 +131,5 @@ echo "done"
 ' >> ${OUPUT_PATH}/custom_human.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-read sample_nbr f <<< $(wc -l ${HUMANN_RUN_SAMPLE_TSV})
+read sample_nbr f <<< $(wc -l ${PREPROC_SAMPLES_LIST_TSV})
 echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/custom_human.slurm.sh"

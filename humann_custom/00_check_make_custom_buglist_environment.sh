@@ -6,14 +6,14 @@ echo "##########################################################################
 
 echo "## checking if all humann custom variables are properly defined"
 
-if [[ -z "${CUSTOM_DB_SAMPLE_TSV}" ]]; then
-    echo "## FATAL: SAMPLE_TSV variable must be defined. To set, edit config file: export CUSTOM_DB_SAMPLE_TSV=/path/to/sample.tsv"
+if [[ -z "${RAW_SAMPLES_LIST_TSV}" ]]; then
+    echo "## FATAL: SAMPLE_TSV variable must be defined. To set, edit config file: export RAW_SAMPLES_LIST_TSV=/path/to/sample.tsv"
     exit 1
-elif [ ! -f "$CUSTOM_DB_SAMPLE_TSV" ]; then
-    echo "## FATAL: $CUSTOM_DB_SAMPLE_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export CUSTOM_DB_SAMPLE_TSV=/path/to/sample.tsv"
+elif [ ! -f "$RAW_SAMPLES_LIST_TSV" ]; then
+    echo "## FATAL: $RAW_SAMPLES_LIST_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export RAW_SAMPLES_LIST_TSV=/path/to/sample.tsv"
     exit 1
 fi
-echo "## SAMPLE_TSV datapath: $CUSTOM_DB_SAMPLE_TSV"
+echo "## SAMPLE_TSV datapath: $RAW_SAMPLES_LIST_TSV"
 
 if [ ! -f "${KNEADDATA_DB}.1.bt2" ]
 then

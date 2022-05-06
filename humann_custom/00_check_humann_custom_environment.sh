@@ -48,14 +48,14 @@ then
     exit 1
 fi
 
-if [[ -z "${HUMANN_RUN_SAMPLE_TSV}" ]]; then
-    echo "## FATAL: HUMANN_RUN_SAMPLE_TSV variable must be defined. To set, edit config file: export HUMANN_RUN_SAMPLE_TSV=/path/to/sample.tsv"
+if [[ -z "${PREPROC_SAMPLES_LIST_TSV}" ]]; then
+    echo "## FATAL: PREPROC_SAMPLES_LIST_TSV variable must be defined. To set, edit config file: export PREPROC_SAMPLES_LIST_TSV=/path/to/sample.tsv"
     exit 1
-elif [ ! -f "$HUMANN_RUN_SAMPLE_TSV" ]; then
-    echo "## FATAL: $HUMANN_RUN_SAMPLE_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export HUMANN_RUN_SAMPLE_TSV=/path/to/sample.tsv"
+elif [ ! -f "$PREPROC_SAMPLES_LIST_TSV" ]; then
+    echo "## FATAL: $PREPROC_SAMPLES_LIST_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export PREPROC_SAMPLES_LIST_TSV=/path/to/sample.tsv"
     exit 1
 fi
-echo "## SAMPLE_TSV datapath: $HUMANN_RUN_SAMPLE_TSV"
+echo "## SAMPLE_TSV datapath: $PREPROC_SAMPLES_LIST_TSV"
 
 
 echo "################################################################################################################"

@@ -15,6 +15,7 @@ From: metawrap.1.3.sif
     conda activate metawrap-env
 
     apt-get update && apt-get -y upgrade
+    export DEBIAN_FRONTEND=noninteractive
     apt-get -yq install libmkl-rt
 
     # conda update mkl concoct

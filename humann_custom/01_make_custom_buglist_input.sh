@@ -34,7 +34,7 @@ echo "loading env"
 export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
 module use $MUGQIC_INSTALL_HOME/modulefiles
 
-export __sample_line=$(cat '${CUSTOM_DB_SAMPLE_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
+export __sample_line=$(cat '${RAW_SAMPLES_LIST_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f1)
 export __fastq1=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f2)
 export __fastq2=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f3)
@@ -162,5 +162,5 @@ cp -r $SLURM_TMPDIR/${__sample} '$OUPUT_PATH'
 ' >> ${OUPUT_PATH}/make_custom_buglist.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-read sample_nbr f <<< $(wc -l ${CUSTOM_DB_SAMPLE_TSV})
+read sample_nbr f <<< $(wc -l ${RAW_SAMPLES_LIST_TSV})
 echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/make_custom_buglist.slurm.sh"
