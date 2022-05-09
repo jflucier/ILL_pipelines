@@ -119,8 +119,8 @@ done
 echo "...creating community-level profiles"
 rm -fr $SLURM_TMPDIR/${__sample}/${__sample}_community_tables/*
 mkdir -p $SLURM_TMPDIR/${__sample}/${__sample}_community_tables
-humann_split_stratified_table
---input $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies.tsv
+humann_split_stratified_table \
+--input $SLURM_TMPDIR/${__sample}/${__sample}_genefamilies.tsv \
 --output $SLURM_TMPDIR/${__sample}/${__sample}_community_tables/
 
 

@@ -82,7 +82,7 @@ From: ubuntu:20.04
     cd /
     #wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
     wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
-    dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
+    dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
     mamba install -y samtools=1.15
 
     mamba install -y concoct

@@ -65,7 +65,11 @@ echo "metawrap assembly step using metaspades and megahit"
 mkdir -p $SLURM_TMPDIR/${__sample}/assembly
 export SPADES_MEM=$(echo $SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
--B $SLURM_TMPDIR/${__sample}:/out $METAWRAP_PATH/metawrap.1.3.sif \
+-B $SLURM_TMPDIR/${__sample}:/out \
+-B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
+$METAWRAP_PATH/metawrap.1.3.sif \
 metaWRAP assembly --metaspades --megahit \
 -m $SPADES_MEM -t $SLURM_NBR_THREADS \
 -1 /out/${__sample}_paired_sorted_1.fastq \
@@ -83,6 +87,8 @@ export BINNING_MEM=$(echo $SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR/${__sample}:/out \
 -B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 $METAWRAP_PATH/metawrap.1.3.sif \
 metaWRAP binning --metabat2 --maxbin2 --concoct --run-checkm \
 -m $BINNING_MEM -t $SLURM_NBR_THREADS \
@@ -96,6 +102,8 @@ mkdir $SLURM_TMPDIR/${__sample}/bin_refinement/
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR/${__sample}:/out \
 -B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 $METAWRAP_PATH/metawrap.1.3.sif \
 metawrap bin_refinement -t $SLURM_NBR_THREADS -c $BIN_REFINEMENT_MIN_COMPLETION -x $BIN_REFINEMENT_MAX_CONTAMINATION \
 -o /out/bin_refinement/ \
@@ -108,6 +116,8 @@ mkdir $SLURM_TMPDIR/${__sample}/bin_reassembly/
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR/${__sample}:/out \
 -B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 $METAWRAP_PATH/metawrap.1.3.sif \
 metawrap reassemble_bins -t $SLURM_NBR_THREADS -m 800 -c 50 -x 10 \
 -o /out/bin_reassembly/ \
@@ -120,6 +130,8 @@ mkdir $SLURM_TMPDIR/${__sample}/bin_classification/
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR/${__sample}:/out \
 -B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 $METAWRAP_PATH/metawrap.1.3.sif \
 metawrap classify_bins -b /out/bin_reassembly/reassembled_bins -o /out/bin_classification -t $SLURM_NBR_THREADS
 
@@ -128,6 +140,8 @@ mkdir $SLURM_TMPDIR/${__sample}/bin_annotation/
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR/${__sample}:/out \
 -B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 $METAWRAP_PATH/metawrap.1.3.sif \
 metaWRAP annotate_bins -o /out/bin_annotation/ -t $SLURM_NBR_THREADS -b /out/bin_reassembly/reassembled_bins/
 
