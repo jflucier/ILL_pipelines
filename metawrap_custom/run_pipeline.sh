@@ -3,12 +3,7 @@
 set -e
 
 newgrp def-ilafores
-module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 singularity/3.7 mugqic/BBMap/38.90
-# module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/trimmomatic/0.39 mugqic/samtools/1.14 mugqic/TRF/4.09 mugqic/fastqc/0.11.5
-# export PATH=/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39:$PATH
-# export PATH=/project/def-ilafores/common/SPAdes-3.15.4-Linux/bin:$PATH
 
-#export METAWRAP_PATH=/project/def-ilafores/common/ILL_pipelines/metawrap_custom
 export METAWRAP_PATH=$(dirname "$0")
 echo "loading environment"
 module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 singularity/3.7 mugqic/BBMap/38.90

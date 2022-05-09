@@ -80,7 +80,8 @@ From: ubuntu:20.04
     mamba install -y trim-galore
 
     cd /
-    wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
+    #wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
+    wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
     dpkg -i libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
     mamba install -y samtools=1.15
 
@@ -95,8 +96,11 @@ From: ubuntu:20.04
     cp -r /metaWRAP/bin/metawrap-modules $PREFIX/bin/
     cp -r /metaWRAP/bin/metawrap-scripts $PREFIX/bin/
 
-    #checkm data setRoot /checkm
+    #checkm set db path
     sed -i 's/\/srv\/db\/checkm_data\/1.0.0/\/checkm/g' /miniconda3/envs/metawrap-env/lib/python2.7/site-packages/checkm/DATA_CONFIG
+    #nt_db and nt_tax set db path
+    sed -i 's/BLASTDB\=\/scratch\/gu\/NCBI_nt/BLASTDB\=\/NCBI_nt/g' /miniconda3/envs/metawrap-env/bin/config-metawrap
+    sed -i 's/TAXDUMP\=\/scratch\/gu\/NCBI_tax/TAXDUMP\=\/NCBI_tax/g' /miniconda3/envs/metawrap-env/bin/config-metawrap
 
     # needed for concoct
     apt-get update && apt-get -y upgrade
