@@ -12,21 +12,24 @@ if [ -z ${1+x} ]; then
 fi
 
 source $1
-${EXE_PATH}/00_check_global_environment.sh
-${EXE_PATH}/00_check_make_custom_buglist_environment.sh
 
-echo "outputting make custom buglist db slurm script to ${OUPUT_PATH}/make_humann_buglist_db.slurm.sh"
+${EXE_PATH}/global.checkenv.sh
+${EXE_PATH}/taxonomic_profile.sample.checkenv.sh
+
+mkdir -p ${OUPUT_PATH}/taxonomic_profile_all
+
+echo "outputting all sample taxonomic profile slurm script to ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh"
 __all_taxas=$(echo "${TAXONOMIC_LEVEL[@]}")
 
-echo '#!/bin/bash' > ${OUPUT_PATH}/make_humann_buglist_db.slurm.sh
+echo '#!/bin/bash' > ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
 #SBATCH -o '${OUPUT_PATH}'/make_humann_buglist_db-%A.slurm.out
-#SBATCH --time='${SLURM_WALLTIME}'
-#SBATCH --mem='${SLURM_MEMORY}'
+#SBATCH --time='${TAXONOMIC_ALL_SLURM_WALLTIME}'
+#SBATCH --mem='${TAXONOMIC_ALL_SLURM_MEMORY}'
 #SBATCH -N 1
-#SBATCH -n '${SLURM_NBR_THREADS}'
+#SBATCH -n '${TAXONOMIC_ALL_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
 #SBATCH -J humann_db
 
@@ -45,18 +48,18 @@ echo "combine all samples kreports in one"
 export __KREPORTS=$(ls '$OUPUT_PATH'/*/*_bracken/*_bracken_S.kreport)
 /project/def-ilafores/common/KrakenTools/combine_kreports.py \
 -r $__KREPORTS \
--o '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'_S.kreport \
+-o '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'_S.kreport \
 --only-combined --no-headers
 
 echo "convert kreport to mpa"
 python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
--r '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'_S.kreport \
--o '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'_temp_S.MPA.TXT
+-r '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'_S.kreport \
+-o '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'_temp_S.MPA.TXT
 
 echo "modify mpa for humann support"
-grep "|s" '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'_temp_S.MPA.TXT \
+grep "|s" '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'_temp_S.MPA.TXT \
 | awk '"'"'{printf("%s\t\n", $0)}'"'"' - \
-| awk '"'"'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1'"'"' - > '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT
+| awk '"'"'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1'"'"' - > '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'-bugs_list.MPA.TXT
 
 for taxa_str in '$__all_taxas'
 do
@@ -95,19 +98,19 @@ export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PA
 ### gen python chocphlan cusotm db
 cd '$OUPUT_PATH'
 echo "runnin create prescreen db. This step might take long"
-python -u '${EXE_PATH}'/create_prescreen_db.py '$CHOCOPHLAN_DB' '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT
+python -u '${EXE_PATH}'/create_prescreen_db.py '$TAXONOMIC_ALL_CHOCOPHLAN_DB' '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'-bugs_list.MPA.TXT
 ### gen bowtie index on db
-mv _custom_chocophlan_database.ffn '$CUSTOM_CHOCOPHLAN_DB_NAME'.ffn
-bowtie2-build --threads '${SLURM_NBR_THREADS}' '$CUSTOM_CHOCOPHLAN_DB_NAME'.ffn  '$CUSTOM_CHOCOPHLAN_DB_NAME'
+mv _custom_chocophlan_database.ffn '$TAXONOMIC_ALL_NT_DBNAME'.ffn
+bowtie2-build --threads '${TAXONOMIC_ALL_SLURM_NBR_THREADS}' '$TAXONOMIC_ALL_NT_DBNAME'.ffn  '$TAXONOMIC_ALL_NT_DBNAME'
 
-echo "Please move '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME' bowtie index to the location of your custom chocophlan db."
-echo "i.e. mv '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'* /nfs3_ib/ip29-ib/ssdpool/private/jflucier/humann_dbs/"
-echo "Also move '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT to the location of your custom chocophlan db for reference."
-echo "i.e. mv '$OUPUT_PATH'/'$CUSTOM_CHOCOPHLAN_DB_NAME'-bugs_list.MPA.TXT /nfs3_ib/ip29-ib/ssdpool/private/jflucier/humann_dbs/"
+echo "Please move '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME' bowtie index to the location of your custom chocophlan db."
+echo "i.e. mv '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'* /nfs3_ib/ip29-ib/ssdpool/private/jflucier/humann_dbs/"
+echo "Also move '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'-bugs_list.MPA.TXT to the location of your custom chocophlan db for reference."
+echo "i.e. mv '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'-bugs_list.MPA.TXT /nfs3_ib/ip29-ib/ssdpool/private/jflucier/humann_dbs/"
 
 echo "humann custom buglist db analysis completed"
 
-' >> ${OUPUT_PATH}/make_humann_buglist_db.slurm.sh
+' >> ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
 echo "sbatch ${OUPUT_PATH}/make_humann_buglist_db.slurm.sh"

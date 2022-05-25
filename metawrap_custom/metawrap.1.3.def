@@ -9,6 +9,8 @@ From: ubuntu:20.04
     export PATH=/miniconda3/bin:$PATH
     export PATH=/miniconda3/envs/metawrap-env/bin/:$PATH
     export CHECKM_DATA_PATH=/checkm
+    export PATH=/taxator-tk-1.5.0/core/bin:$PATH
+    export GTDBTK_DATA_PATH=/GTDB
 %post
     apt-get update && apt-get -y upgrade
 
@@ -106,3 +108,9 @@ From: ubuntu:20.04
     apt-get update && apt-get -y upgrade
     export DEBIAN_FRONTEND=noninteractive
     apt-get -yq install libmkl-rt
+
+    conda deactivate
+
+    mamba create -y --name gtdbtk-env python=3
+    conda activate gtdbtk-env
+    conda install -y gtdbtk=2.1.0
