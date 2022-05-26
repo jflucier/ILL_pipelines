@@ -15,21 +15,21 @@ source $1
 ${EXE_PATH}/00_check_global_environment.sh
 ${EXE_PATH}/00_check_humann_custom_environment.sh
 
-mkdir -p ${OUPUT_PATH}/slurm_logs/
+mkdir -p ${OUPUT_PATH}/functionnal_profile
 
-echo "outputting humann custom slurm script to ${OUPUT_PATH}/custom_human.slurm.sh"
+echo "outputting humann custom slurm script to ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh"
 
-echo '#!/bin/bash' > ${OUPUT_PATH}/custom_human.slurm.sh
+echo '#!/bin/bash' > ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/slurm_logs/custom_humann-%A_%a.slurm.out
-#SBATCH --time='${SLURM_WALLTIME}'
-#SBATCH --mem='${SLURM_MEMORY}'
+#SBATCH -o '${OUPUT_PATH}'/functionnal_profile/functionnal_profile-%A_%a.slurm.out
+#SBATCH --time='${FUNCPROFILING_SLURM_WALLTIME}'
+#SBATCH --mem='${FUNCPROFILING_SLURM_MEMORY}'
 #SBATCH -N 1
-#SBATCH -n '${SLURM_NBR_THREADS}'
+#SBATCH -n '${FUNCPROFILING_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
-#SBATCH -J humann
+#SBATCH -J functionnal_profile
 
 newgrp def-ilafores
 echo "loading env"
@@ -40,53 +40,42 @@ module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugq
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-export __sample_line=$(cat '${PREPROC_SAMPLES_LIST_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
+export __sample_line=$(cat '${FUNCPROFILING_SAMPLES_LIST_TSV}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f1)
 export __fastq=$(echo -e "$__sample_line" | cut -d$'"'"'\t'"'"' -f2)
 export __fastq_file=$(basename $__fastq)
 
 echo "copying fastq $__fastq"
 cp $__fastq $SLURM_TMPDIR/${__fastq_file}
-' >> ${OUPUT_PATH}/custom_human.slurm.sh
 
-if [[ "$SLURM_DB_COPY_LOCALSCRATCH" -eq "0" ]]
-then
-echo '
-export __NT_DB='${NT_DB}'
-export __PROT_DB='${PROT_DB}'
-' >> ${OUPUT_PATH}/custom_human.slurm.sh
-else
-echo '
 mkdir $SLURM_TMPDIR/db
-echo "copying nucleotide bowtie index '${NT_DB}'"
-export __NT_DB_BT2=$(basename '${NT_DB}')
-cp '${NT_DB}'*.bt2l $SLURM_TMPDIR/db/
+echo "copying nucleotide bowtie index '${FUNCPROFILING_NT_DB}'"
+export __FUNCPROFILING_NT_DB_BT2=$(basename '${FUNCPROFILING_NT_DB}')
+cp '${FUNCPROFILING_NT_DB}'*.bt2l $SLURM_TMPDIR/db/
 
-echo "copying protein diamond index '${PROT_DB}'"
-export __PROT_DIA_IDX=$(basename '${PROT_DB}')
-cp -r '${PROT_DB}' $SLURM_TMPDIR/db
+echo "copying protein diamond index '${FUNCPROFILING_PROT_DB}'"
+export __PROT_DIA_IDX=$(basename '${FUNCPROFILING_PROT_DB}')
+cp -r '${FUNCPROFILING_PROT_DB}' $SLURM_TMPDIR/db
 
-export __NT_DB=$SLURM_TMPDIR/db/${__NT_DB_BT2}
-export __PROT_DB=$SLURM_TMPDIR/db/${__PROT_DIA_IDX}
-' >> ${OUPUT_PATH}/custom_human.slurm.sh
-fi
+export __FUNCPROFILING_NT_DB=$SLURM_TMPDIR/db/${__FUNCPROFILING_NT_DB_BT2}
+export __FUNCPROFILING_PROT_DB=$SLURM_TMPDIR/db/${__PROT_DIA_IDX}
 
-echo '
 echo "running humann"
 mkdir -p $SLURM_TMPDIR/${__sample}
 echo "outputting to $SLURM_TMPDIR/${__sample}"
 humann \
--v --threads '${SLURM_NBR_THREADS}' \
---o-log '${OUPUT_PATH}'/custom_humann-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.humann.out \
+-v --threads '${FUNCPROFILING_SLURM_NBR_THREADS}' \
+--o-log '${OUPUT_PATH}'/functionnal_profile/humann-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.log \
 --input $SLURM_TMPDIR/${__fastq_file} \
 --output $SLURM_TMPDIR/${__sample} --output-basename ${__sample} \
---nucleotide-database $__NT_DB \
---protein-database $__PROT_DB \
+--nucleotide-database $__FUNCPROFILING_NT_DB \
+--protein-database $__FUNCPROFILING_PROT_DB \
 --bypass-prescreen --bypass-nucleotide-index
 
 rm -f $SLURM_TMPDIR/${__sample}/*cpm*
 rm -f $SLURM_TMPDIR/${__sample}/*relab*
 
+echo "running humann rename and regroup table on uniref dbs"
 for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
 do
 	if [[ $uniref_db == *"rxn"* ]]; then
@@ -124,12 +113,12 @@ humann_split_stratified_table \
 --output $SLURM_TMPDIR/${__sample}/${__sample}_community_tables/
 
 
-echo "copying results to '${OUPUT_PATH}'/${__sample}"
-cp -r $SLURM_TMPDIR/${__sample} '${OUPUT_PATH}'
+echo "copying results to '${OUPUT_PATH}'/functionnal_profile/${__sample}"
+cp -r $SLURM_TMPDIR/${__sample} '${OUPUT_PATH}'/functionnal_profile/
 
 echo "done"
-' >> ${OUPUT_PATH}/custom_human.slurm.sh
+' >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-read sample_nbr f <<< $(wc -l ${PREPROC_SAMPLES_LIST_TSV})
-echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/custom_human.slurm.sh"
+read sample_nbr f <<< $(wc -l ${FUNCPROFILING_SAMPLES_LIST_TSV})
+echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh"

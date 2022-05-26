@@ -24,13 +24,13 @@ echo '#!/bin/bash' > ${OUPUT_PATH}/taxonomic_profile/taxonomic_profile.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/make_custom_buglist-%A_%a.slurm.out
+#SBATCH -o '${OUPUT_PATH}'/taxonomic_profile/taxonomic_profile-%A_%a.slurm.out
 #SBATCH --time='${TAXONOMIC_SAMPLE_SLURM_WALLTIME}'
 #SBATCH --mem='${TAXONOMIC_SAMPLE_SLURM_MEMORY}'
 #SBATCH -N 1
 #SBATCH -n '${TAXONOMIC_SAMPLE_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
-#SBATCH -J buglist
+#SBATCH -J taxonomic_profile
 
 newgrp def-ilafores
 echo "loading env"

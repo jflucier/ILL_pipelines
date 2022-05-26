@@ -25,13 +25,13 @@ echo '#!/bin/bash' > ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsa
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/make_humann_buglist_db-%A.slurm.out
+#SBATCH -o '${OUPUT_PATH}'/taxonomic_profile_all/taxonomic_profile_all-%A.slurm.out
 #SBATCH --time='${TAXONOMIC_ALL_SLURM_WALLTIME}'
 #SBATCH --mem='${TAXONOMIC_ALL_SLURM_MEMORY}'
 #SBATCH -N 1
 #SBATCH -n '${TAXONOMIC_ALL_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
-#SBATCH -J humann_db
+#SBATCH -J all_taxonomic_profile
 
 newgrp def-ilafores
 echo "loading env"
@@ -45,7 +45,7 @@ export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
 
 echo "BUGS-LIST CREATION (FOR HUMANN DB CREATION)"
 echo "combine all samples kreports in one"
-export __KREPORTS=$(ls '$OUPUT_PATH'/*/*_bracken/*_bracken_S.kreport)
+export __KREPORTS=$(ls '$TAXONOMIC_ALL_BRACKEN_KREPORTS')
 /project/def-ilafores/common/KrakenTools/combine_kreports.py \
 -r $__KREPORTS \
 -o '$OUPUT_PATH'/'$TAXONOMIC_ALL_NT_DBNAME'_S.kreport \
