@@ -1,4 +1,5 @@
-# build new image using this command: singularity build --force --fakeroot concoct.1.1.0.sif concoct.1.1.0.def
+# build new image using this command:
+# singularity build --force --fakeroot metawrap.1.3.sif metawrap.1.3.def
 
 BootStrap: docker
 From: ubuntu:20.04
@@ -9,8 +10,9 @@ From: ubuntu:20.04
     export PATH=/miniconda3/bin:$PATH
     export PATH=/miniconda3/envs/metawrap-env/bin/:$PATH
     export CHECKM_DATA_PATH=/checkm
-    export PATH=/taxator-tk-1.5.0/core/bin:$PATH
+    export PATH=/miniconda3/envs/gtdbtk-env/bin/:$PATH
     export GTDBTK_DATA_PATH=/GTDB
+    export PATH=/miniconda3/envs/roary-env/bin/:$PATH
 %post
     apt-get update && apt-get -y upgrade
 
@@ -27,7 +29,8 @@ From: ubuntu:20.04
     libxrender1 \
     git \
     tzdata \
-    openjdk-17-jre
+    openjdk-17-jre \
+    roary
 
     rm -rf /var/lib/apt/lists/*
     apt-get clean
@@ -42,7 +45,7 @@ From: ubuntu:20.04
     conda config --file /miniconda3/.condarc --add channels conda-forge
     conda config --file /miniconda3/.condarc --add channels bioconda
     conda config --file /miniconda3/.condarc --add channels ursky
-    conda update conda
+    # conda update conda
     conda init bash
     . /miniconda3/etc/profile.d/conda.sh
 
@@ -51,43 +54,72 @@ From: ubuntu:20.04
     mamba create -y --name metawrap-env python=2.7
     conda activate metawrap-env
 
-    mamba install -y blas=2.5 mkl
-    mamba install -y biopython
-    mamba install -y blas=2.5
-    mamba install -y blast=2.6.0
-    mamba install -y bmtagger
-    mamba install -y bowtie2
-    mamba install -y bwa
-    mamba install -y checkm-genome
-    mamba install -y fastqc
-    mamba install -y kraken=1.1
-    mamba install -y kraken2
-    mamba install -y krona=2.7
-    mamba install -y matplotlib
-    mamba install -y maxbin2
-    mamba install -y megahit
-    mamba install -y metabat2
-    mamba install -y pandas
-    mamba install -y prokka
-    mamba install -y quast
-    mamba install -y libnghttp2
-    conda install -y openssl
-    mamba install -y krb5
-    mamba install -y r-ggplot2
-    mamba install -y r-recommended
-    mamba install -y salmon
+    mamba install -y \
+    blas=2.5 \
+    mkl \
+    biopython \
+    blast=2.6.0 \
+    bmtagger \
+    bowtie2 \
+    bwa \
+    checkm-genome \
+    fastqc \
+    kraken=1.1 \
+    kraken2 \
+    krona=2.7 \
+    matplotlib \
+    maxbin2 \
+    megahit \
+    metabat2 \
+    pandas \
+    prokka \
+    quast \
+    libnghttp2 \
+    krb5 \
+    r-ggplot2 \
+    r-recommended \
+    salmon \
+    seaborn \
+    spades \
+    trim-galore
 
-    mamba install -y seaborn
-    mamba install -y spades
-    mamba install -y trim-galore
+
+    # mamba install -y blas=2.5 mkl
+    # mamba install -y biopython
+    # mamba install -y blas=2.5
+    # mamba install -y blast=2.6.0
+    # mamba install -y bmtagger
+    # mamba install -y bowtie2
+    # mamba install -y bwa
+    # mamba install -y checkm-genome
+    # mamba install -y fastqc
+    # mamba install -y kraken=1.1
+    # mamba install -y kraken2
+    # mamba install -y krona=2.7
+    # mamba install -y matplotlib
+    # mamba install -y maxbin2
+    # mamba install -y megahit
+    # mamba install -y metabat2
+    # mamba install -y pandas
+    # mamba install -y prokka
+    # mamba install -y quast
+    # mamba install -y libnghttp2
+    # conda install -y openssl
+    # mamba install -y krb5
+    # mamba install -y r-ggplot2
+    # mamba install -y r-recommended
+    # mamba install -y salmon
+    #
+    # mamba install -y seaborn
+    # mamba install -y spades
+    # mamba install -y trim-galore
 
     cd /
-    #wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb
     wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
     dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
-    mamba install -y samtools=1.15
 
-    mamba install -y concoct
+    mamba install -y samtools=1.15 concoct
+    # mamba install -y concoct
 
     cd /
     git clone https://github.com/bxlab/metaWRAP.git
@@ -109,8 +141,15 @@ From: ubuntu:20.04
     export DEBIAN_FRONTEND=noninteractive
     apt-get -yq install libmkl-rt
 
+    sed -i 's/MINVER  => "2.2",/MINVER  => "2.1",/g' /miniconda3/envs/metawrap-env/bin/prokka
+
     conda deactivate
 
     mamba create -y --name gtdbtk-env python=3
     conda activate gtdbtk-env
     conda install -y gtdbtk=2.1.0
+    conda deactivate
+
+    # mamba create -y --name roary-env python=3
+    # conda activate roary-env
+    # mamba install -y roary
