@@ -1,4 +1,5 @@
-# build new image using this command: singularity build --force --fakeroot concoct.1.1.0.sif concoct.1.1.0.def
+# build new image using this command:
+# singularity build --force --fakeroot metawrap.1.3.test.sif metawrap.1.3.test.def
 
 BootStrap: localimage
 From: metawrap.1.3.sif
@@ -13,11 +14,21 @@ From: metawrap.1.3.sif
 
 %environment
     # export PATH=/taxator-tk-1.5.0/core/bin:$PATH
-    export GTDBTK_DATA_PATH=/GTDB
+    # export GTDBTK_DATA_PATH=/GTDB
+    # export PATH=/miniconda3/envs/roary-env/bin/:$PATH
 %post
+    # apt-get -y install ncbi-blast+
+
+    # sed -i 's/MINVER  => "2.2",/MINVER  => "2.1",/g' /miniconda3/envs/metawrap-env/bin/prokka
+
+
     conda init bash
     . /miniconda3/etc/profile.d/conda.sh
-    # conda activate metawrap-env
+    #
+    # apt-get -y install bioperl
+    conda activate metawrap-env
+
+    apt-get -y install roary
 
     # apt-get -y install cmake zlib1g-dev
 
@@ -29,6 +40,6 @@ From: metawrap.1.3.sif
     # tar -xvzf taxator-tk_1.5.0.source.tar.gz
     # cd /taxator-tk-1.5.0/core/
     # sh build.sh
-    mamba create -y --name gtdbtk-env python=3
-    conda activate gtdbtk-env
-    conda install -y gtdbtk=2.1.0
+    # mamba create -y --name roary-env python=3
+    # conda activate roary-env
+    # mamba install -y prokka==1.14.5 roary
