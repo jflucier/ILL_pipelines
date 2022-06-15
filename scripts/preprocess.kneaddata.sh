@@ -76,6 +76,6 @@ cat $TMP_DIR/${__sample}/preprocess/${__sample}_paired_1.fastq $TMP_DIR/${__samp
 
 echo "copying all kneaddata results to $OUPUT_PATH/preprocess/${__sample}"
 mkdir -p $OUPUT_PATH/${__sample}
-cp -r $TMP_DIR/${__sample}/preprocess $OUPUT_PATH/${__sample}/
+cp -fr $TMP_DIR/${__sample}/preprocess $OUPUT_PATH/${__sample}/
 
 echo "done ${__sample}"
