@@ -23,6 +23,7 @@ mkdir -p ${OUPUT_PATH}/preprocess
 echo "outputting make custom buglist db slurm script to ${OUPUT_PATH}/preprocess/preprocess.kneaddata.slurm.sh"
 echo '#!/bin/bash' > ${OUPUT_PATH}/preprocess/preprocess.kneaddata.slurm.sh
 echo '
+
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'/preprocess
 #SBATCH -o '${OUPUT_PATH}'/preprocess/preprocess.kneaddata-%A_%a.slurm.out
@@ -33,6 +34,7 @@ echo '
 #SBATCH -A '${SLURM_ALLOCATION}'
 #SBATCH -J buglist
 
+set -e
 
 newgrp def-ilafores
 echo "loading env"
