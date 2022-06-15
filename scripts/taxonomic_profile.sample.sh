@@ -111,6 +111,6 @@ grep "|s" $TMP_DIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT \
 > $TMP_DIR/${__sample}/${__sample}-bugs_list.MPA.TXT
 
 echo "copying all results to $OUPUT_PATH/${__sample}"
-cp -r $TMP_DIR/${__sample} $OUPUT_PATH/taxonomic_profile/
+cp -fr $TMP_DIR/${__sample} $OUPUT_PATH/taxonomic_profile/
 
 echo "done ${__sample}"
