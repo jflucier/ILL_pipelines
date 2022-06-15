@@ -39,7 +39,7 @@ cp $__fastq2 $TMP_DIR/${__fastq_file2}
 
 ### Preproc
 source /project/def-ilafores/common/kneaddata/bin/activate
-mkdir -p $TMP_DIR/${__sample}/preprocess
+mkdir -p $TMP_DIR/preprocess/${__sample}
 
 echo "running kneaddata. kneaddata ouptut: $TMP_DIR/${__sample}/"
 ###### pas de decontamine, output = $TMP_DIR/${__sample}/*repeats* --> peut changer etape pour fastp et cutadapt
@@ -49,7 +49,7 @@ kneaddata -v \
 --input $TMP_DIR/${__fastq_file2} \
 -db ${PREPROCESS_KNEADDATA_DB} \
 --bowtie2-options="${PREPROCESS_KNEADDATA_BOWTIE2_OPTIONS}" \
--o $TMP_DIR/${__sample}/preprocess \
+-o $TMP_DIR/preprocess/${__sample} \
 --output-prefix ${__sample} \
 --threads ${PREPROCESS_SLURM_NBR_THREADS} \
 --max-memory ${PREPROCESS_SLURM_MEMORY} \
@@ -59,11 +59,11 @@ kneaddata -v \
 --run-fastqc-end
 
 echo "deleting kneaddata uncessary files"
-rm $TMP_DIR/${__sample}/preprocess/*repeats* $TMP_DIR/${__sample}/preprocess/*trimmed*
+rm $TMP_DIR/preprocess/${__sample}/*repeats* $TMP_DIR/preprocess/${__sample}/*trimmed*
 
 echo "moving contaminants fastqs to subdir"
-mkdir -p $TMP_DIR/${__sample}/preprocess/${__sample}_contaminants
-mv $TMP_DIR/${__sample}/preprocess/*contam*.fastq $TMP_DIR/${__sample}/preprocess/${__sample}_contaminants/
+mkdir -p $TMP_DIR/preprocess/${__sample}/${__sample}_contaminants
+mv $TMP_DIR/preprocess/${__sample}/*contam*.fastq $TMP_DIR/preprocess/${__sample}/${__sample}_contaminants/
 
 echo "sort & reorder paired fastq using bbmap prior to metawrap assembly"
 repair.sh \
@@ -72,10 +72,9 @@ out=${TMP_DIR}/${__sample}/preprocess/${__sample}_paired_sorted_1.fastq out2=${T
 
 
 echo "concatenate paired output, for HUMAnN single-end run"
-cat $TMP_DIR/${__sample}/preprocess/${__sample}_paired_1.fastq $TMP_DIR/${__sample}/preprocess/${__sample}_paired_2.fastq > $TMP_DIR/${__sample}/preprocess/${__sample}_cat-paired.fastq
+cat $TMP_DIR/preprocess/${__sample}/${__sample}_paired_1.fastq $TMP_DIR/preprocess/${__sample}/${__sample}_paired_2.fastq > $TMP_DIR/preprocess/${__sample}/${__sample}_cat-paired.fastq
 
 echo "copying all kneaddata results to $OUPUT_PATH/preprocess/${__sample}"
-mkdir -p $OUPUT_PATH/${__sample}
-cp -fr $TMP_DIR/${__sample}/preprocess $OUPUT_PATH/${__sample}/
+cp -fr $TMP_DIR/preprocess/${__sample} $OUPUT_PATH/preprocess/
 
 echo "done ${__sample}"
