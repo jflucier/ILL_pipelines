@@ -11,6 +11,7 @@ if [ -z ${1+x} ]; then
     exit 1
 fi
 
+echo "parameter file is $1"
 export CONF_PARAMETERS=$1
 source $CONF_PARAMETERS
 
