@@ -55,9 +55,9 @@ mkdir -p ${TMP_DIR}/assembly
 export SPADES_MEM=$(echo $ASSEMBLY_SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${TMP_DIR}:/out \
--B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
--B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
--B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
 metaWRAP assembly --metaspades --megahit \
 -m $SPADES_MEM -t $ASSEMBLY_SLURM_NBR_THREADS \
@@ -75,9 +75,9 @@ mkdir ${TMP_DIR}/binning/
 export BINNING_MEM=$(echo $ASSEMBLY_SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${TMP_DIR}:/out \
--B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
--B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
--B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
 metaWRAP binning --metabat2 --maxbin2 --concoct --run-checkm \
 -m $BINNING_MEM -t $ASSEMBLY_SLURM_NBR_THREADS \
@@ -90,9 +90,9 @@ echo "metawrap bin refinement"
 mkdir ${TMP_DIR}/bin_refinement/
 singularity exec --writable-tmpfs -e \
 -B ${TMP_DIR}:/out \
--B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
--B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
--B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
 metawrap bin_refinement -t $ASSEMBLY_SLURM_NBR_THREADS \
 -c $BIN_REFINEMENT_MIN_COMPLETION -x $BIN_REFINEMENT_MAX_CONTAMINATION \
@@ -106,9 +106,9 @@ mkdir ${TMP_DIR}/bin_reassembly/
 export BINNING_MEM=$(echo $ASSEMBLY_SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${TMP_DIR}:/out \
--B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
--B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
--B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
 metawrap reassemble_bins -t $ASSEMBLY_SLURM_NBR_THREADS -m $BINNING_MEM \
 -c $ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION -x $ASSEMBLY_BIN_REFINEMENT_MAX_CONTAMINATION \

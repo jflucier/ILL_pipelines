@@ -41,7 +41,7 @@ cp $__fastq2 $TMP_DIR/${__fastq_file2}
 source /project/def-ilafores/common/kneaddata/bin/activate
 mkdir -p $TMP_DIR/preprocess/${__sample}
 
-echo "running kneaddata. kneaddata ouptut: $TMP_DIR/${__sample}/"
+echo "running kneaddata. kneaddata ouptut: $TMP_DIR/preprocess/${__sample}/"
 ###### pas de decontamine, output = $TMP_DIR/${__sample}/*repeats* --> peut changer etape pour fastp et cutadapt
 kneaddata -v \
 --log ${OUPUT_PATH}/preprocess/preprocess.kneaddata-${__sample}.log \
