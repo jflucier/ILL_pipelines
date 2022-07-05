@@ -13,7 +13,6 @@ fi
 
 export CONF_PARAMETERS=$1
 export TMP_DIR=$2
-export __line_nbr=$3
 
 module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
 source /project/def-ilafores/common/kraken2/venv/bin/activate

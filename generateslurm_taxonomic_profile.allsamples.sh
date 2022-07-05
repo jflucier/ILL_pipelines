@@ -40,8 +40,7 @@ module use $MUGQIC_INSTALL_HOME/modulefiles
 
 bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 '$CONF_PARAMETERS' \
-$SLURM_TMPDIR \
-$SLURM_ARRAY_TASK_ID
+$SLURM_TMPDIR
 
 ' >> ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh
 
