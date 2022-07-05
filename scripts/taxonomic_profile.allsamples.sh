@@ -23,7 +23,7 @@ export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
 source $CONF_PARAMETERS
 
 ${EXE_PATH}/global.checkenv.sh
-${EXE_PATH}/taxonomic_profile.allsample.checkenv.sh
+${EXE_PATH}/taxonomic_profile.allsamples.checkenv.sh
 
 mkdir -p ${OUPUT_PATH}/taxonomic_profile_all
 
