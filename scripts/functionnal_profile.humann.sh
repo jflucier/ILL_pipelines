@@ -50,7 +50,7 @@ echo "running humann"
 mkdir -p $TMP_DIR/${__sample}
 echo "outputting to $TMP_DIR/${__sample}"
 humann \
--v --threads '${FUNCPROFILING_SLURM_NBR_THREADS}' \
+-v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
 --o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
 --input $TMP_DIR/${__fastq_file} \
 --output $TMP_DIR/${__sample} --output-basename ${__sample} \
