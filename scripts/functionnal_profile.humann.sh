@@ -49,14 +49,51 @@ export __FUNCPROFILING_PROT_DB=$TMP_DIR/db/${__PROT_DIA_IDX}
 echo "running humann"
 mkdir -p $TMP_DIR/${__sample}
 echo "outputting to $TMP_DIR/${__sample}"
-humann \
--v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
---o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
---input $TMP_DIR/${__fastq_file} \
---output $TMP_DIR/${__sample} --output-basename ${__sample} \
---nucleotide-database $__FUNCPROFILING_NT_DB \
---protein-database $__FUNCPROFILING_PROT_DB \
---bypass-prescreen --bypass-nucleotide-index
+
+case $FUNCPROFILING_SEARCH_MODE in
+
+  "DUAL")
+    echo -n "Search using DUAL mode"
+    humann \
+    -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
+    --o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
+    --input $TMP_DIR/${__fastq_file} \
+    --output $TMP_DIR/${__sample} --output-basename ${__sample} \
+    --nucleotide-database $__FUNCPROFILING_NT_DB \
+    --protein-database $__FUNCPROFILING_PROT_DB \
+    --bypass-prescreen --bypass-nucleotide-index
+    ;;
+
+  "NT")
+    echo -n "Search using NT mode"
+    humann \
+    -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
+    --o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
+    --input $TMP_DIR/${__fastq_file} \
+    --output $TMP_DIR/${__sample} --output-basename ${__sample} \
+    --nucleotide-database $__FUNCPROFILING_NT_DB \
+    --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
+    ;;
+
+  "PROT")
+    echo -n "Search using PROT mode"
+    humann \
+    -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
+    --o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
+    --input $TMP_DIR/${__fastq_file} \
+    --output $TMP_DIR/${__sample} --output-basename ${__sample} \
+    --protein-database $__FUNCPROFILING_PROT_DB \
+    --bypass-prescreen --bypass-nucleotide-search
+    ;;
+
+  *)
+    echo -n "Provided mode unrecongnised: $FUNCPROFILING_SEARCH_MODE"
+    echo -n "Possible modes are: DUAL, NT or PROT"
+    exit 1
+    ;;
+esac
+
+
 
 rm -f $TMP_DIR/${__sample}/*cpm*
 rm -f $TMP_DIR/${__sample}/*relab*
@@ -98,8 +135,8 @@ humann_split_stratified_table \
 --input $TMP_DIR/${__sample}/${__sample}_genefamilies.tsv \
 --output $TMP_DIR/${__sample}/${__sample}_community_tables/
 
-
+mkdir -p ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}
 echo "copying results to ${OUPUT_PATH}/functionnal_profile/${__sample}"
-cp -r $TMP_DIR/${__sample} ${OUPUT_PATH}/functionnal_profile/
+cp -r $TMP_DIR/${__sample} ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/
 
 echo "done ${__sample}"
