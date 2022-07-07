@@ -50,13 +50,15 @@ echo "running humann"
 mkdir -p $TMP_DIR/${__sample}
 echo "outputting to $TMP_DIR/${__sample}"
 
+mkdir -p ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}
+
 case $FUNCPROFILING_SEARCH_MODE in
 
   "DUAL")
     echo -n "Search using DUAL mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
+    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__FUNCPROFILING_NT_DB \
@@ -68,7 +70,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo -n "Search using NT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
+    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__FUNCPROFILING_NT_DB \
@@ -79,7 +81,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo -n "Search using PROT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/humann-${__sample}.log \
+    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --protein-database $__FUNCPROFILING_PROT_DB \
@@ -135,7 +137,6 @@ humann_split_stratified_table \
 --input $TMP_DIR/${__sample}/${__sample}_genefamilies.tsv \
 --output $TMP_DIR/${__sample}/${__sample}_community_tables/
 
-mkdir -p ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}
 echo "copying results to ${OUPUT_PATH}/functionnal_profile/${__sample}"
 cp -r $TMP_DIR/${__sample} ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/
 
