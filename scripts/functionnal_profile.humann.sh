@@ -55,7 +55,7 @@ mkdir -p ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}
 case $FUNCPROFILING_SEARCH_MODE in
 
   "DUAL")
-    echo -n "Search using DUAL mode"
+    echo "Search using DUAL mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
     --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
@@ -67,7 +67,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     ;;
 
   "NT")
-    echo -n "Search using NT mode"
+    echo "Search using NT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
     --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
@@ -78,7 +78,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     ;;
 
   "PROT")
-    echo -n "Search using PROT mode"
+    echo "Search using PROT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
     --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
@@ -89,8 +89,8 @@ case $FUNCPROFILING_SEARCH_MODE in
     ;;
 
   *)
-    echo -n "Provided mode unrecongnised: $FUNCPROFILING_SEARCH_MODE"
-    echo -n "Possible modes are: DUAL, NT or PROT"
+    echo "Provided mode unrecongnised: $FUNCPROFILING_SEARCH_MODE"
+    echo "Possible modes are: DUAL, NT or PROT"
     exit 1
     ;;
 esac
