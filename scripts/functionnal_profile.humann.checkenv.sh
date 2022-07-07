@@ -15,6 +15,22 @@ elif [ ! -f "$FUNCPROFILING_SAMPLES_LIST_TSV" ]; then
 fi
 echo "## FUNCPROFILING_SAMPLES_LIST_TSV datapath: $FUNCPROFILING_SAMPLES_LIST_TSV"
 
+case $FUNCPROFILING_SEARCH_MODE in
+
+  "DUAL" | "NT" | "PROT")
+    echo "## FUNCPROFILING_SEARCH_MODE: $FUNCPROFILING_SEARCH_MODE"
+    ;;
+
+  *)
+    echo "##**** Unrecongnised FUNCPROFILING_SEARCH_MODE: $FUNCPROFILING_SEARCH_MODE ****"
+    echo "## Possible modes are: DUAL, NT or PROT "
+    echo "## Please edit configuration at this line: export FUNCPROFILING_SEARCH_MODE=\"DUAL\""
+    echo "##**********************************"
+    echo "##"
+    # exit 1
+    ;;
+esac
+
 if ! compgen -G "${FUNCPROFILING_NT_DB}.*.bt2l" > /dev/null
 then
 
@@ -22,7 +38,7 @@ then
     echo "## Please verify. An index file with the following name should be found: ${FUNCPROFILING_NT_DB}.1.bt2l"
     echo "##**********************************"
     echo "##"
-    # exit 1
+    exit 1
 fi
 
 if ! compgen -G  "${FUNCPROFILING_PROT_DB}/*.dmnd"  > /dev/null
