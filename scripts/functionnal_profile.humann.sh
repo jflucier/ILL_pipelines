@@ -26,7 +26,7 @@ ${EXE_PATH}/functionnal_profile.humann.checkenv.sh
 
 mkdir -p ${OUPUT_PATH}/functionnal_profile
 
-export __sample_line=$(cat '${FUNCPROFILING_SAMPLES_LIST_TSV}' | awk "NR==$__line_nbr")
+export __sample_line=$(cat ${FUNCPROFILING_SAMPLES_LIST_TSV} | awk "NR==$__line_nbr")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
 export __fastq=$(echo -e "$__sample_line"  | cut -f2)
 export __fastq_file=$(basename $__fastq)
