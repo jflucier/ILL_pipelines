@@ -49,8 +49,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     ;;
 esac
 
-echo '
-#SBATCH -N 1
+echo '#SBATCH -N 1
 #SBATCH -A '${SLURM_ALLOCATION}'
 #SBATCH -J functionnal_profile
 
