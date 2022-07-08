@@ -6,21 +6,15 @@ echo "##########################################################################
 
 echo "## checking if all humann custom variables are properly defined"
 
-if [[ -z "${ASSEMBLY_SAMPLE_F1_PATH_REGEX}" ]]; then
-    echo "##**********************************"
-    echo "## FAIL: ASSEMBLY_SAMPLE_F1_PATH_REGEX is not defined. To set, edit config file: export ASSEMBLY_SAMPLE_F1_PATH_REGEX=<<regex for valid forward fastq path>>"
-    echo "##**********************************"
-    echo "##"
+if [[ -z "${ASSEMBLY_SAMPLE_LIST_TSV}" ]]; then
+    echo "## FATAL: ASSEMBLY_SAMPLE_LIST_TSV variable must be defined. To set, edit config file: export ASSEMBLY_SAMPLE_LIST_TSV=/path/to/sample.tsv"
+    exit 1
+elif [ ! -f "$ASSEMBLY_SAMPLE_LIST_TSV" ]; then
+    echo "## FATAL: $ASSEMBLY_SAMPLE_LIST_TSV file does not exist. Please specifiy a valid path. To set, edit config file: export ASSEMBLY_SAMPLE_LIST_TSV=/path/to/sample.tsv"
     exit 1
 fi
+echo "## ASSEMBLY_SAMPLE_LIST_TSV datapath: $ASSEMBLY_SAMPLE_LIST_TSV"
 
-if [[ -z "${ASSEMBLY_SAMPLE_F2_PATH_REGEX}" ]]; then
-    echo "##**********************************"
-    echo "## FAIL: ASSEMBLY_SAMPLE_F2_PATH_REGEX is not defined. To set, edit config file: export ASSEMBLY_SAMPLE_F2_PATH_REGEX=<<regex for valid reverse fastq path>>"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
 
 if [[ -z "${ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION}" ]]; then
     echo "##**********************************"
