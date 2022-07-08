@@ -29,7 +29,7 @@ echo '
 
 case $FUNCPROFILING_SEARCH_MODE in
 
-  "DUAL" | "NT" | )
+  "DUAL" | "NT" )
     echo '
     #SBATCH --time='${FUNCPROFILING_SLURM_FAT_WALLTIME}'
     #SBATCH --mem='${FUNCPROFILING_SLURM_FAT_MEMORY}'
