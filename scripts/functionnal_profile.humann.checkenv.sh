@@ -51,37 +51,70 @@ then
     exit 1
 fi
 
-if [[ -z "${FUNCPROFILING_SLURM_WALLTIME}" ]]; then
+if [[ -z "${FUNCPROFILING_SLURM_BASE_WALLTIME}" ]]; then
     echo "##**********************************"
-    echo "## WARNING: FUNCPROFILING_SLURM_WALLTIME is not defined. To set, edit config file: export FUNCPROFILING_SLURM_WALLTIME=<<HH:MM:SS>>"
-    echo "## Will set FUNCPROFILING_SLURM_WALLTIME to default FUNCPROFILING_SLURM_WALLTIME=24:00:00"
+    echo "## WARNING: FUNCPROFILING_SLURM_BASE_WALLTIME is not defined. To set, edit config file: export FUNCPROFILING_SLURM_BASE_WALLTIME=<<HH:MM:SS>>"
+    echo "## Will set FUNCPROFILING_SLURM_BASE_WALLTIME to default FUNCPROFILING_SLURM_BASE_WALLTIME=24:00:00"
     echo "##**********************************"
     echo "##"
-    export FUNCPROFILING_SLURM_WALLTIME="24:00:00"
+    export FUNCPROFILING_SLURM_BASE_WALLTIME="24:00:00"
 else
-    echo "## TAXONOMIC_SLURM_WALLTIME: $FUNCPROFILING_SLURM_WALLTIME"
+    echo "## TAXONOMIC_SLURM_WALLTIME: $FUNCPROFILING_SLURM_BASE_WALLTIME"
 fi
 
-if [[ -z "${FUNCPROFILING_SLURM_NBR_THREADS}" ]]; then
+if [[ -z "${FUNCPROFILING_SLURM_BASE_NBR_THREADS}" ]]; then
     echo "##**********************************"
-    echo "## WARNING: FUNCPROFILING_SLURM_NBR_THREADS is not defined. To set, edit config file: export FUNCPROFILING_SLURM_NBR_THREADS=<<thread_nbr>>"
-    echo "## Will set FUNCPROFILING_SLURM_NBR_THREADS to default FUNCPROFILING_SLURM_NBR_THREADS=24"
+    echo "## WARNING: FUNCPROFILING_SLURM_BASE_NBR_THREADS is not defined. To set, edit config file: export FUNCPROFILING_SLURM_BASE_NBR_THREADS=<<thread_nbr>>"
+    echo "## Will set FUNCPROFILING_SLURM_BASE_NBR_THREADS to default FUNCPROFILING_SLURM_BASE_NBR_THREADS=24"
     echo "##**********************************"
     echo "##"
-    export FUNCPROFILING_SLURM_NBR_THREADS=24
+    export FUNCPROFILING_SLURM_BASE_NBR_THREADS=24
 else
-    echo "## TAXONOMIC_SLURM_NBR_THREADS: $FUNCPROFILING_SLURM_NBR_THREADS"
+    echo "## TAXONOMIC_SLURM_NBR_THREADS: $FUNCPROFILING_SLURM_BASE_NBR_THREADS"
 fi
 
-if [[ -z "${FUNCPROFILING_SLURM_MEMORY}" ]]; then
+if [[ -z "${FUNCPROFILING_SLURM_BASE_MEMORY}" ]]; then
     echo "##**********************************"
-    echo "## WARNING: FUNCPROFILING_SLURM_MEMORY is not defined. To set, edit config file: export FUNCPROFILING_SLURM_MEMORY=<<mem_in_G>>"
-    echo "## Will set FUNCPROFILING_SLURM_MEMORY to default FUNCPROFILING_SLURM_MEMORY=30G"
+    echo "## WARNING: FUNCPROFILING_SLURM_BASE_MEMORY is not defined. To set, edit config file: export FUNCPROFILING_SLURM_BASE_MEMORY=<<mem_in_G>>"
+    echo "## Will set FUNCPROFILING_SLURM_BASE_MEMORY to default FUNCPROFILING_SLURM_BASE_MEMORY=30G"
     echo "##**********************************"
     echo "##"
-    export FUNCPROFILING_SLURM_MEMORY="30G"
+    export FUNCPROFILING_SLURM_BASE_MEMORY="30G"
 else
-    echo "## TAXONOMIC_SLURM_MEMORY: $FUNCPROFILING_SLURM_MEMORY"
+    echo "## TAXONOMIC_SLURM_MEMORY: $FUNCPROFILING_SLURM_BASE_MEMORY"
+fi
+
+if [[ -z "${FUNCPROFILING_SLURM_FAT_WALLTIME}" ]]; then
+    echo "##**********************************"
+    echo "## WARNING: FUNCPROFILING_SLURM_FAT_WALLTIME is not defined. To set, edit config file: export FUNCPROFILING_SLURM_FAT_WALLTIME=<<HH:MM:SS>>"
+    echo "## Will set FUNCPROFILING_SLURM_FAT_WALLTIME to default FUNCPROFILING_SLURM_FAT_WALLTIME=24:00:00"
+    echo "##**********************************"
+    echo "##"
+    export FUNCPROFILING_SLURM_FAT_WALLTIME="24:00:00"
+else
+    echo "## TAXONOMIC_SLURM_WALLTIME: $FUNCPROFILING_SLURM_FAT_WALLTIME"
+fi
+
+if [[ -z "${FUNCPROFILING_SLURM_FAT_NBR_THREADS}" ]]; then
+    echo "##**********************************"
+    echo "## WARNING: FUNCPROFILING_SLURM_FAT_NBR_THREADS is not defined. To set, edit config file: export FUNCPROFILING_SLURM_FAT_NBR_THREADS=<<thread_nbr>>"
+    echo "## Will set FUNCPROFILING_SLURM_FAT_NBR_THREADS to default FUNCPROFILING_SLURM_FAT_NBR_THREADS=24"
+    echo "##**********************************"
+    echo "##"
+    export FUNCPROFILING_SLURM_FAT_NBR_THREADS=24
+else
+    echo "## TAXONOMIC_SLURM_NBR_THREADS: $FUNCPROFILING_SLURM_FAT_NBR_THREADS"
+fi
+
+if [[ -z "${FUNCPROFILING_SLURM_FAT_MEMORY}" ]]; then
+    echo "##**********************************"
+    echo "## WARNING: FUNCPROFILING_SLURM_FAT_MEMORY is not defined. To set, edit config file: export FUNCPROFILING_SLURM_FAT_MEMORY=<<mem_in_G>>"
+    echo "## Will set FUNCPROFILING_SLURM_FAT_MEMORY to default FUNCPROFILING_SLURM_FAT_MEMORY=30G"
+    echo "##**********************************"
+    echo "##"
+    export FUNCPROFILING_SLURM_FAT_MEMORY="30G"
+else
+    echo "## TAXONOMIC_SLURM_MEMORY: $FUNCPROFILING_SLURM_FAT_MEMORY"
 fi
 
 

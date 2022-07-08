@@ -25,11 +25,36 @@ echo '#!/bin/bash' > ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/functionnal_profile/'$FUNCPROFILING_SEARCH_MODE'/functionnal_profile-%A_%a.slurm.out
-#SBATCH --time='${FUNCPROFILING_SLURM_WALLTIME}'
-#SBATCH --mem='${FUNCPROFILING_SLURM_MEMORY}'
+#SBATCH -o '${OUPUT_PATH}'/functionnal_profile/'$FUNCPROFILING_SEARCH_MODE'/functionnal_profile-%A_%a.slurm.out' >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+
+case $FUNCPROFILING_SEARCH_MODE in
+
+  "DUAL" | "NT" | )
+    echo '
+    #SBATCH --time='${FUNCPROFILING_SLURM_FAT_WALLTIME}'
+    #SBATCH --mem='${FUNCPROFILING_SLURM_FAT_MEMORY}'
+    #SBATCH -n '${FUNCPROFILING_SLURM_FAT_NBR_THREADS}'
+    ' >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    ;;
+
+  "PROT" )
+    echo '
+    #SBATCH --time='${FUNCPROFILING_SLURM_BASE_WALLTIME}'
+    #SBATCH --mem='${FUNCPROFILING_SLURM_BASE_MEMORY}'
+    #SBATCH -n '${FUNCPROFILING_SLURM_BASE_NBR_THREADS}'
+    ' >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    ;;
+
+  *)
+    echo "Unrecongnised FUNCPROFILING_SEARCH_MODE: $FUNCPROFILING_SEARCH_MODE"
+    echo "Possible modes are: DUAL, NT or PROT "
+    echo "Please edit configuration at this line: export FUNCPROFILING_SEARCH_MODE=\"DUAL\""
+    exit 1
+    ;;
+esac
+
+echo '
 #SBATCH -N 1
-#SBATCH -n '${FUNCPROFILING_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
 #SBATCH -J functionnal_profile
 
