@@ -62,14 +62,6 @@ do
     echo -e "${name}\t${OUPUT_PATH}/preprocess/${name}/${name}_cat-paired.fastq" >> ${OUPUT_PATH}/preprocess/functionnal_profile.sample.tsv
 done < ${PREPROCESS_SAMPLES_LIST_TSV}
 
-echo "Generate denovo assembly sample tsv: ${OUPUT_PATH}/preprocess/denovo_assembly.sample.tsv"
-rm -f ${OUPUT_PATH}/preprocess/denovo_assembly.sample.tsv
-while IFS=$'\t' read -r name f1 f2
-do
-    echo -e "${name}\t${OUPUT_PATH}/preprocess/${name}/${name}_paired_sorted_1.fastq\t${OUPUT_PATH}/preprocess/${name}/${name}_paired_sorted_2.fastq" >> ${OUPUT_PATH}/preprocess/denovo_assembly.sample.tsv
-done < ${PREPROCESS_SAMPLES_LIST_TSV}
-
-
 echo "To submit to slurm, execute the following command:"
 read sample_nbr f <<< $(wc -l ${PREPROCESS_SAMPLES_LIST_TSV})
 echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/preprocess/preprocess.kneaddata.slurm.sh"

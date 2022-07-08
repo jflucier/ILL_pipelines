@@ -66,12 +66,12 @@ mkdir -p $TMP_DIR/preprocess/${__sample}/${__sample}_contaminants
 mv $TMP_DIR/preprocess/${__sample}/*contam*.fastq $TMP_DIR/preprocess/${__sample}/${__sample}_contaminants/
 
 #/localscratch/jflucier.10170.0/preprocess/N-1-TORTOR-G/N-1-TORTOR-G_paired_1.fastq
-echo "sort & reorder paired fastq using bbmap prior to metawrap assembly"
-repair.sh \
-in=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_1.fastq \
-in2=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_2.fastq \
-out=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_sorted_1.fastq \
-out2=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_sorted_2.fastq
+# echo "sort & reorder paired fastq using bbmap prior to metawrap assembly"
+# repair.sh \
+# in=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_1.fastq \
+# in2=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_2.fastq \
+# out=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_sorted_1.fastq \
+# out2=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_sorted_2.fastq
 
 
 echo "concatenate paired output, for HUMAnN single-end run"

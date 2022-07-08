@@ -41,16 +41,16 @@ cp $__fastq_file1 ${TMP_DIR}/${__sample}/${fastq1_name}
 echo "upload fastq2 to ${TMP_DIR}/${__sample}/"
 cp $__fastq_file2 ${TMP_DIR}/${__sample}/${fastq2_name}
 
-# echo "sort & reorder paired fastq using bbmap prior to metawrap assembly"
-# repair.sh \
-# in=${TMP_DIR}/${__sample}/${fastq1_name} \
-# in2=${TMP_DIR}/${__sample}/${fastq2_name} \
-# out=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_1.fastq \
-# out2=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_2.fastq
+echo "sort & reorder paired fastq using bbmap prior to metawrap assembly"
+repair.sh \
+in=${TMP_DIR}/${__sample}/${fastq1_name} \
+in2=${TMP_DIR}/${__sample}/${fastq2_name} \
+out=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_1.fastq \
+out2=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_2.fastq
 
-echo "combining all sample reads for asssembly"
-cat $ASSEMBLY_SAMPLE_F1_PATH_REGEX > ${TMP_DIR}/ALL_READS_1.fastq
-cat $ASSEMBLY_SAMPLE_F2_PATH_REGEX > ${TMP_DIR}/ALL_READS_2.fastq
+# echo "combining all sample reads for asssembly"
+# cat $ASSEMBLY_SAMPLE_F1_PATH_REGEX > ${TMP_DIR}/ALL_READS_1.fastq
+# cat $ASSEMBLY_SAMPLE_F2_PATH_REGEX > ${TMP_DIR}/ALL_READS_2.fastq
 
 echo "metawrap assembly step using metaspades and megahit"
 mkdir -p ${TMP_DIR}/assembly
@@ -63,8 +63,8 @@ singularity exec --writable-tmpfs -e \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
 metaWRAP assembly --metaspades --megahit \
 -m $SPADES_MEM -t $ASSEMBLY_SLURM_NBR_THREADS \
--1 /out/ALL_READS_1.fastq \
--2 /out/ALL_READS_2.fastq \
+-1 /out/${__sample}/${__sample}_paired_sorted_1.fastq \
+-2 /out/${__sample}/${__sample}_paired_sorted_2.fastq \
 -o /out/assembly/
 
 # echo "renaming fastq"
@@ -85,7 +85,7 @@ metaWRAP binning --metabat2 --maxbin2 --concoct --run-checkm \
 -m $BINNING_MEM -t $ASSEMBLY_SLURM_NBR_THREADS \
 -a /out/assembly/final_assembly.fasta \
 -o /out/binning/ \
-/out/ALL_READS_1.fastq /out/ALL_READS_2.fastq
+/out/${__sample}/${__sample}_paired_sorted_1.fastq /out/${__sample}/${__sample}_paired_sorted_2.fastq
 
 # around 2.5 hr of exec
 echo "metawrap bin refinement"
@@ -120,11 +120,18 @@ metawrap bin_refinement -t $ASSEMBLY_SLURM_NBR_THREADS --quick \
 # -b /out/bin_refinement/metawrap_${ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION}_${ASSEMBLY_BIN_REFINEMENT_MAX_CONTAMINATION}_bins
 
 
-echo "copying results back to $OUPUT_PATH/"
-cp -r ${TMP_DIR}/assembly $OUPUT_PATH/
-cp -r ${TMP_DIR}/binning $OUPUT_PATH/
-cp -r ${TMP_DIR}/bin_refinement $OUPUT_PATH/
+echo "copying assembly results back to $OUPUT_PATH/assembly/${__sample}/"
+mkdir -p $OUPUT_PATH/assembly/${__sample}/
+cp -r ${TMP_DIR}/assembly $OUPUT_PATH/assembly/${__sample}/
+
+echo "copying binning results back to $OUPUT_PATH/binning/${__sample}/"
+mkdir -p $OUPUT_PATH/binning/${__sample}/
+cp -r ${TMP_DIR}/binning $OUPUT_PATH/binning/${__sample}/
+
+echo "copying bin_refinement results back to $OUPUT_PATH/bin_refinement/${__sample}/"
+mkdir -p $OUPUT_PATH/bin_refinement/${__sample}/
+cp -r ${TMP_DIR}/bin_refinement $OUPUT_PATH/bin_refinement/${__sample}/
 # cp -r ${TMP_DIR}/bin_reassembly $OUPUT_PATH/
 
 
-echo "metawrap pipeline done"
+echo "metawrap assembly & binning pipeline done"
