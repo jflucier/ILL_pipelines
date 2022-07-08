@@ -46,6 +46,6 @@ $SLURM_ARRAY_TASK_ID
 ' >> ${OUPUT_PATH}/denovo_assembly/denovo_assembly.metawrap.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-# read sample_nbr f <<< $(wc -l ${ASSEMBLY_SAMPLE_LIST_TSV})
-# echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/denovo_assembly/denovo_assembly.metawrap.slurm.sh"
-echo "sbatch ${OUPUT_PATH}/denovo_assembly/denovo_assembly.metawrap.slurm.sh"
+read sample_nbr f <<< $(wc -l ${ASSEMBLY_SAMPLE_LIST_TSV})
+echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/denovo_assembly/denovo_assembly.metawrap.slurm.sh"
+# echo "sbatch ${OUPUT_PATH}/denovo_assembly/denovo_assembly.metawrap.slurm.sh"
