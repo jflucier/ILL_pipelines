@@ -121,16 +121,16 @@ metawrap bin_refinement -t $ASSEMBLY_SLURM_NBR_THREADS --quick \
 
 
 echo "copying assembly results back to $OUPUT_PATH/assembly/${__sample}/"
-mkdir -p $OUPUT_PATH/assembly/${__sample}/
-cp -r ${TMP_DIR}/assembly $OUPUT_PATH/assembly/${__sample}/
+mkdir -p $OUPUT_PATH/denovo_assembly/assembly/${__sample}/
+cp -r ${TMP_DIR}/assembly/* $OUPUT_PATH/denovo_assembly/assembly/${__sample}/
 
 echo "copying binning results back to $OUPUT_PATH/binning/${__sample}/"
-mkdir -p $OUPUT_PATH/binning/${__sample}/
-cp -r ${TMP_DIR}/binning $OUPUT_PATH/binning/${__sample}/
+mkdir -p $OUPUT_PATH/denovo_assembly/binning/${__sample}/
+cp -r ${TMP_DIR}/binning/* $OUPUT_PATH/denovo_assembly/binning/${__sample}/
 
 echo "copying bin_refinement results back to $OUPUT_PATH/bin_refinement/${__sample}/"
-mkdir -p $OUPUT_PATH/bin_refinement/${__sample}/
-cp -r ${TMP_DIR}/bin_refinement $OUPUT_PATH/bin_refinement/${__sample}/
+mkdir -p $OUPUT_PATH/denovo_assembly/bin_refinement/${__sample}/
+cp -r ${TMP_DIR}/bin_refinement/* $OUPUT_PATH/denovo_assembly/bin_refinement/${__sample}/
 # cp -r ${TMP_DIR}/bin_reassembly $OUPUT_PATH/
 
 
