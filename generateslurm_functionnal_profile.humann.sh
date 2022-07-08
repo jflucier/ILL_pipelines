@@ -30,19 +30,15 @@ echo '
 case $FUNCPROFILING_SEARCH_MODE in
 
   "DUAL" | "NT" )
-    echo '
-    #SBATCH --time='${FUNCPROFILING_SLURM_FAT_WALLTIME}'
-    #SBATCH --mem='${FUNCPROFILING_SLURM_FAT_MEMORY}'
-    #SBATCH -n '${FUNCPROFILING_SLURM_FAT_NBR_THREADS}'
-    ' >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    echo '#SBATCH --time='${FUNCPROFILING_SLURM_FAT_WALLTIME} >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    echo '#SBATCH --mem='${FUNCPROFILING_SLURM_FAT_MEMORY} >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    echo '#SBATCH -n '${FUNCPROFILING_SLURM_FAT_NBR_THREADS} >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
     ;;
 
   "PROT" )
-    echo '
-    #SBATCH --time='${FUNCPROFILING_SLURM_BASE_WALLTIME}'
-    #SBATCH --mem='${FUNCPROFILING_SLURM_BASE_MEMORY}'
-    #SBATCH -n '${FUNCPROFILING_SLURM_BASE_NBR_THREADS}'
-    ' >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    echo '#SBATCH --time='${FUNCPROFILING_SLURM_BASE_WALLTIME} >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    echo '#SBATCH --mem='${FUNCPROFILING_SLURM_BASE_MEMORY} >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+    echo '#SBATCH -n '${FUNCPROFILING_SLURM_BASE_NBR_THREADS} >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
     ;;
 
   *)
