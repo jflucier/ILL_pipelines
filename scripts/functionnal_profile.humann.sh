@@ -58,7 +58,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo "Search using DUAL mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
+    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__FUNCPROFILING_NT_DB \
@@ -70,7 +70,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo "Search using NT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
+    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__FUNCPROFILING_NT_DB \
@@ -81,7 +81,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo "Search using PROT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__sample}.log \
+    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --protein-database $__FUNCPROFILING_PROT_DB \

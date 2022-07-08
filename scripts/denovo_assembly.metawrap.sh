@@ -23,28 +23,30 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/global.checkenv.sh
 #${EXE_PATH}/preprocess.checkenv.sh
 
-# export __sample_line=$(cat ${ASSEMBLY_SAMPLE_LIST_TSV} | awk "NR==$__line_nbr")
-# export __sample=$(echo -e "$__sample_line" | cut -f1)
-# export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
-# export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
-#
-# echo "analysing sample $__sample with metawrap"
-# echo "fastq1 path: $__fastq_file1"
-# echo "fastq2 path: $__fastq_file2"
-#
-# mkdir -p ${TMP_DIR}/${__sample}/
-# fastq1_name=$(basename $__fastq_file1)
-# fastq2_name=$(basename $__fastq_file2)
-#
-# echo "upload fastq1 to ${TMP_DIR}/${__sample}/"
-# cp $__fastq_file1 ${TMP_DIR}/${__sample}/${fastq1_name}
-# echo "upload fastq2 to ${TMP_DIR}/${__sample}/"
-# cp $__fastq_file2 ${TMP_DIR}/${__sample}/${fastq2_name}
+export __sample_line=$(cat ${ASSEMBLY_SAMPLE_LIST_TSV} | awk "NR==$__line_nbr")
+export __sample=$(echo -e "$__sample_line" | cut -f1)
+export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
+export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
+
+echo "analysing sample $__sample with metawrap"
+echo "fastq1 path: $__fastq_file1"
+echo "fastq2 path: $__fastq_file2"
+
+mkdir -p ${TMP_DIR}/${__sample}/
+fastq1_name=$(basename $__fastq_file1)
+fastq2_name=$(basename $__fastq_file2)
+
+echo "upload fastq1 to ${TMP_DIR}/${__sample}/"
+cp $__fastq_file1 ${TMP_DIR}/${__sample}/${fastq1_name}
+echo "upload fastq2 to ${TMP_DIR}/${__sample}/"
+cp $__fastq_file2 ${TMP_DIR}/${__sample}/${fastq2_name}
 
 # echo "sort & reorder paired fastq using bbmap prior to metawrap assembly"
 # repair.sh \
-# in=${TMP_DIR}/${__sample}/${fastq1_name} in2=${TMP_DIR}/${__sample}/${fastq2_name} \
-# out=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_1.fastq out2=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_2.fastq
+# in=${TMP_DIR}/${__sample}/${fastq1_name} \
+# in2=${TMP_DIR}/${__sample}/${fastq2_name} \
+# out=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_1.fastq \
+# out2=${TMP_DIR}/${__sample}/${__sample}_paired_sorted_2.fastq
 
 echo "combining all sample reads for asssembly"
 cat $ASSEMBLY_SAMPLE_F1_PATH_REGEX > ${TMP_DIR}/ALL_READS_1.fastq
@@ -101,28 +103,28 @@ metawrap bin_refinement -t $ASSEMBLY_SLURM_NBR_THREADS --quick \
 -B /out/binning/maxbin2_bins/ \
 -C /out/binning/concoct_bins/
 
-echo "metawrap bin reassembly"
-mkdir ${TMP_DIR}/bin_reassembly/
-export BINNING_MEM=$(echo $ASSEMBLY_SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
-singularity exec --writable-tmpfs -e \
--B ${TMP_DIR}:/out \
--B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
--B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
--B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
-${EXE_PATH}/../containers/metawrap.1.3.sif \
-metawrap reassemble_bins -t $ASSEMBLY_SLURM_NBR_THREADS -m $BINNING_MEM \
--c $ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION -x $ASSEMBLY_BIN_REFINEMENT_MAX_CONTAMINATION \
--o /out/bin_reassembly/ \
--1 /out/ALL_READS_1.fastq \
--2 /out/ALL_READS_2.fastq \
--b /out/bin_refinement/metawrap_${ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION}_${ASSEMBLY_BIN_REFINEMENT_MAX_CONTAMINATION}_bins
+# echo "metawrap bin reassembly"
+# mkdir ${TMP_DIR}/bin_reassembly/
+# export BINNING_MEM=$(echo $ASSEMBLY_SLURM_MEMORY | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
+# singularity exec --writable-tmpfs -e \
+# -B ${TMP_DIR}:/out \
+# -B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
+# -B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
+# -B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
+# ${EXE_PATH}/../containers/metawrap.1.3.sif \
+# metawrap reassemble_bins -t $ASSEMBLY_SLURM_NBR_THREADS -m $BINNING_MEM \
+# -c $ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION -x $ASSEMBLY_BIN_REFINEMENT_MAX_CONTAMINATION \
+# -o /out/bin_reassembly/ \
+# -1 /out/ALL_READS_1.fastq \
+# -2 /out/ALL_READS_2.fastq \
+# -b /out/bin_refinement/metawrap_${ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION}_${ASSEMBLY_BIN_REFINEMENT_MAX_CONTAMINATION}_bins
 
 
 echo "copying results back to $OUPUT_PATH/"
 cp -r ${TMP_DIR}/assembly $OUPUT_PATH/
 cp -r ${TMP_DIR}/binning $OUPUT_PATH/
 cp -r ${TMP_DIR}/bin_refinement $OUPUT_PATH/
-cp -r ${TMP_DIR}/bin_reassembly $OUPUT_PATH/
+# cp -r ${TMP_DIR}/bin_reassembly $OUPUT_PATH/
 
 
 echo "metawrap pipeline done"

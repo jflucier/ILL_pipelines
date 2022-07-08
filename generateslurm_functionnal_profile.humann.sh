@@ -17,7 +17,7 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/scripts/global.checkenv.sh
 ${EXE_PATH}/scripts/functionnal_profile.humann.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/functionnal_profile
+mkdir -p ${OUPUT_PATH}/functionnal_profile/$FUNCPROFILING_SEARCH_MODE
 
 echo "outputting humann custom slurm script to ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh"
 
@@ -25,7 +25,7 @@ echo '#!/bin/bash' > ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/functionnal_profile/functionnal_profile-%A_%a.slurm.out
+#SBATCH -o '${OUPUT_PATH}'/functionnal_profile/'$FUNCPROFILING_SEARCH_MODE'/functionnal_profile-%A_%a.slurm.out
 #SBATCH --time='${FUNCPROFILING_SLURM_WALLTIME}'
 #SBATCH --mem='${FUNCPROFILING_SLURM_MEMORY}'
 #SBATCH -N 1
