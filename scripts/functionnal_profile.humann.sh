@@ -57,7 +57,7 @@ case $FUNCPROFILING_SEARCH_MODE in
   "DUAL")
     echo "Search using DUAL mode"
     humann \
-    -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
+    -v --threads ${FUNCPROFILING_SLURM_FAT_NBR_THREADS} \
     --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
@@ -69,7 +69,7 @@ case $FUNCPROFILING_SEARCH_MODE in
   "NT")
     echo "Search using NT mode"
     humann \
-    -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
+    -v --threads ${FUNCPROFILING_SLURM_FAT_NBR_THREADS} \
     --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
@@ -80,7 +80,7 @@ case $FUNCPROFILING_SEARCH_MODE in
   "PROT")
     echo "Search using PROT mode"
     humann \
-    -v --threads ${FUNCPROFILING_SLURM_NBR_THREADS} \
+    -v --threads ${FUNCPROFILING_SLURM_BASE_NBR_THREADS} \
     --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
