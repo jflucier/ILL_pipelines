@@ -52,6 +52,7 @@ esac
 
 echo '#SBATCH -N 1
 #SBATCH -A '${SLURM_ALLOCATION}'
+#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
 #SBATCH -J functionnal_profile
 
 newgrp def-ilafores

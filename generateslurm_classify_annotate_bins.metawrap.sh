@@ -28,6 +28,7 @@ echo '
 #SBATCH -o '${OUPUT_PATH}'/denovo_assembly/denovo_assembly-%A_%a.slurm.out
 #SBATCH --time='${ASSEMBLY_SLURM_WALLTIME}'
 #SBATCH --mem='${ASSEMBLY_SLURM_MEMORY}'
+#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
 #SBATCH -N 1
 #SBATCH -n '${ASSEMBLY_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
