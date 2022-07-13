@@ -30,7 +30,10 @@ From: ubuntu:20.04
     git \
     tzdata \
     openjdk-17-jre \
-    roary
+    roary \
+    cpanminus
+
+    perl -MCPAN -e 'upgrade'
 
     rm -rf /var/lib/apt/lists/*
     apt-get clean
@@ -54,6 +57,8 @@ From: ubuntu:20.04
     mamba create -y --name metawrap-env python=2.7
     conda activate metawrap-env
 
+    #pip install joblib
+
     mamba install -y \
     blas=2.5 \
     mkl \
@@ -73,7 +78,7 @@ From: ubuntu:20.04
     metabat2 \
     pandas \
     prokka \
-    quast \
+    quast==5.2.0 \
     libnghttp2 \
     krb5 \
     r-ggplot2 \
@@ -82,37 +87,6 @@ From: ubuntu:20.04
     seaborn \
     spades \
     trim-galore
-
-
-    # mamba install -y blas=2.5 mkl
-    # mamba install -y biopython
-    # mamba install -y blas=2.5
-    # mamba install -y blast=2.6.0
-    # mamba install -y bmtagger
-    # mamba install -y bowtie2
-    # mamba install -y bwa
-    # mamba install -y checkm-genome
-    # mamba install -y fastqc
-    # mamba install -y kraken=1.1
-    # mamba install -y kraken2
-    # mamba install -y krona=2.7
-    # mamba install -y matplotlib
-    # mamba install -y maxbin2
-    # mamba install -y megahit
-    # mamba install -y metabat2
-    # mamba install -y pandas
-    # mamba install -y prokka
-    # mamba install -y quast
-    # mamba install -y libnghttp2
-    # conda install -y openssl
-    # mamba install -y krb5
-    # mamba install -y r-ggplot2
-    # mamba install -y r-recommended
-    # mamba install -y salmon
-    #
-    # mamba install -y seaborn
-    # mamba install -y spades
-    # mamba install -y trim-galore
 
     cd /
     wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
@@ -149,6 +123,10 @@ From: ubuntu:20.04
     conda activate gtdbtk-env
     conda install -y gtdbtk=2.1.0
     conda deactivate
+
+    echo ". /miniconda3/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+    echo "conda activate metawrap-env" >> $SINGULARITY_ENVIRONMENT
+
 
     # mamba create -y --name roary-env python=3
     # conda activate roary-env
