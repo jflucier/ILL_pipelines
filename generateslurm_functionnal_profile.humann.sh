@@ -26,6 +26,7 @@ echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${OUPUT_PATH}'
 #SBATCH -o '${OUPUT_PATH}'/functionnal_profile/'$FUNCPROFILING_SEARCH_MODE'/functionnal_profile-%A_%a.slurm.out' >> ${OUPUT_PATH}/functionnal_profile/functionnal_profile.slurm.sh
+#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
 
 case $FUNCPROFILING_SEARCH_MODE in
 
