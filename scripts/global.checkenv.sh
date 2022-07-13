@@ -20,14 +20,24 @@ fi
 
 if [[ -z "${SLURM_ALLOCATION}" ]]; then
     echo "##**********************************"
-    echo "## WARNING: SLURM_ALLOCATION is not defined. To set, edit config file: export SLURM_ALLOCATION=<<slurm_account_name>>"
-    echo "## Will set SLURM_ALLOCATION to to empty string. Make sure you modify cnau slurm script if you plan to use!"
+    echo "## FATAL: SLURM_ALLOCATION is not defined. To set, edit config file: export SLURM_ALLOCATION=<<slurm_account_name>>"
     echo "##**********************************"
     echo "##"
-    export SLURM_ALLOCATION=""
+    exit 1
 else
     echo "## SLURM_ALLOCATION: $SLURM_ALLOCATION"
 fi
+
+if [[ -z "${SLURM_JOB_EMAIL}" ]]; then
+    echo "##**********************************"
+    echo "## WARNING: SLURM_JOB_EMAIL is not defined. To set, edit config file: export SLURM_JOB_EMAIL=<<0 or 1>>"
+    echo "##**********************************"
+    echo "##"
+    exit 1
+else
+    echo "## SLURM_JOB_EMAIL: $SLURM_JOB_EMAIL"
+fi
+
 
 if [[ -z "${SLURM_DB_COPY_LOCALSCRATCH}" ]]; then
     echo "##**********************************"
@@ -39,5 +49,7 @@ if [[ -z "${SLURM_DB_COPY_LOCALSCRATCH}" ]]; then
 else
     echo "## SLURM_DB_COPY_LOCALSCRATCH: $SLURM_DB_COPY_LOCALSCRATCH"
 fi
+
+
 
 echo "################################################################################################################"
