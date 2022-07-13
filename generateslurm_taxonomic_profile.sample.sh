@@ -27,6 +27,7 @@ echo '
 #SBATCH -o '${OUPUT_PATH}'/taxonomic_profile/taxonomic_profile-%A_%a.slurm.out
 #SBATCH --time='${TAXONOMIC_SAMPLE_SLURM_WALLTIME}'
 #SBATCH --mem='${TAXONOMIC_SAMPLE_SLURM_MEMORY}'
+#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
 #SBATCH -N 1
 #SBATCH -n '${TAXONOMIC_SAMPLE_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'

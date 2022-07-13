@@ -29,6 +29,7 @@ echo '
 #SBATCH -o '${OUPUT_PATH}'/preprocess/preprocess.kneaddata-%A_%a.slurm.out
 #SBATCH --time='${PREPROCESS_SLURM_WALLTIME}'
 #SBATCH --mem='${PREPROCESS_SLURM_MEMORY}'
+#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
 #SBATCH -N 1
 #SBATCH -n '${PREPROCESS_SLURM_NBR_THREADS}'
 #SBATCH -A '${SLURM_ALLOCATION}'
