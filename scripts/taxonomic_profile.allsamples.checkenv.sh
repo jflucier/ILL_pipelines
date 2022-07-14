@@ -60,10 +60,10 @@ fi
 if [[ -z "${TAXONOMIC_ALL_BRACKEN_KREPORTS}" ]]; then
     echo "##**********************************"
     echo "## WARNING: TAXONOMIC_ALL_BRACKEN_KREPORTS is not defined. To set, edit config file: export TAXONOMIC_ALL_BRACKEN_KREPORTS=<<bracken_reports>>"
-    echo "## Will set TAXONOMIC_ALL_BRACKEN_KREPORTS to default TAXONOMIC_ALL_BRACKEN_KREPORTS=$OUPUT_PATH/taxonomic_profile/*/*_bracken/*_bracken_S.kreport"
+    echo "## Will set TAXONOMIC_ALL_BRACKEN_KREPORTS to default TAXONOMIC_ALL_BRACKEN_KREPORTS=$OUTPUT_PATH/taxonomic_profile/*/*_bracken/*_bracken_S.kreport"
     echo "##**********************************"
     echo "##"
-    export TAXONOMIC_ALL_BRACKEN_KREPORTS="$OUPUT_PATH/taxonomic_profile/*/*_bracken/*_bracken_S.kreport"
+    export TAXONOMIC_ALL_BRACKEN_KREPORTS="$OUTPUT_PATH/taxonomic_profile/*/*_bracken/*_bracken_S.kreport"
 else
     echo "## TAXONOMIC_ALL_BRACKEN_KREPORTS: $TAXONOMIC_ALL_BRACKEN_KREPORTS"
 fi

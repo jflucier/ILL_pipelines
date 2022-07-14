@@ -35,7 +35,7 @@ mkdir -p ${TMP_DIR}/
 
 echo "upload bins to ${TMP_DIR}/"
 echo "bins folder: $__bin_refinement_name"
-cp -r ${OUPUT_PATH}/bin_refinement/$__bin_refinement_name ${TMP_DIR}/
+cp -r ${OUTPUT_PATH}/bin_refinement/$__bin_refinement_name ${TMP_DIR}/
 
 # run gtdbtk
 echo "running gtdbtk annotation pipeline on refined bins"
@@ -73,10 +73,10 @@ ${EXE_PATH}/../containers/metawrap.1.3.sif \
 roary -e --mafft -p $ANNOTATE_SLURM_NBR_THREADS -f /out/roary /out/prokka/*.gff
 
 # copy back results
-echo "copying results back to $OUPUT_PATH"
-cp -r ${TMP_DIR}/bin_classification $OUPUT_PATH/bin_classification
-cp -r ${TMP_DIR}/bin_classification $OUPUT_PATH/prokka
-cp -r ${TMP_DIR}/bin_classification $OUPUT_PATH/roary
+echo "copying results back to $OUTPUT_PATH"
+cp -r ${TMP_DIR}/bin_classification $OUTPUT_PATH/${ANNOTATE_OUTPUT_NAME}/bin_classification
+cp -r ${TMP_DIR}/prokka $OUTPUT_PATH/${ANNOTATE_OUTPUT_NAME}/prokka
+cp -r ${TMP_DIR}/roary $OUTPUT_PATH/${ANNOTATE_OUTPUT_NAME}/roary
 
 
 echo "gtdbtk annotation pipeline done"

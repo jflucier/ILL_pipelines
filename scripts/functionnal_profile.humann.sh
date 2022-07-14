@@ -24,7 +24,7 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/global.checkenv.sh
 ${EXE_PATH}/functionnal_profile.humann.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/functionnal_profile
+mkdir -p ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}
 
 export __sample_line=$(cat ${FUNCPROFILING_SAMPLES_LIST_TSV} | awk "NR==$__line_nbr")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
@@ -50,7 +50,7 @@ echo "running humann"
 mkdir -p $TMP_DIR/${__sample}
 echo "outputting to $TMP_DIR/${__sample}"
 
-mkdir -p ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}
+mkdir -p ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}
 
 case $FUNCPROFILING_SEARCH_MODE in
 
@@ -58,7 +58,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo "Search using DUAL mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_FAT_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
+    --o-log ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/logs/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__FUNCPROFILING_NT_DB \
@@ -70,7 +70,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo "Search using NT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_FAT_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
+    --o-log ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/logs/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__FUNCPROFILING_NT_DB \
@@ -81,7 +81,7 @@ case $FUNCPROFILING_SEARCH_MODE in
     echo "Search using PROT mode"
     humann \
     -v --threads ${FUNCPROFILING_SLURM_BASE_NBR_THREADS} \
-    --o-log ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/humann-${__line_nbr}_${__sample}.log \
+    --o-log ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/logs/humann-${__line_nbr}_${__sample}.log \
     --input $TMP_DIR/${__fastq_file} \
     --output $TMP_DIR/${__sample} --output-basename ${__sample} \
     --protein-database $__FUNCPROFILING_PROT_DB \
@@ -137,7 +137,7 @@ humann_split_stratified_table \
 --input $TMP_DIR/${__sample}/${__sample}_genefamilies.tsv \
 --output $TMP_DIR/${__sample}/${__sample}_community_tables/
 
-echo "copying results to ${OUPUT_PATH}/functionnal_profile/${__sample}"
-cp -r $TMP_DIR/${__sample} ${OUPUT_PATH}/functionnal_profile/${FUNCPROFILING_SEARCH_MODE}/
+echo "copying results to ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${__sample}"
+cp -r $TMP_DIR/${__sample} ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/
 
 echo "done ${__sample}"

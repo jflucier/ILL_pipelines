@@ -33,16 +33,16 @@ mkdir -p ${TMP_DIR}
 
 echo "upload bins to ${TMP_DIR}/"
 echo "bins folder: $__bin_refinement_name"
-cp -r ${OUPUT_PATH}/bin_refinement/$__bin_refinement_name ${TMP_DIR}/${__sample}/
-cp -r ${OUPUT_PATH}/assembly/final_assembly.fasta ${TMP_DIR}/${__sample}/
-# cp -r ${OUPUT_PATH}/preprocess/${__sample}_paired_1.fastq ${TMP_DIR}/${__sample}/
-# cp -r ${OUPUT_PATH}/preprocess/${__sample}_paired_2.fastq ${TMP_DIR}/${__sample}/
+cp -r ${OUTPUT_PATH}/bin_refinement/$__bin_refinement_name ${TMP_DIR}/${__sample}/
+cp -r ${OUTPUT_PATH}/assembly/final_assembly.fasta ${TMP_DIR}/${__sample}/
+# cp -r ${OUTPUT_PATH}/preprocess/${__sample}_paired_1.fastq ${TMP_DIR}/${__sample}/
+# cp -r ${OUTPUT_PATH}/preprocess/${__sample}_paired_2.fastq ${TMP_DIR}/${__sample}/
 
 echo "running salmond"
 mkdir -p ${TMP_DIR}/bin_quantification/
 singularity exec --writable-tmpfs -e \
 -B ${TMP_DIR}:/out \
--B ${OUPUT_PATH} \
+-B ${OUTPUT_PATH} \
 -B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
 -B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
 -B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
@@ -57,7 +57,7 @@ echo "running blobology"
 mkdir -p ${TMP_DIR}/blobology/
 singularity exec --writable-tmpfs -e \
 -B ${TMP_DIR}:/out \
--B ${OUPUT_PATH} \
+-B ${OUTPUT_PATH} \
 -B /ssdpool/shared/ilafores_group/checkm_db:/checkm \
 -B /ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
 -B /ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
@@ -69,9 +69,9 @@ metawrap blobology \
 --bins /out/${__bin_refinement_name} \
 $QUANTIFY_SAMPLE_PATH_REGEX
 
-echo "copying results back to $OUPUT_PATH/"
-cp -r ${TMP_DIR}/bin_quantification $OUPUT_PATH/
-cp -r ${TMP_DIR}/blobology $OUPUT_PATH/
+echo "copying results back to $OUTPUT_PATH/"
+cp -r ${TMP_DIR}/bin_quantification $OUTPUT_PATH/
+cp -r ${TMP_DIR}/blobology $OUTPUT_PATH/
 
 
 echo "quantify bin pipeline done"

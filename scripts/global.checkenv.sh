@@ -8,12 +8,12 @@ echo "## Checking global software dependencies"
 
 echo "## checking if all humann custom variables are properly defined"
 
-if [ ! -d "${OUPUT_PATH}" ]
+if [ ! -d "${OUTPUT_PATH}" ]
 then
     echo "##**********************************"
-    echo "## Output directory ${OUPUT_PATH} does not exists. Will try to create it."
-    mkdir -p  ${OUPUT_PATH}
-    echo "## Output directory ${OUPUT_PATH} was created"
+    echo "## Output directory ${OUTPUT_PATH} does not exists. Will try to create it."
+    mkdir -p  ${OUTPUT_PATH}
+    echo "## Output directory ${OUTPUT_PATH} was created"
     echo "##**********************************"
     echo "##"
 fi

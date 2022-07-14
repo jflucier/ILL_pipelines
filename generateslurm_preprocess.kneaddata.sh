@@ -18,15 +18,15 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/scripts/global.checkenv.sh
 ${EXE_PATH}/scripts/preprocess.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/preprocess
+mkdir -p ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/logs
 
-echo "outputting make custom buglist db slurm script to ${OUPUT_PATH}/preprocess/preprocess.kneaddata.slurm.sh"
-echo '#!/bin/bash' > ${OUPUT_PATH}/preprocess/preprocess.kneaddata.slurm.sh
+echo "outputting make custom buglist db slurm script to ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/preprocess.kneaddata.slurm.sh"
+echo '#!/bin/bash' > ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/preprocess.kneaddata.slurm.sh
 echo '
 
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D '${OUPUT_PATH}'/preprocess
-#SBATCH -o '${OUPUT_PATH}'/preprocess/preprocess.kneaddata-%A_%a.slurm.out
+#SBATCH -D '${OUTPUT_PATH}'
+#SBATCH -o '${OUTPUT_PATH}'/'${PREPROCESS_OUTPUT_NAME}'/logs/preprocess.kneaddata-%A_%a.slurm.out
 #SBATCH --time='${PREPROCESS_SLURM_WALLTIME}'
 #SBATCH --mem='${PREPROCESS_SLURM_MEMORY}'
 #SBATCH --mail-user='${SLURM_JOB_EMAIL}'
@@ -47,22 +47,22 @@ bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 $SLURM_TMPDIR \
 $SLURM_ARRAY_TASK_ID
 
-' >> ${OUPUT_PATH}/preprocess/preprocess.kneaddata.slurm.sh
+' >> ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/preprocess.kneaddata.slurm.sh
 
-echo "Generate taxonomic profiling sample tsv: ${OUPUT_PATH}/preprocess/taxonomic_profile.sample.tsv"
-rm -f ${OUPUT_PATH}/preprocess/taxonomic_profile.sample.tsv
+echo "Generate taxonomic profiling sample tsv: ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/taxonomic_profile.sample.tsv"
+rm -f ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/taxonomic_profile.sample.tsv
 while IFS=$'\t' read -r name f1 f2
 do
-    echo -e "${name}\t${OUPUT_PATH}/preprocess/${name}/${name}_paired_1.fastq\t${OUPUT_PATH}/preprocess/${name}/${name}_paired_2.fastq" >> ${OUPUT_PATH}/preprocess/taxonomic_profile.sample.tsv
+    echo -e "${name}\t${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/${name}/${name}_paired_1.fastq\t${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/${name}/${name}_paired_2.fastq" >> ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/taxonomic_profile.sample.tsv
 done < ${PREPROCESS_SAMPLES_LIST_TSV}
 
-echo "Generate functionnal profiling sample tsv: ${OUPUT_PATH}/preprocess/functionnal_profile.sample.tsv"
-rm -f ${OUPUT_PATH}/preprocess/functionnal_profile.sample.tsv
+echo "Generate functionnal profiling sample tsv: ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/functionnal_profile.sample.tsv"
+rm -f ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/functionnal_profile.sample.tsv
 while IFS=$'\t' read -r name f1 f2
 do
-    echo -e "${name}\t${OUPUT_PATH}/preprocess/${name}/${name}_cat-paired.fastq" >> ${OUPUT_PATH}/preprocess/functionnal_profile.sample.tsv
+    echo -e "${name}\t${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/${name}/${name}_cat-paired.fastq" >> ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/functionnal_profile.sample.tsv
 done < ${PREPROCESS_SAMPLES_LIST_TSV}
 
 echo "To submit to slurm, execute the following command:"
 read sample_nbr f <<< $(wc -l ${PREPROCESS_SAMPLES_LIST_TSV})
-echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/preprocess/preprocess.kneaddata.slurm.sh"
+echo "sbatch --array=1-$sample_nbr ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/preprocess.kneaddata.slurm.sh"

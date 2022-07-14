@@ -33,7 +33,7 @@ mkdir -p $SLURM_TMPDIR/${__sample}
 echo "running kneaddata. kneaddata ouptut: $SLURM_TMPDIR/${__sample}/"
 ###### pas de decontamine, output = $SLURM_TMPDIR/${__sample}/*repeats* --> peut changer etape pour fastp et cutadapt
 kneaddata -v \
---log ${OUPUT_PATH}/make_custom_buglist-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.kneaddata.out \
+--log ${OUTPUT_PATH}/make_custom_buglist-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.kneaddata.out \
 --input $SLURM_TMPDIR/${__sample}/${fastq1_name} \
 --input $SLURM_TMPDIR/${__sample}/${fastq2_name} \
 -db $KNEADDATA_DB \
@@ -145,8 +145,8 @@ singularity exec --writable-tmpfs -e \
 $METAWRAP_PATH/metawrap.1.3.sif \
 metaWRAP annotate_bins -o /out/bin_annotation/ -t $SLURM_NBR_THREADS -b /out/bin_reassembly/reassembled_bins/
 
-echo "copying results back to $OUPUT_PATH"
-cp -r $SLURM_TMPDIR/${__sample} $OUPUT_PATH/
+echo "copying results back to $OUTPUT_PATH"
+cp -r $SLURM_TMPDIR/${__sample} $OUTPUT_PATH/
 
 echo "metawrap pipeline done"
 

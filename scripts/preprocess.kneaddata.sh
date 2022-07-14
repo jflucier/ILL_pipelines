@@ -23,7 +23,7 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/global.checkenv.sh
 ${EXE_PATH}/preprocess.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/preprocess
+mkdir -p ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}
 
 export __sample_line=$(cat ${PREPROCESS_SAMPLES_LIST_TSV} | awk "NR==$__line_nbr")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
@@ -39,17 +39,17 @@ cp $__fastq2 $TMP_DIR/${__fastq_file2}
 
 ### Preproc
 source /project/def-ilafores/common/kneaddata/bin/activate
-mkdir -p $TMP_DIR/preprocess/${__sample}
+mkdir -p $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}
 
-echo "running kneaddata. kneaddata ouptut: $TMP_DIR/preprocess/${__sample}/"
+echo "running kneaddata. kneaddata ouptut: $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/"
 ###### pas de decontamine, output = $TMP_DIR/${__sample}/*repeats* --> peut changer etape pour fastp et cutadapt
 kneaddata -v \
---log ${OUPUT_PATH}/preprocess/preprocess.kneaddata-${__sample}.log \
+--log ${OUTPUT_PATH}/${PREPROCESS_OUTPUT_NAME}/logs/preprocess.kneaddata-${__sample}.log \
 --input $TMP_DIR/${__fastq_file1} \
 --input $TMP_DIR/${__fastq_file2} \
 -db ${PREPROCESS_KNEADDATA_DB} \
 --bowtie2-options="${PREPROCESS_KNEADDATA_BOWTIE2_OPTIONS}" \
--o $TMP_DIR/preprocess/${__sample} \
+-o $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample} \
 --output-prefix ${__sample} \
 --threads ${PREPROCESS_SLURM_NBR_THREADS} \
 --max-memory ${PREPROCESS_SLURM_MEMORY} \
@@ -59,25 +59,25 @@ kneaddata -v \
 --run-fastqc-end
 
 echo "deleting kneaddata uncessary files"
-rm $TMP_DIR/preprocess/${__sample}/*repeats* $TMP_DIR/preprocess/${__sample}/*trimmed*
+rm $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/*repeats* $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/*trimmed*
 
 echo "moving contaminants fastqs to subdir"
-mkdir -p $TMP_DIR/preprocess/${__sample}/${__sample}_contaminants
-mv $TMP_DIR/preprocess/${__sample}/*contam*.fastq $TMP_DIR/preprocess/${__sample}/${__sample}_contaminants/
+mkdir -p $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_contaminants
+mv $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/*contam*.fastq $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_contaminants/
 
-#/localscratch/jflucier.10170.0/preprocess/N-1-TORTOR-G/N-1-TORTOR-G_paired_1.fastq
+#/localscratch/jflucier.10170.0/${PREPROCESS_OUTPUT_NAME}/N-1-TORTOR-G/N-1-TORTOR-G_paired_1.fastq
 # echo "sort & reorder paired fastq using bbmap prior to metawrap assembly"
 # repair.sh \
-# in=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_1.fastq \
-# in2=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_2.fastq \
-# out=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_sorted_1.fastq \
-# out2=${TMP_DIR}/preprocess/${__sample}/${__sample}_paired_sorted_2.fastq
+# in=${TMP_DIR}/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_paired_1.fastq \
+# in2=${TMP_DIR}/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_paired_2.fastq \
+# out=${TMP_DIR}/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_paired_sorted_1.fastq \
+# out2=${TMP_DIR}/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_paired_sorted_2.fastq
 
 
 echo "concatenate paired output, for HUMAnN single-end run"
-cat $TMP_DIR/preprocess/${__sample}/${__sample}_paired_1.fastq $TMP_DIR/preprocess/${__sample}/${__sample}_paired_2.fastq > $TMP_DIR/preprocess/${__sample}/${__sample}_cat-paired.fastq
+cat $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_paired_1.fastq $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_paired_2.fastq > $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample}/${__sample}_cat-paired.fastq
 
-echo "copying all kneaddata results to $OUPUT_PATH/preprocess/${__sample}"
-cp -fr $TMP_DIR/preprocess/${__sample} $OUPUT_PATH/preprocess/
+echo "copying all kneaddata results to $OUTPUT_PATH/${PREPROCESS_OUTPUT_NAME}/${__sample}"
+cp -fr $TMP_DIR/${PREPROCESS_OUTPUT_NAME}/${__sample} $OUTPUT_PATH/${PREPROCESS_OUTPUT_NAME}/
 
 echo "done ${__sample}"

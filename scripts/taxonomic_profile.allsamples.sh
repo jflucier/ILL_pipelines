@@ -24,7 +24,7 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/global.checkenv.sh
 ${EXE_PATH}/taxonomic_profile.allsamples.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/taxonomic_profile_all
+mkdir -p ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}
 
 __all_taxas=$(echo "${TAXONOMIC_LEVEL[@]}")
 
@@ -34,18 +34,18 @@ echo "combine all samples kreports in one"
 export __KREPORTS=$(ls $TAXONOMIC_ALL_BRACKEN_KREPORTS)
 /project/def-ilafores/common/KrakenTools/combine_kreports.py \
 -r $__KREPORTS \
--o $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}_S.kreport \
+-o $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_S.kreport \
 --only-combined --no-headers
 
 echo "convert kreport to mpa"
 python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
--r $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}_S.kreport \
--o $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}_temp_S.MPA.TXT
+-r $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_S.kreport \
+-o $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_temp_S.MPA.TXT
 
 echo "modify mpa for humann support"
-grep "|s" $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}_temp_S.MPA.TXT \
+grep "|s" $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_temp_S.MPA.TXT \
 | awk '{printf("%s\t\n", $0)}' - \
-| awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - > $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT
+| awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - > $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT
 
 for taxa_str in $__all_taxas
 do
@@ -54,7 +54,7 @@ do
 
     echo "JOINT TAXONOMIC TABLES using taxonomic level-specific bracken reestimated abundances for $taxa_name"
 
-    for report_f in $OUPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.kreport
+    for report_f in $OUTPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.kreport
     do
         python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
         -r $report_f -o ${report_f//.kreport/}.MPA.TXT --display-header
@@ -62,10 +62,10 @@ do
 
     echo "runinng combine for $taxa_name"
     python /project/def-ilafores/common/KrakenTools/combine_mpa.py \
-    -i $OUPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.MPA.TXT \
-    -o $OUPUT_PATH/taxonomic_profile_all/temp_${taxa_oneletter}.tsv
+    -i $OUTPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.MPA.TXT \
+    -o $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/temp_${taxa_oneletter}.tsv
 
-    sed -i "s/_bracken_${taxa_oneletter}.kreport//g" $OUPUT_PATH/taxonomic_profile_all/temp_${taxa_oneletter}.tsv
+    sed -i "s/_bracken_${taxa_oneletter}.kreport//g" $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/temp_${taxa_oneletter}.tsv
 
     if [[ ${taxa_oneletter_tmp} == "D" ]]
     then
@@ -74,7 +74,7 @@ do
         taxa_oneletter_tmp=${taxa_oneletter_tmp};
     fi
 
-    grep -E "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $OUPUT_PATH/taxonomic_profile_all/temp_${taxa_oneletter}.tsv > $OUPUT_PATH/taxonomic_profile_all/taxtable_${taxa_oneletter}.tsv
+    grep -E "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/temp_${taxa_oneletter}.tsv > $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/taxtable_${taxa_oneletter}.tsv
 done
 
 
@@ -82,16 +82,16 @@ source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
 ### gen python chocphlan cusotm db
-cd $OUPUT_PATH/taxonomic_profile_all
+cd $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}
 echo "runnin create prescreen db. This step might take long"
-python -u ${EXE_PATH}/create_prescreen_db.py $TAXONOMIC_ALL_CHOCOPHLAN_DB $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT
+python -u ${EXE_PATH}/create_prescreen_db.py $TAXONOMIC_ALL_CHOCOPHLAN_DB $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT
 ### gen bowtie index on db
 mv _custom_chocophlan_database.ffn ${TAXONOMIC_ALL_NT_DBNAME}.ffn
 bowtie2-build --threads ${TAXONOMIC_ALL_SLURM_NBR_THREADS} ${TAXONOMIC_ALL_NT_DBNAME}.ffn  ${TAXONOMIC_ALL_NT_DBNAME}
 
-# echo "Please move $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME} bowtie index to the location of your custom chocophlan db."
-# echo "i.e. mv $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}* /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/"
-# echo "Also move $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT to the location of your custom chocophlan db for reference."
-# echo "i.e. mv $OUPUT_PATH/taxonomic_profile_all/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/"
+# echo "Please move $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME} bowtie index to the location of your custom chocophlan db."
+# echo "i.e. mv $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}* /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/"
+# echo "Also move $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT to the location of your custom chocophlan db for reference."
+# echo "i.e. mv $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/"
 
 echo "humann custom buglist db analysis completed"

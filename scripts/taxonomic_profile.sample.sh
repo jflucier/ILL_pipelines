@@ -23,7 +23,7 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/global.checkenv.sh
 ${EXE_PATH}/taxonomic_profile.sample.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/taxonomic_profile
+mkdir -p ${OUTPUT_PATH}/${TAXONOMIC_SAMPLE_OUTPUT_NAME}
 
 export __sample_line=$(cat ${TAXONOMIC_SAMPLE_SAMPLES_LIST_TSV} | awk "NR==$__line_nbr")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
@@ -110,7 +110,7 @@ grep "|s" $TMP_DIR/${__sample}/${__sample}_bracken/${__sample}_temp.MPA.TXT \
 | awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - \
 > $TMP_DIR/${__sample}/${__sample}-bugs_list.MPA.TXT
 
-echo "copying all results to $OUPUT_PATH/${__sample}"
-cp -fr $TMP_DIR/${__sample} $OUPUT_PATH/taxonomic_profile/
+echo "copying all results to $OUTPUT_PATH/${__sample}"
+cp -fr $TMP_DIR/${__sample} $OUTPUT_PATH/${TAXONOMIC_SAMPLE_OUTPUT_NAME}/
 
 echo "done ${__sample}"

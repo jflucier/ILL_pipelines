@@ -17,14 +17,14 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/scripts/global.checkenv.sh
 ${EXE_PATH}/scripts/taxonomic_profile.sample.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/taxonomic_profile
+mkdir -p ${OUTPUT_PATH}/${TAXONOMIC_SAMPLE_OUTPUT_NAME}/logs
 
-echo "outputting make custom buglist db slurm script to ${OUPUT_PATH}/taxonomic_profile/taxonomic_profile.slurm.sh"
-echo '#!/bin/bash' > ${OUPUT_PATH}/taxonomic_profile/taxonomic_profile.slurm.sh
+echo "outputting make custom buglist db slurm script to ${OUTPUT_PATH}/${TAXONOMIC_SAMPLE_OUTPUT_NAME}/taxonomic_profile.slurm.sh"
+echo '#!/bin/bash' > ${OUTPUT_PATH}/${TAXONOMIC_SAMPLE_OUTPUT_NAME}/taxonomic_profile.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/taxonomic_profile/taxonomic_profile-%A_%a.slurm.out
+#SBATCH -D '${OUTPUT_PATH}'
+#SBATCH -o '${OUTPUT_PATH}'/'${TAXONOMIC_SAMPLE_OUTPUT_NAME}'/logs/taxonomic_profile-%A_%a.slurm.out
 #SBATCH --time='${TAXONOMIC_SAMPLE_SLURM_WALLTIME}'
 #SBATCH --mem='${TAXONOMIC_SAMPLE_SLURM_MEMORY}'
 #SBATCH --mail-user='${SLURM_JOB_EMAIL}'
@@ -43,8 +43,8 @@ bash '${EXE_PATH}'/scripts/taxonomic_profile.sample.sh \
 $SLURM_TMPDIR \
 $SLURM_ARRAY_TASK_ID
 
-' >> ${OUPUT_PATH}/taxonomic_profile/taxonomic_profile.slurm.sh
+' >> ${OUTPUT_PATH}/${TAXONOMIC_SAMPLE_OUTPUT_NAME}/taxonomic_profile.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
 read sample_nbr f <<< $(wc -l ${TAXONOMIC_SAMPLE_SAMPLES_LIST_TSV})
-echo "sbatch --array=1-$sample_nbr ${OUPUT_PATH}/taxonomic_profile/taxonomic_profile.slurm.sh"
+echo "sbatch --array=1-$sample_nbr ${OUTPUT_PATH}/${TAXONOMIC_SAMPLE_OUTPUT_NAME}/taxonomic_profile.slurm.sh"

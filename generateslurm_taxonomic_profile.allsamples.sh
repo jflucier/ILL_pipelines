@@ -17,14 +17,14 @@ source $CONF_PARAMETERS
 ${EXE_PATH}/scripts/global.checkenv.sh
 ${EXE_PATH}/scripts/taxonomic_profile.allsamples.checkenv.sh
 
-mkdir -p ${OUPUT_PATH}/taxonomic_profile_all
+mkdir -p ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/logs
 
-echo "outputting all sample taxonomic profile slurm script to ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh"
-echo '#!/bin/bash' > ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh
+echo "outputting all sample taxonomic profile slurm script to ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh"
+echo '#!/bin/bash' > ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D '${OUPUT_PATH}'
-#SBATCH -o '${OUPUT_PATH}'/taxonomic_profile_all/taxonomic_profile_all-%A.slurm.out
+#SBATCH -D '${OUTPUT_PATH}'
+#SBATCH -o '${OUTPUT_PATH}'/'${TAXONOMIC_ALL_OUTPUT_NAME}'/logs/taxonomic_profile_all-%A.slurm.out
 #SBATCH --time='${TAXONOMIC_ALL_SLURM_WALLTIME}'
 #SBATCH --mem='${TAXONOMIC_ALL_SLURM_MEMORY}'
 #SBATCH --mail-user='${SLURM_JOB_EMAIL}'
@@ -43,9 +43,9 @@ bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 '$CONF_PARAMETERS' \
 $SLURM_TMPDIR
 
-' >> ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh
+' >> ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-echo "sbatch ${OUPUT_PATH}/taxonomic_profile_all/taxonomic_profile.allsamples.slurm.sh"
+echo "sbatch ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh"
 
 echo "done!"
