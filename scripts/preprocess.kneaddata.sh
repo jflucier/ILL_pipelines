@@ -53,7 +53,6 @@ kneaddata -v \
 --output-prefix ${__sample} \
 --threads ${PREPROCESS_SLURM_NBR_THREADS} \
 --max-memory ${PREPROCESS_SLURM_MEMORY} \
---sequencer-source="${PREPROCESS_KNEADDATA_SEQUENCER}" \
 --trimmomatic-options="${PREPROCESS_KNEADDATA_TRIMMOMATIC}" \
 --run-fastqc-start \
 --run-fastqc-end

@@ -33,8 +33,6 @@ From: ubuntu:20.04
     roary \
     cpanminus
 
-    perl -MCPAN -e 'upgrade'
-
     rm -rf /var/lib/apt/lists/*
     apt-get clean
 
@@ -56,6 +54,8 @@ From: ubuntu:20.04
 
     mamba create -y --name metawrap-env python=2.7
     conda activate metawrap-env
+
+    perl -MCPAN -e 'upgrade'
 
     #pip install joblib
 
@@ -116,6 +116,9 @@ From: ubuntu:20.04
     apt-get -yq install libmkl-rt
 
     sed -i 's/MINVER  => "2.2",/MINVER  => "2.1",/g' /miniconda3/envs/metawrap-env/bin/prokka
+
+    cpanm Encode::Locale
+
 
     conda deactivate
 

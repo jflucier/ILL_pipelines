@@ -67,6 +67,10 @@ metaWRAP assembly --metaspades --megahit \
 -2 /out/${__sample}/${__sample}_paired_sorted_2.fastq \
 -o /out/assembly/
 
+echo "copying assembly results back to $OUTPUT_PATH/assembly/${__sample}/"
+mkdir -p $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/assembly/${__sample}/
+cp -r ${TMP_DIR}/assembly/* $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/assembly/${__sample}/
+
 # echo "renaming fastq"
 # mv ${TMP_DIR}/${__sample}/${__sample}_paired_1.sort.fastq ${TMP_DIR}/${__sample}/${__sample}_paired_sorted_1.fastq
 # mv ${TMP_DIR}/${__sample}/${__sample}_paired_2.sort.fastq ${TMP_DIR}/${__sample}/${__sample}_paired_sorted_2.fastq
@@ -87,6 +91,10 @@ metaWRAP binning --metabat2 --maxbin2 --concoct --run-checkm \
 -o /out/binning/ \
 /out/${__sample}/${__sample}_paired_sorted_1.fastq /out/${__sample}/${__sample}_paired_sorted_2.fastq
 
+echo "copying binning results back to $OUTPUT_PATH/binning/${__sample}/"
+mkdir -p $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/binning/${__sample}/
+cp -r ${TMP_DIR}/binning/* $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/binning/${__sample}/
+
 # around 2.5 hr of exec
 echo "metawrap bin refinement"
 mkdir ${TMP_DIR}/bin_refinement/
@@ -102,6 +110,11 @@ metawrap bin_refinement -t $ASSEMBLY_SLURM_NBR_THREADS --quick \
 -A /out/binning/metabat2_bins/ \
 -B /out/binning/maxbin2_bins/ \
 -C /out/binning/concoct_bins/
+
+echo "copying bin_refinement results back to $OUTPUT_PATH/bin_refinement/${__sample}/"
+mkdir -p $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/bin_refinement/${__sample}/
+cp -r ${TMP_DIR}/bin_refinement/* $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/bin_refinement/${__sample}/
+
 
 # echo "metawrap bin reassembly"
 # mkdir ${TMP_DIR}/bin_reassembly/
@@ -119,19 +132,10 @@ metawrap bin_refinement -t $ASSEMBLY_SLURM_NBR_THREADS --quick \
 # -2 /out/ALL_READS_2.fastq \
 # -b /out/bin_refinement/metawrap_${ASSEMBLY_BIN_REFINEMENT_MIN_COMPLETION}_${ASSEMBLY_BIN_REFINEMENT_MAX_CONTAMINATION}_bins
 
-
-echo "copying assembly results back to $OUTPUT_PATH/assembly/${__sample}/"
-mkdir -p $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/assembly/${__sample}/
-cp -r ${TMP_DIR}/assembly/* $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/assembly/${__sample}/
-
-echo "copying binning results back to $OUTPUT_PATH/binning/${__sample}/"
-mkdir -p $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/binning/${__sample}/
-cp -r ${TMP_DIR}/binning/* $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/binning/${__sample}/
-
-echo "copying bin_refinement results back to $OUTPUT_PATH/bin_refinement/${__sample}/"
-mkdir -p $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/bin_refinement/${__sample}/
-cp -r ${TMP_DIR}/bin_refinement/* $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/bin_refinement/${__sample}/
 # cp -r ${TMP_DIR}/bin_reassembly $OUTPUT_PATH/
+
+
+
 
 
 echo "metawrap assembly & binning pipeline done"
