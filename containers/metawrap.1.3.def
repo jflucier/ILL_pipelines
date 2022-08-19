@@ -31,7 +31,8 @@ From: ubuntu:20.04
     tzdata \
     openjdk-17-jre \
     roary \
-    cpanminus
+    cpanminus \
+    perl
 
     rm -rf /var/lib/apt/lists/*
     apt-get clean
@@ -55,8 +56,9 @@ From: ubuntu:20.04
     mamba create -y --name metawrap-env python=2.7
     conda activate metawrap-env
 
+    # cpanm Encode::Locale
     perl -MCPAN -e 'upgrade'
-
+    # conda install perl-encode-locale
     #pip install joblib
 
     mamba install -y \
@@ -86,7 +88,8 @@ From: ubuntu:20.04
     salmon \
     seaborn \
     spades \
-    trim-galore
+    trim-galore \
+    perl-encode-locale
 
     cd /
     wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
@@ -117,7 +120,6 @@ From: ubuntu:20.04
 
     sed -i 's/MINVER  => "2.2",/MINVER  => "2.1",/g' /miniconda3/envs/metawrap-env/bin/prokka
 
-    cpanm Encode::Locale
 
 
     conda deactivate
