@@ -61,7 +61,7 @@ singularity exec --writable-tmpfs -e \
 -B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
 -B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
-metaWRAP assembly --metaspades --megahit \
+metaWRAP assembly ${ASSEMBLY_PROGRAMS} \
 -m $SPADES_MEM -t $ASSEMBLY_SLURM_NBR_THREADS \
 -1 /out/${__sample}/${__sample}_paired_sorted_1.fastq \
 -2 /out/${__sample}/${__sample}_paired_sorted_2.fastq \
@@ -70,10 +70,6 @@ metaWRAP assembly --metaspades --megahit \
 echo "copying assembly results back to $OUTPUT_PATH/assembly/${__sample}/"
 mkdir -p $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/assembly/${__sample}/
 cp -r ${TMP_DIR}/assembly/* $OUTPUT_PATH/${ASSEMBLY_OUTPUT_NAME}/assembly/${__sample}/
-
-# echo "renaming fastq"
-# mv ${TMP_DIR}/${__sample}/${__sample}_paired_1.sort.fastq ${TMP_DIR}/${__sample}/${__sample}_paired_sorted_1.fastq
-# mv ${TMP_DIR}/${__sample}/${__sample}_paired_2.sort.fastq ${TMP_DIR}/${__sample}/${__sample}_paired_sorted_2.fastq
 
 # around 9hr of exec
 echo "metawrap binning and checkm step using metabat2, maxbin2 and concoct"
