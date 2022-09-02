@@ -39,7 +39,7 @@ echo "loading env"
 export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
 module use $MUGQIC_INSTALL_HOME/modulefiles
 
-bash '${EXE_PATH}'/scripts/denovo_assembly.metawrap.sh \
+bash '${EXE_PATH}'/scripts/denovo_assembly_bin_refinement.metawrap.sh \
 '$CONF_PARAMETERS' \
 $SLURM_TMPDIR \
 $SLURM_ARRAY_TASK_ID
@@ -48,4 +48,4 @@ $SLURM_ARRAY_TASK_ID
 
 echo "To submit to slurm, execute the following command:"
 read sample_nbr f <<< $(wc -l ${ASSEMBLY_SAMPLE_LIST_TSV})
-echo "sbatch --array=1-$sample_nbr ${OUTPUT_PATH}/${ASSEMBLY_OUTPUT_NAME}/denovo_assembly.metawrap.slurm.sh"
+echo "sbatch --array=1-$sample_nbr ${OUTPUT_PATH}/${ASSEMBLY_OUTPUT_NAME}/denovo_assembly_bin_refinement.metawrap.slurm.sh"

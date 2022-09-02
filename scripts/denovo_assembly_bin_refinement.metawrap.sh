@@ -21,7 +21,7 @@ module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 singularity/3.7 mugqic/BB
 source $CONF_PARAMETERS
 
 ${EXE_PATH}/global.checkenv.sh
-#${EXE_PATH}/preprocess.checkenv.sh
+${EXE_PATH}/denovo_assembly_bin_refinement.metawrap.checkenv.sh
 
 export __sample_line=$(cat ${ASSEMBLY_SAMPLE_LIST_TSV} | awk "NR==$__line_nbr")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
