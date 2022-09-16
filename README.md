@@ -9,106 +9,325 @@ Slightly modified humann pipeline to optimise performance.
 * [Requirements](#requirements)
 * [Installation](#initial-installation)
 * [How to run](#how-to-run)
-    * [Make custom buglist input](#make-custom-buglist-input)
-    * [Make custom buglist database](#make-custom-buglist-database)
-    * [Run custom human pipeline](#run-pipeline)
-* [Output files](#output-files)
+    * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
+    * [Run taxonomic profile on samples](#Run-taxonomic-profile-on-samples)
+    * [Run assembly, binning and bin refinement](#Run-assembly,-binning-and-bin-refinement)
 
 ----
 
 ## Requirements ##
 
-1. [humann](https://huttenhower.sph.harvard.edu/humann/) (version >= 3.0)
-2. [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) (version >= 2.3.5)
-3. [samtools](http://www.htslib.org/) (version >= 1.14)
-4. [diamond](https://github.com/bbuchfink/diamond) (version >= 2.0.14)
+1. [BBMap](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbmap-guide/)
+2. [Singularity](https://docs.sylabs.io/guides/3.0/user-guide/index.html)
+3. [kneaddata](https://github.com/biobakery/kneaddata)
+4. [Kraken2](https://github.com/DerrickWood/kraken2)
+5. [Bracken](https://github.com/jenniferlu717/Bracken)
+6. [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools)
+
 
 Please install the required software in a location of your choice and put in PATH variable.
-
-```
-export PATH=/path/to/bowtie2:$PATH"
-export PATH=/path/to/samtools:$PATH
-export PATH=/path/to/diamond:$PATH
-```
-
-Before using humann_custom pipeline, make sure you create a configuration file (see install section).
 
 ----
 
 ## Initial Installation ##
 
-To install humann_custom you need to:
+To install ILL pipelines you need to:
 
 * Create a clone of the repository:
 
-    ``$ git clone https://github.com/jflucier/ILL_pipelines.git ``
+    ``git clone https://github.com/jflucier/ILL_pipelines.git ``
 
     Note: Creating a clone of the repository requires [Github](https://github.com/) to be installed.
+
+* For convenience, set environment variable ILL_PIPELINES in your ~/.bashrc:
+
+    ``export ILL_PIPELINES=/path/to/ILL_pipelines ``
+
+    Note: On ip29, ILL pipelines path is /project/def-ilafores/common/ILL_pipelines
 
 
 ----
 
 ## How to run ##
 
-To run pipelines in this repository you first need to COPY and EDIT example configuration
-file /path/to/ILL_pipelines/humann_custom/my.example.config
-
-```
-on ip29: HUMANN_CUSTOM_INSTALL=/project/def-ilafores/common/ILL_pipelines/humann_custom
-export HUMANN_CUSTOM_INSTALL=/path/to/ILL_pipelines/humann_custom
-cp ${HUMANN_CUSTOM_INSTALL}/my.example.config .
-cp ${HUMANN_CUSTOM_INSTALL}/buglist.sample.test.tsv .
-cp ${HUMANN_CUSTOM_INSTALL}/humann.sample.tsv .
-vi my.example.config
-```
-
-As mentionned in example configuration file, you need to defined the PREPROC_SAMPLES_LIST_TSV and RAW_SAMPLES_LIST_TSV variables.
-
-RAW_SAMPLES_LIST_TSV is a tab seperated files with 3 columns similar to this table:
+To run pipelines you need to create a sample spread with 3 columns like this table:
 
 | sample1 	| /path/to/sample1.R1.fastq 	| /path/to/sample1.R2.fastq 	|
 | sample2 	| /path/to/sample2.R1.fastq 	| /path/to/sample2.R2.fastq 	|
 | etc...  	| etc...                    	| etc...                    	|
 
-**TSV files must not have header line.**
+**Important note: TSV files must not have header line.**
 
-PREPROC_SAMPLES_LIST_TSV is a tab seperated files with 2 columns similar to this table:
+### Run preprocess kneaddata pipelines ###
 
-| sample1 	| /path/to/sample1.fastq 	|
-| sample2 	| /path/to/sample2.fastq 	|
-| etc...  	| etc...                 	|
+Before running this pipeline, make sure [kneaddata](https://github.com/biobakery/kneaddata) is installed.
 
-**TSV files must not have header line.** This listing can be performed after the 01_make_custom_buglist_input.sh
-and 02_make_humann_buglist_db.sh steps sucessfully complete.
+For full list of options:
 
+```
+$ bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh -h
 
-### Make custom buglist input ###
+Usage: generateslurm_preprocess.kneaddata.sh --sample_tsv /path/to/tsv --out /path/to/out [--db] [--trimmomatic_options "trim options"] [--bowtie2_options "bowtie2 options"]
+Options:
+
+	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
+	--out STR	path to output dir
+	--db	kneaddata database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
+	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 24)
+	--slurm_mem STR	slurm requested memory (default 30)
+
+  -h --help	Display help
 
 ```
 
-$ bash ${HUMANN_CUSTOM_INSTALL}/01_make_custom_buglist_input.sh my.example.config
+Most default values should be ok on ip29. Make sure you specify sample_tsv, ouput path.
+
+Here is how generate slurm script with default paramters:
+```
+
+$ bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh --out precocess/ --sample_tsv samples.tsv
+## Will use sample file: samples.tsv
+## Results wil be stored to this path: precocess/
+## Slurm output path not specified, will output logs in: precocess//logs
+outputting preprocess slurm script to precocess//preprocess.kneaddata.slurm.sh
+Generate taxonomic profiling sample tsv: precocess//taxonomic_profile.sample.tsv
+Generate functionnal profiling sample tsv: precocess//functionnal_profile.sample.tsv
+To submit to slurm, execute the following command:
+sbatch --array=1-187 precocess//preprocess.kneaddata.slurm.sh
 
 ```
 
-### Make custom buglist database ###
+Notice that preprocess script generates 2 tab seperated sample files that should be used
+for the taxonomic profile pipeline and for the functionnal profile pipeline.
+
+Finally, the preprocess script can be executed on a single sample.
+Use -h option to view usage:
 
 ```
 
-$ bash ${HUMANN_CUSTOM_INSTALL}/02_make_humann_buglist_db.sh my.example.config
+$ bash $ILL_PIPELINES/scripts/preprocess.kneaddata.sh -h
+
+Usage: preprocess.kneaddata.sh -s sample_name -o /path/to/out [--db] [--trimmomatic_options "trim options"] [--bowtie2_options "bowtie2 options"]
+Options:
+
+	-s STR	sample name
+	-o STR	path to output dir
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-m	memory (default 40G)
+	-fq1	path to fastq1
+	-fq2	path to fastq2
+	--db	kneaddata database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
+	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
+
+  -h --help	Display help
+
 
 ```
 
-### Run custom human pipeline ###
+
+### Run taxonomic profile on samples ###
+
+Before running this pipeline, make sure [kraken2](https://github.com/DerrickWood/kraken2), [Bracken](https://github.com/jenniferlu717/Bracken) and [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools) and acessible in PATH variable.
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_taxonomic_profile.sample.sh -h
+
+Usage: generateslurm_taxonomic_profile.sample.sh --sample_tsv /path/to/tsv --out /path/to/out [--db] [--trimmomatic_options "trim options"] [--bowtie2_options "bowtie2 options"]
+Options:
+
+	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
+	--out STR	path to output dir
+	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--bracken_readlen	bracken read length option (default 150)
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 6:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 24)
+	--slurm_mem STR	slurm requested memory (default 125)
+
+  -h --help	Display help
 
 ```
 
-$ bash ${HUMANN_CUSTOM_INSTALL}/03_humann_custom_run.sh my.example.config
+The taxonomic profile script can also beexecuted on a single sample.
+Use -h option to view usage:
+
+```
+
+$ $ILL_PIPELINES/scripts/taxonomic_profile.sample.sh -h
+
+Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] [--trimmomatic_options "trim options"] [--bowtie2_options "bowtie2 options"]
+Options:
+
+	-s STR	sample name
+	-o STR	path to output dir
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-m	memory (default 40G)
+	-fq1	path to fastq1
+	-fq2	path to fastq2
+	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--bracken_readlen	bracken read length option (default 150)
+
+  -h --help	Display help
 
 ```
 
 
-----
+### Run assembly, binning and bin refinement pipelines ###
 
-## Output files ##
+Before running this pipeline, make sure singularity and BBmap executables are in your path.
 
-SEction need documentation!!!
+For full list of options:
+
+```
+
+$ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh -h
+
+Usage: generateslurm_denovo_assembly_bin_refinement.metawrap.sh --sample_tsv /path/to/tsv --out /path/to/out [--assembly] [--binning] [--refinement]
+Options:
+
+    --sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
+	--out STR	path to output dir
+	--assembly	perform assembly
+	--binning	perform binning step
+	--refinement	perform refinement step
+
+Metawrap options:
+	--metaspades	use metaspades for assembly (default: true)
+	--megahit	use megahit for assembly (default: true)
+	--metabat2	use metabat2 for binning (default: true)
+	--maxbin2	use maxbin2 for binning (default: true)
+	--concoct	use concoct for binning (default: true)
+	--run-checkm	run checkm for binning (default: true)
+	--refinement_min_compl INT	refinement bin minimum completion percent (default 50)
+	--refinement_max_cont INT	refinement bin maximum contamination percent (default 10)
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 48)
+	--slurm_mem STR	slurm requested memory (default 251G)
+
+  -h --help	Display help
+
+
+```
+
+Most default values should be ok in a cluster environment. Make sure you specify sample_tsv, ouput path and steps you wich to execute (assembly and/or binning and/or refinement). Obviously, before running binning, you must perform assembly step.
+
+Here a re some example commands you can perform for this pipeline:
+```
+
+# Run all steps with defualt parameters
+$ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh \
+--out path/to/out --sample_tsv /path/to/tsv
+
+# Run only the assembly step
+$ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh \
+--out path/to/out --sample_tsv /path/to/tsv \
+--assembly
+
+# Run only the assembly step using only megahit assembler
+$ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh \
+--out path/to/out --sample_tsv /path/to/tsv \
+--assembly --megahit
+
+# Run the assembly step using only megahit assembler and binning step with
+# concoct and maxbin binner software
+$ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh \
+--out path/to/out --sample_tsv /path/to/tsv \
+--assembly --megahit \
+--binning --maxbin2 --concoct
+
+# Run assembly and binning with default paramters and refinement step using
+# specific bin completion and contamination values
+$ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh \
+--out path/to/out --sample_tsv /path/to/tsv \
+--assembly --binning \
+--refinement --refinement_min_compl 90 --refinement_max_cont 5
+
+```
+
+Finally, the assembly, binng and refinement script can be executed on a single sample.
+Use -h option to view usage:
+
+```
+
+## assembly script usage:
+$ bash /home/jflucier/localhost/projet/ILL_pipelines/scripts/assembly.metawrap.sh -h
+
+Usage: assembly.metawrap.sh [-tmp /path/tmp] [-t threads] [-m memory] [--metaspades] [--megahit] -s sample_name -o /path/to/out -fq1 /path/to/fastq1 -fq2 /path/to/fastq2
+Options:
+
+	-s STR	sample name
+	-o STR	path to output dir
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-m	memory (default 40G)
+	-fq1	path to fastq1
+	-fq2	path to fastq2
+	--metaspades	use metaspades for assembly (default: true)
+	--megahit	use megahit for assembly (default: true)
+
+  -h --help	Display help
+
+## Binning script usage:
+$ bash $ILL_PIPELINES/scripts/binning.metawrap.sh -h
+
+Usage: binning.metawrap.sh [-tmp /path/tmp] [-t threads] [-m memory] [--metabat2] [--maxbin2] [--concoct] [--run-checkm] -s sample_name -o /path/to/out -a /path/to/assembly -fq1 /path/to/fastq1 -fq2 /path/to/fastq2
+Options:
+
+	-s STR	sample name
+	-o STR	path to output dir
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-m	memory (default 40G)
+	-a	assembly fasta filepath
+	-fq1	path to fastq1
+	-fq2	path to fastq2
+	--metabat2	use metabat2 for binning (default: true)
+	--maxbin2	use maxbin2 for binning (default: true)
+	--concoct	use concoct for binning (default: true)
+	--run-checkm	run checkm on bins (default: true)
+
+  -h --help	Display help
+
+
+## Binning refinement script usage:
+$ $ILL_PIPELINES/scripts/bin_refinement.metawrap.sh -h
+
+Usage: bin_refinement.metawrap.sh [-tmp /path/tmp] [-t threads] [-m memory] [--metaspades] [--megahit] -s sample_name -o /path/to/out -fq1 /path/to/fastq1 -fq2 /path/to/fastq2
+Options:
+
+	-s STR	sample name
+	-o STR	path to output dir
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-m	memory (default 40G)
+	--metabat2_bins	path to metabats bin direcotry
+	--maxbin2_bins	path to maxbin2 bin direcotry
+	--concoct_bins	path to concoct bin direcotry
+	--refinement_min_compl INT	refinement bin minimum completion percent (default 50)
+	--refinement_max_cont INT	refinement bin maximum contamination percent (default 10)
+
+  -h --help	Display help
+
+```
