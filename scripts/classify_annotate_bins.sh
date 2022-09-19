@@ -37,6 +37,20 @@ echo "upload bins to ${TMP_DIR}/"
 echo "bins folder: $__bin_refinement_name"
 cp -r ${OUTPUT_PATH}/bin_refinement/$__bin_refinement_name ${TMP_DIR}/
 
+mkdir -p ${TMP_DIR}/prokka
+for b in ${TMP_DIR}/${__bin_refinement_name}/*.fa
+do
+    fullname=$(basename $b)
+    name=${fullname%.fa}
+    echo "running prokka on bin $name"
+    singularity exec --writable-tmpfs -e \
+    -B ${TMP_DIR}:/out \
+    ${EXE_PATH}/../containers/metawrap.1.3.sif \
+    /miniconda3/envs/metawrap-env/bin/prokka --force --cpus $ANNOTATE_SLURM_NBR_THREADS \
+    --outdir /out/prokka \
+    --prefix $name /out/${__bin_refinement_name}/${fullname}
+done
+
 # run gtdbtk
 echo "running gtdbtk annotation pipeline on refined bins"
 mkdir -p ${TMP_DIR}/bin_classification
@@ -52,19 +66,6 @@ gtdbtk classify_wf \
 --cpus $ANNOTATE_SLURM_NBR_THREADS --pplacer_cpus $ANNOTATE_PPLACER_NBR_THREADS \
 --scratch_dir /out/temp --tmpdir /out/temp
 
-mkdir -p ${TMP_DIR}/prokka
-for b in ${TMP_DIR}/${__bin_refinement_name}/*.fa
-do
-    fullname=$(basename $b)
-    name=${fullname%.fa}
-    echo "running prokka on bin $name"
-    singularity exec --writable-tmpfs -e \
-    -B ${TMP_DIR}:/out \
-    ${EXE_PATH}/../containers/metawrap.1.3.sif \
-    /miniconda3/envs/metawrap-env/bin/prokka --force --cpus $ANNOTATE_SLURM_NBR_THREADS \
-    --outdir /out/prokka \
-    --prefix $name /out/${__bin_refinement_name}/${fullname}
-done
 
 mkdir -p ${TMP_DIR}/roary
 singularity exec --writable-tmpfs -e \

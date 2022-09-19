@@ -11,6 +11,7 @@ Slightly modified humann pipeline to optimise performance.
 * [How to run](#how-to-run)
     * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
     * [Run taxonomic profile on samples](#Run-taxonomic-profile-on-samples)
+    * [Run HUMAnN functionnal profile on samples](#Run-HUMAnN-functionnal-profile-on-samples)
     * [Run assembly, binning and bin refinement](#Run-assembly,-binning-and-bin-refinement)
 
 ----
@@ -23,6 +24,7 @@ Slightly modified humann pipeline to optimise performance.
 4. [Kraken2](https://github.com/DerrickWood/kraken2)
 5. [Bracken](https://github.com/jenniferlu717/Bracken)
 6. [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools)
+7. [HUMAnN](https://huttenhower.sph.harvard.edu/humann/)
 
 
 Please install the required software in a location of your choice and put in PATH variable.
@@ -164,7 +166,7 @@ Slurm options:
 
 ```
 
-The taxonomic profile script can also beexecuted on a single sample.
+The taxonomic profile script can also be executed on a single sample.
 Use -h option to view usage:
 
 ```
@@ -188,6 +190,62 @@ Options:
 
 ```
 
+### Run HUMAnN functionnal profile on samples ###
+
+Before running this pipeline, make sure [HUMAnN](https://huttenhower.sph.harvard.edu/humann/) conda environment is acessible via the conda activate command.
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_functionnal_profile.humann.sh -h
+
+Usage: generateslurm_functionnal_profile.humann.sh --sample_tsv /path/to/tsv --out /path/to/out --nt_db "nt database path" [--search_mode "search mode"] [--prot_db "protein database path"]
+Options:
+
+	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
+	--out STR	path to output dir
+	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)
+	--nt_db	the nucleotide database to use
+	--prot_db	the protein database to use (default /project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref)
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 24)
+	--slurm_mem STR	slurm requested memory (default 125G)
+
+  -h --help	Display help
+
+
+```
+
+The functionnal profile script can also be executed on a single sample.
+Use -h option to view usage:
+
+```
+
+$ $ILL_PIPELINES/scripts/functionnal_profile.humann.sh -h
+
+Usage: functionnal_profile.humann.sh -s /path/to/tsv --o /path/to/out --nt_db "nt database path" [--search_mode "search mode"] [--prot_db "protein database path"]
+Options:
+
+	-s STR	sample name
+	-o STR	path to output dir
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-m	memory (default 30G)
+	-fq	path to fastq
+	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)
+	--nt_db	the nucleotide database to use
+	--prot_db	the protein database to use (default /project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref)
+	--log	logging file path (default /path/output/log.txt)
+
+  -h --help	Display help
+
+
+```
 
 ### Run assembly, binning and bin refinement pipelines ###
 

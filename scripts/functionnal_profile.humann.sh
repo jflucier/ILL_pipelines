@@ -2,103 +2,191 @@
 
 set -e
 
-echo "load and valdiate env"
-# load and valdiate env
+help_message () {
+	echo ""
+    echo "Usage: functionnal_profile.humann.sh -s /path/to/tsv --o /path/to/out --nt_db \"nt database path\" [--search_mode \"search mode\"] [--prot_db \"protein database path\"]"
+	echo "Options:"
+
+	echo ""
+	echo "	-s STR	sample name"
+    echo "	-o STR	path to output dir"
+    echo "	-tmp STR	path to temp dir (default output_dir/temp)"
+    echo "	-t	# of threads (default 8)"
+    echo "	-m	memory (default 30G)"
+    echo "	-fq	path to fastq"
+    echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)"
+    echo "	--nt_db	the nucleotide database to use"
+    echo "	--prot_db	the protein database to use (default /project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref)"
+    echo "	--log	logging file path (default /path/output/log.txt)"
+
+    echo ""
+    echo "  -h --help	Display help"
+
+	echo "";
+}
+
 export EXE_PATH=$(dirname "$0")
 
-if [ -z ${1+x} ]; then
-    echo "Please provide a configuration file. See ${EXE_PATH}/my.example.config for an example."
-    exit 1
+threads="8"
+mem="30G"
+sample="false";
+out="false";
+tmp="false";
+fq="false";
+search_mode="dual"
+nt_db="false"
+prot_db="/project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref"
+log='false'
+
+# load in params
+# load in params
+SHORT_OPTS="ht:m:o:s:fq:tmp:"
+LONG_OPTS='help,search_mode,nt_db,prot_db,log'
+
+OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
+# make sure the params are entered correctly
+if [ $? -ne 0 ];
+then
+    help_message;
+    exit 1;
 fi
 
-export CONF_PARAMETERS=$1
-export TMP_DIR=$2
-export __line_nbr=$3
+while true; do
+    # echo $1
+	case "$1" in
+        -h | --help) help_message; exit 1; shift 1;;
+        -t) threads=$2; shift 2;;
+        -tmp) tmp=$2; shift 2;;
+        -m) mem=$2; shift 2;;
+        -s) sample=$2; shift 2;;
+        -o) out=$2; shift 2;;
+        -fq) fq=$2; shift 2;;
+        --search_mode) search_mode=$2; shift 2;;
+		--nt_db) nt_db=$2; shift 2;;
+        --prot_db) prot_db=$2; shift 2;;
+        --log) prot_db=$2; shift 2;;
+        --) help_message; exit 1; shift; break ;;
+		*) break;;
+	esac
+done
 
-module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
+if [ "$sample" = "false" ]; then
+    echo "Please provide a sample name."
+    help_message; exit 1
+else
+    echo "## Sample name: $sample"
+fi
+
+if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$refinement_step" = "prot" ]; then
+    echo "Search mode provided is $search_mode. Value must be one of the following: dual, nt or prot"
+    help_message; exit 1
+fi
+echo "## Search mode: $search_mode"
+
+if [ "$out" = "false" ]; then
+    echo "Please provide an output path"
+    help_message; exit 1
+else
+    mkdir -p ${out}/${search_mode}
+    echo "## Results wil be stored to this path: ${out}/${search_mode}"
+fi
+
+if [ "$tmp" = "false" ]; then
+    tmp=$out/temp
+    mkdir -p $tmp
+    echo "## No temp folder provided. Will use: $tmp"
+else
+    echo "## Temp folder: $tmp"
+fi
+
+if [ "$log" = "false" ]; then
+    log=${out}/${search_mode}/humann_${__sample}.log
+    echo "## Humann log path not specified, will use this path: $log"
+else
+    echo "## Will output logs in: $log"
+fi
+
+if [ "$nt_db" = "false" ]; then
+    echo "Please provide an NT db path"
+    help_message; exit 1
+fi
+echo "## NT database: $nt_db"
+echo "## Protein database: $prot_db"
+
+echo "analysing sample $sample with metawrap"
+echo "fastq path: $fq"
+
+fq1_name=$(basename $fq)
+
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-source $CONF_PARAMETERS
+echo "copying fastq $fq"
+cp $fq ${tmp}/${fq1_name}
 
-${EXE_PATH}/global.checkenv.sh
-${EXE_PATH}/functionnal_profile.humann.checkenv.sh
+mkdir ${tmp}/db
+echo "copying nucleotide bowtie index ${nt_db}"
+export __nt_db_idx=$(basename ${nt_db})
+cp ${nt_db}*.bt2l ${tmp}/db/
 
-mkdir -p ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}
+echo "copying protein diamond index ${prot_db}"
+export __prot_db_idx=$(basename ${prot_db})
+cp -r ${prot_db} ${tmp}/db
 
-export __sample_line=$(cat ${FUNCPROFILING_SAMPLES_LIST_TSV} | awk "NR==$__line_nbr")
-export __sample=$(echo -e "$__sample_line" | cut -f1)
-export __fastq=$(echo -e "$__sample_line"  | cut -f2)
-export __fastq_file=$(basename $__fastq)
-
-echo "copying fastq $__fastq"
-cp $__fastq $TMP_DIR/${__fastq_file}
-
-mkdir $TMP_DIR/db
-echo "copying nucleotide bowtie index ${FUNCPROFILING_NT_DB}"
-export __FUNCPROFILING_NT_DB_BT2=$(basename ${FUNCPROFILING_NT_DB})
-cp ${FUNCPROFILING_NT_DB}*.bt2l $TMP_DIR/db/
-
-echo "copying protein diamond index ${FUNCPROFILING_PROT_DB}"
-export __PROT_DIA_IDX=$(basename ${FUNCPROFILING_PROT_DB})
-cp -r ${FUNCPROFILING_PROT_DB} $TMP_DIR/db
-
-export __FUNCPROFILING_NT_DB=$TMP_DIR/db/${__FUNCPROFILING_NT_DB_BT2}
-export __FUNCPROFILING_PROT_DB=$TMP_DIR/db/${__PROT_DIA_IDX}
+export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
+export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
 
 echo "running humann"
-mkdir -p $TMP_DIR/${__sample}
-echo "outputting to $TMP_DIR/${__sample}"
+mkdir -p ${tmp}/${__sample}
+echo "outputting to ${tmp}/${__sample}"
 
-mkdir -p ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}
+mkdir -p ${out}/${search_mode}
 
-case $FUNCPROFILING_SEARCH_MODE in
+case $search_mode in
 
   "DUAL")
-    echo "Search using DUAL mode"
+    echo "Caslling humann using search mode DUAL"
     humann \
-    -v --threads ${FUNCPROFILING_SLURM_FAT_NBR_THREADS} \
-    --o-log ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/logs/humann-${__line_nbr}_${__sample}.log \
-    --input $TMP_DIR/${__fastq_file} \
-    --output $TMP_DIR/${__sample} --output-basename ${__sample} \
-    --nucleotide-database $__FUNCPROFILING_NT_DB \
-    --protein-database $__FUNCPROFILING_PROT_DB \
+    -v --threads ${threads} \
+    --o-log ${log} \
+    --input ${tmp}/${fq1_name} \
+    --output ${tmp}/${__sample} --output-basename ${__sample} \
+    --nucleotide-database $__tmp_nt_db \
+    --protein-database $__tmp_prot_db \
     --bypass-prescreen --bypass-nucleotide-index
     ;;
 
   "NT")
-    echo "Search using NT mode"
+  echo "Caslling humann using search mode nt"
     humann \
-    -v --threads ${FUNCPROFILING_SLURM_FAT_NBR_THREADS} \
-    --o-log ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/logs/humann-${__line_nbr}_${__sample}.log \
-    --input $TMP_DIR/${__fastq_file} \
-    --output $TMP_DIR/${__sample} --output-basename ${__sample} \
-    --nucleotide-database $__FUNCPROFILING_NT_DB \
+    -v --threads ${threads} \
+    --o-log ${log} \
+    --input ${tmp}/${fq1_name} \
+    --output ${tmp}/${__sample} --output-basename ${__sample} \
+    --nucleotide-database $__tmp_nt_db \
     --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
     ;;
 
   "PROT")
-    echo "Search using PROT mode"
+  echo "Caslling humann using search mode prot"
     humann \
-    -v --threads ${FUNCPROFILING_SLURM_BASE_NBR_THREADS} \
-    --o-log ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/logs/humann-${__line_nbr}_${__sample}.log \
-    --input $TMP_DIR/${__fastq_file} \
-    --output $TMP_DIR/${__sample} --output-basename ${__sample} \
-    --protein-database $__FUNCPROFILING_PROT_DB \
+    -v --threads ${threads} \
+    --o-log ${log} \
+    --input ${tmp}/${fq1_name} \
+    --output ${tmp}/${__sample} --output-basename ${__sample} \
+    --protein-database $__tmp_prot_db \
     --bypass-prescreen --bypass-nucleotide-search
     ;;
 
   *)
-    echo "Provided mode unrecongnised: $FUNCPROFILING_SEARCH_MODE"
-    echo "Possible modes are: DUAL, NT or PROT"
+    echo "Provided mode unrecongnised: $search_mode"
+    echo "Possible modes are: dual, nt or prot"
     exit 1
     ;;
 esac
 
-
-
-rm -f $TMP_DIR/${__sample}/*cpm*
-rm -f $TMP_DIR/${__sample}/*relab*
+rm -f ${tmp}/${__sample}/*cpm*
+rm -f ${tmp}/${__sample}/*relab*
 
 echo "running humann rename and regroup table on uniref dbs"
 for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
@@ -119,25 +207,25 @@ do
 
 	echo "...regrouping genes to $__NAMES reactions"
 	humann_regroup_table \
-    --input $TMP_DIR/${__sample}/${__sample}_genefamilies.tsv \
-	--output $TMP_DIR/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
+    --input ${tmp}/${__sample}/${__sample}_genefamilies.tsv \
+	--output ${tmp}/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
     --groups ${uniref_db}
 
 	echo  "...attaching names to $__MAP codes" ## For convenience
 	humann_rename_table \
-    --input $TMP_DIR/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
-	--output $TMP_DIR/${__sample}/${__sample}_genefamilies_${__MAP}_named.tsv \
+    --input ${tmp}/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
+	--output ${tmp}/${__sample}/${__sample}_genefamilies_${__MAP}_named.tsv \
     --names $__NAMES
 done
 
 echo "...creating community-level profiles"
-rm -fr $TMP_DIR/${__sample}/${__sample}_community_tables/*
-mkdir -p $TMP_DIR/${__sample}/${__sample}_community_tables
+rm -fr ${tmp}/${__sample}/${__sample}_community_tables/*
+mkdir -p ${tmp}/${__sample}/${__sample}_community_tables
 humann_split_stratified_table \
---input $TMP_DIR/${__sample}/${__sample}_genefamilies.tsv \
---output $TMP_DIR/${__sample}/${__sample}_community_tables/
+--input ${tmp}/${__sample}/${__sample}_genefamilies.tsv \
+--output ${tmp}/${__sample}/${__sample}_community_tables/
 
-echo "copying results to ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${__sample}"
-cp -r $TMP_DIR/${__sample} ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/
+echo "copying results to ${out}/${search_mode}"
+cp -r ${tmp}/${__sample}/* ${out}/${search_mode}/
 
 echo "done ${__sample}"

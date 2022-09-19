@@ -20,7 +20,7 @@ help_message () {
     echo "	--slurm_email \"your@email.com\"	Slurm email setting"
     echo "	--slurm_walltime STR	slurm requested walltime (default 6:00:00)"
     echo "	--slurm_threads INT	slurm requested number of threads (default 24)"
-    echo "	--slurm_mem STR	slurm requested memory (default 125)"
+    echo "	--slurm_mem STR	slurm requested memory (default 125G)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -110,7 +110,7 @@ echo '#!/bin/bash' > ${out}/taxonomic_profile.samples.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${out}'
-#SBATCH -o '${log}'/preprocess.kneaddata-%A_%a.slurm.out
+#SBATCH -o '${log}'/taxonomic_profile-%A_%a.slurm.out
 #SBATCH --time='${walltime}'
 #SBATCH --mem='${mem}'
 #SBATCH -N 1

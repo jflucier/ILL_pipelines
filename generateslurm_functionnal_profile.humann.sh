@@ -2,71 +2,171 @@
 
 set -e
 
-echo "load and valdiate env"
-# load and valdiate env
+help_message () {
+    echo ""
+    echo "Usage: generateslurm_functionnal_profile.humann.sh --sample_tsv /path/to/tsv --out /path/to/out --nt_db \"nt database path\" [--search_mode \"search mode\"] [--prot_db \"protein database path\"]"
+    echo "Options:"
+
+    echo ""
+    echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
+    echo "	--out STR	path to output dir"
+    echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)"
+    echo "	--nt_db	the nucleotide database to use"
+    echo "	--prot_db	the protein database to use (default /project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref)"
+
+    echo ""
+    echo "Slurm options:"
+    echo "	--slurm_alloc STR	slurm allocation (default def-ilafores)"
+    echo "	--slurm_log STR	slurm log file output directory (default to output_dir/logs)"
+    echo "	--slurm_email \"your@email.com\"	Slurm email setting"
+    echo "	--slurm_walltime STR	slurm requested walltime (default 24:00:00)"
+    echo "	--slurm_threads INT	slurm requested number of threads (default 24)"
+    echo "	--slurm_mem STR	slurm requested memory (default 125G)"
+
+    echo ""
+    echo "  -h --help	Display help"
+
+    echo "";
+
+}
+
 export EXE_PATH=$(dirname "$0")
 
-if [ -z ${1+x} ]; then
-    echo "Please provide a configuration file. See ${EXE_PATH}/my.example.config for an example."
-    exit 1
+# initialisation
+alloc="def-ilafores"
+email="false"
+walltime="25:00:00"
+threads="24"
+mem="125G"
+log="false"
+
+sample_tsv="false";
+out="false";
+search_mode="dual"
+nt_db="false"
+prot_db="/project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref"
+
+# load in params
+SHORT_OPTS="h"
+LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,\
+sample_tsv,out,search_mode,nt_db,prot_db'
+
+OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
+# make sure the params are entered correctly
+if [ $? -ne 0 ];
+then
+    help_message;
+    exit 1;
 fi
 
-export CONF_PARAMETERS=$1
-source $CONF_PARAMETERS
+while true; do
+    # echo $1
+	case "$1" in
+		-h | --help) help_message; exit 1; shift 1;;
+        --slurm_alloc) alloc=$2; shift 2;;
+        --slurm_log) log=$2; shift 2;;
+        --slurm_email) email=$2; shift 2;;
+        --slurm_walltime) walltime=$2; shift 2;;
+        --slurm_threads) threads=$2; shift 2;;
+        --slurm_mem) mem=$2; shift 2;;
+        --sample_tsv) sample_tsv=$2; shift 2;;
+        --out) out=$2; shift 2;;
+        --search_mode) search_mode=$2; shift 2;;
+		--nt_db) nt_db=$2; shift 2;;
+        --prot_db) prot_db=$2; shift 2;;
+        --) help_message; exit 1; shift; break ;;
+		*) break;;
+	esac
+done
 
-${EXE_PATH}/scripts/global.checkenv.sh
-${EXE_PATH}/scripts/functionnal_profile.humann.checkenv.sh
+if [ "$sample_tsv" = "false" ]; then
+    echo "Please provide a sample list file."
+    help_message; exit 1
+elif [[ ! -f $sample_tsv ]]
+then
+    echo "Sample file ${sample_tsv} does not exist!"
+else
+    echo "## Will use sample file: $sample_tsv"
+fi
 
-mkdir -p ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/${FUNCPROFILING_SEARCH_MODE}/logs
+if [ "$out" = "false" ]; then
+    echo "Please provide an output path"
+    help_message; exit 1
+elif [[ ! -d "$out" ]]; then
+    echo "## Output path $out doesnt exist. Will create it!"
+fi
 
-echo "outputting humann custom slurm script to ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh"
+mkdir -p $out
+echo "## Results will be stored to this path: $out"
 
-echo '#!/bin/bash' > ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
+if [ "$log" = "false" ]; then
+    log=$out/logs
+    echo "## Slurm output path not specified, will output logs in: $log"
+else
+    echo "## Will output logs in: $log"
+fi
+
+mkdir -p $log
+
+if [ "$nt_db" = "false" ]; then
+    echo "Please provide an NT db path"
+    help_message; exit 1
+fi
+echo "## NT database: $nt_db"
+echo "## Protein database: $prot_db"
+
+if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$refinement_step" = "prot" ]; then
+    echo "Search mode provided is $search_mode. Value must be one of the following: dual, nt or prot"
+    help_message; exit 1
+fi
+echo "## Search mode: $search_mode"
+
+echo "outputting humann custom slurm script to ${out}/functionnal_profile.slurm.sh"
+
+echo '#!/bin/bash' > ${out}/functionnal_profile.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D '${OUTPUT_PATH}'
-#SBATCH -o '${OUTPUT_PATH}'/'${FUNCPROFILING_OUTPUT_NAME}'/'$FUNCPROFILING_SEARCH_MODE'/logs/functionnal_profile-%A_%a.slurm.out' >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
-#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
-
-case $FUNCPROFILING_SEARCH_MODE in
-
-  "DUAL" | "NT" )
-    echo '#SBATCH --time='${FUNCPROFILING_SLURM_FAT_WALLTIME} >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
-    echo '#SBATCH --mem='${FUNCPROFILING_SLURM_FAT_MEMORY} >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
-    echo '#SBATCH -n '${FUNCPROFILING_SLURM_FAT_NBR_THREADS} >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
-    ;;
-
-  "PROT" )
-    echo '#SBATCH --time='${FUNCPROFILING_SLURM_BASE_WALLTIME} >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
-    echo '#SBATCH --mem='${FUNCPROFILING_SLURM_BASE_MEMORY} >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
-    echo '#SBATCH -n '${FUNCPROFILING_SLURM_BASE_NBR_THREADS} >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
-    ;;
-
-  *)
-    echo "Unrecongnised FUNCPROFILING_SEARCH_MODE: $FUNCPROFILING_SEARCH_MODE"
-    echo "Possible modes are: DUAL, NT or PROT "
-    echo "Please edit configuration at this line: export FUNCPROFILING_SEARCH_MODE=\"DUAL\""
-    exit 1
-    ;;
-esac
-
-echo '#SBATCH -N 1
-#SBATCH -A '${SLURM_ALLOCATION}'
-#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
+#SBATCH -D '${out}'
+#SBATCH -o '${log}'/functionnal_profile-%A_%a.slurm.out
+#SBATCH --time='${walltime}'
+#SBATCH --mem='${mem}'
+#SBATCH -N 1
+#SBATCH -n '${threads}'
+#SBATCH -A '${alloc}'
 #SBATCH -J functionnal_profile
+' >> ${out}/functionnal_profile.slurm.sh
+
+if [ "$email" != "false" ]; then
+echo '
+#SBATCH --mail-user='${email}'
+' >> ${out}/functionnal_profile.slurm.sh
+fi
+
+echo '
 
 newgrp def-ilafores
 echo "loading env"
 export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
 module use $MUGQIC_INSTALL_HOME/modulefiles
 
-bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
-'$CONF_PARAMETERS' \
-$SLURM_TMPDIR \
-$SLURM_ARRAY_TASK_ID
+module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
+export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
+export __sample=$(echo -e "$__sample_line" | cut -f1)
+export __fastq=$(echo -e "$__sample_line" | cut -f2)
 
-' >> ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh
+bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
+-o '${out}'/$__sample \
+-tmp $SLURM_TMPDIR \
+-t '${threads}' -m '${mem}' \
+-s $__sample \
+-fq $__fastq \
+--search_mode '$search_mode'
+--nt_db '$nt_db' \
+--prot_db '$prot_db' \
+--log '$log'
+
+' >> ${out}/functionnal_profile.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-read sample_nbr f <<< $(wc -l ${FUNCPROFILING_SAMPLES_LIST_TSV})
-echo "sbatch --array=1-$sample_nbr ${OUTPUT_PATH}/${FUNCPROFILING_OUTPUT_NAME}/functionnal_profile.slurm.sh"
+read sample_nbr f <<< $(wc -l ${sample_tsv})
+echo "sbatch --array=1-$sample_nbr ${out}/functionnal_profile.slurm.sh"
