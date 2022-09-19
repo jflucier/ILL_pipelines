@@ -59,8 +59,6 @@ then
     exit 1;
 fi
 
-echo "1 mem=$mem"
-echo "1 threads==$threads"
 # loop through input params
 while true; do
     # echo $1
@@ -112,10 +110,6 @@ fi
 
 
 mkdir -p $log
-
-echo "2 mem=$mem"
-echo "2 threads==$threads"
-
 
 echo "outputting preprocess slurm script to ${out}/preprocess.kneaddata.slurm.sh"
 echo '#!/bin/bash' > ${out}/preprocess.kneaddata.slurm.sh
