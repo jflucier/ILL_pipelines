@@ -96,9 +96,9 @@ echo "fastq2 path: $fq2"
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
 
-echo "upload fastq1 to $tmp/"
+echo "upload fastq1 to $tmp/$fq1_name"
 cp $fq1 $tmp/$fq1_name
-echo "upload fastq2 to $tmp"
+echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
 
 ### Kraken
@@ -120,6 +120,9 @@ kraken2 \
 --unclassified-out $tmp/${sample}/${sample}_unclassified_reads_#.fastq \
 --report $tmp/${sample}/${sample}.kreport \
 $tmp/${fq1_name} $tmp/${fq2_name}
+
+echo "copying all results to $out"
+cp -fr $tmp/${sample}/* $out/
 
 ### Bracken reestimations
 mkdir -p $tmp/${sample}/${sample}_bracken
