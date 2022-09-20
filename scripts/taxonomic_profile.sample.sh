@@ -107,6 +107,7 @@ source /project/def-ilafores/common/kraken2/venv/bin/activate
 export PATH=/project/def-ilafores/common/kraken2:/project/def-ilafores/common/Bracken:$PATH
 export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
 
+mkdir $tmp/${sample}
 echo "running kraken. Kraken ouptut: $tmp/${sample}/"
 kraken2 \
 --memory-mapping \
