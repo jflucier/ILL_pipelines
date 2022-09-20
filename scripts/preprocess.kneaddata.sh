@@ -39,21 +39,23 @@ db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grc
 trimmomatic_options="ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100"
 bowtie2_options="--very-sensitive-local"
 
-# load in params
-SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
-LONG_OPTS='help,db,trimmomatic_options,bowtie2_options'
+##### need to bypass getopt because bowtie parameters passing has -- #####
 
-OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
-# make sure the params are entered correctly
-if [ $? -ne 0 ];
-then
-    help_message;
-    exit 1;
-fi
+# # load in params
+# SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
+# LONG_OPTS='help,db,trimmomatic_options,bowtie2_options'
+
+# OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
+# # make sure the params are entered correctly
+# if [ $? -ne 0 ];
+# then
+#     help_message;
+#     exit 1;
+# fi
 
 # loop through input params
 while true; do
-    # echo $1
+    # echo "$1=$2"
 	case "$1" in
         -h | --help) help_message; exit 1; shift 1;;
         -t) threads=$2; shift 2;;
