@@ -121,12 +121,12 @@ kraken2 \
 --report $tmp/${sample}/${sample}.kreport \
 $tmp/${fq1_name} $tmp/${fq2_name}
 
-echo "copying all results to $out"
-cp -fr $tmp/${sample}/* $out/
+# echo "copying all results to $out"
+# cp -fr $tmp/${sample}/* $out/
 
 ### Bracken reestimations
 mkdir -p $tmp/${sample}/${sample}_bracken
-echo "running bracken. Bracken Output: $tmp/${sample}/${sample}_bracken/${sample}_S.bracken"
+# echo "running bracken. Bracken Output: $tmp/${sample}/${sample}_bracken/${sample}_S.bracken"
 
 mkdir $tmp/${sample}/${sample}_kronagrams
 
@@ -140,7 +140,7 @@ __all_taxas=(
     "S:species"
 )
 
-for taxa_str in $__all_taxas
+for taxa_str in "${__all_taxas[@]}"
 do
     taxa_oneletter=${taxa_str%%:*}
     taxa_name=${taxa_str#*:}
