@@ -192,7 +192,7 @@ Options:
 
 ### Run HUMAnN functionnal profile on samples ###
 
-Before running this pipeline, make sure [HUMAnN](https://huttenhower.sph.harvard.edu/humann/) environment is acessible via the conda activate command.
+Before running this pipeline, make sure [HUMAnN](https://huttenhower.sph.harvard.edu/humann/) environment is acessible.
 
 For full list of options:
 
@@ -324,7 +324,7 @@ $ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh \
 
 ```
 
-Finally, the assembly, binng and refinement script can be executed on a single sample.
+Finally, the assembly, binning and refinement script can be executed on a single sample.
 Use -h option to view usage:
 
 ```
