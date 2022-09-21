@@ -192,7 +192,7 @@ Options:
 
 ### Run HUMAnN functionnal profile on samples ###
 
-Before running this pipeline, make sure [HUMAnN](https://huttenhower.sph.harvard.edu/humann/) conda environment is acessible via the conda activate command.
+Before running this pipeline, make sure [HUMAnN](https://huttenhower.sph.harvard.edu/humann/) environment is acessible via the conda activate command.
 
 For full list of options:
 
