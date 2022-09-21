@@ -52,6 +52,10 @@ To install ILL pipelines you need to:
 
 To run pipelines you need to create a sample spread with 3 columns like this table:
 
+| sample1 | x1 | x2 |
+|---------|----|----|
+| sample2 | y1 | y2 |
+
 |-----------|-------------------------------|-------------------------------|
 | sample1 	| /path/to/sample1.R1.fastq 	| /path/to/sample1.R2.fastq 	|
 | sample2 	| /path/to/sample2.R1.fastq 	| /path/to/sample2.R2.fastq 	|
