@@ -1,13 +1,11 @@
 # ILL Humann custom pipeline User Manual
 
-Slightly modified humann pipeline to optimise performance.
-
 ----
 
 ## Contents ##
 
 * [Requirements](#requirements)
-* [Installation](#initial-installation)
+* [Installation](#installation)
 * [How to run](#how-to-run)
     * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
     * [Run taxonomic profile on samples](#Run-taxonomic-profile-on-samples)
@@ -31,7 +29,7 @@ Please install the required software in a location of your choice and put in PAT
 
 ----
 
-## Initial Installation ##
+## Installation ##
 
 To install ILL pipelines you need to:
 
@@ -54,6 +52,7 @@ To install ILL pipelines you need to:
 
 To run pipelines you need to create a sample spread with 3 columns like this table:
 
+|-----------|-------------------------------|-------------------------------|
 | sample1 	| /path/to/sample1.R1.fastq 	| /path/to/sample1.R2.fastq 	|
 | sample2 	| /path/to/sample2.R1.fastq 	| /path/to/sample2.R2.fastq 	|
 | etc...  	| etc...                    	| etc...                    	|
