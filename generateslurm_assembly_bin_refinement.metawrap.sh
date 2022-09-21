@@ -327,7 +327,7 @@ then
     --metabat2_bins '${out}'/binning/${__sample}/metabat2_bins \
     --maxbin2_bins '${out}'/binning/${__sample}/maxbin2_bins \
     --concoct_bins '${out}'/binning/${__sample}/concoct_bins \
-    --refinement_min_compl '${refinement_min_compl}'
+    --refinement_min_compl '${refinement_min_compl}' \
     --refinement_max_cont '${refinement_max_cont}'
 
     echo "done bin refinement on $__sample"
