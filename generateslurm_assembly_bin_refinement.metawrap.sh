@@ -287,7 +287,7 @@ then
     echo '
     echo "running assembly on $__sample"
     bash '${EXE_PATH}'/scripts/assembly.metawrap.sh \
-    -o '${out}'/assembly/'$__sample' \
+    -o '${out}'/assembly/${__sample} \
     -tmp $SLURM_TMPDIR \
     -t '${threads}' -m '${mem}' \
     -s $__sample -fq1 $__fastq_file1 -fq2 $__fastq_file2 \
