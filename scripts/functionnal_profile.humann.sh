@@ -66,7 +66,7 @@ while true; do
         --search_mode) search_mode=$2; shift 2;;
 		--nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
-        --log) prot_db=$2; shift 2;;
+        --log) log=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
 	esac
@@ -175,7 +175,7 @@ cat ${tmp}/${fq1_name} ${tmp}/${fq2_name} > $tmp/${sample}_cat-paired.fastq
 case $search_mode in
 
   "dual")
-    echo "Caslling humann using search mode DUAL"
+    echo "Calling humann using search mode DUAL"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
