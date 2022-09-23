@@ -156,19 +156,19 @@ bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 --db '$db'
 ' >> ${out}/preprocess.kneaddata.slurm.sh
 
-echo "Generate taxonomic profiling sample tsv: ${out}/taxonomic_profile.sample.tsv"
+echo "Generate preprocessed reads sample tsv: ${out}/preprocessed_reads.sample.tsv"
 rm -f ${out}/taxonomic_profile.sample.tsv
 while IFS=$'\t' read -r name f1 f2
 do
-    echo -e "${name}\t${out}/${name}/${name}_paired_1.fastq\t${out}/${name}/${name}_paired_2.fastq" >> ${out}/taxonomic_profile.sample.tsv
+    echo -e "${name}\t${out}/${name}/${name}_paired_1.fastq\t${out}/${name}/${name}_paired_2.fastq" >> ${out}/preprocessed_reads.sample.tsv
 done < ${sample_tsv}
 
-echo "Generate functionnal profiling sample tsv: ${out}/functionnal_profile.sample.tsv"
-rm -f ${out}/functionnal_profile.sample.tsv
-while IFS=$'\t' read -r name f1 f2
-do
-    echo -e "${name}\t${out}/${name}/${name}_cat-paired.fastq" >> ${out}/functionnal_profile.sample.tsv
-done < ${sample_tsv}
+# echo "Generate functionnal profiling sample tsv: ${out}/functionnal_profile.sample.tsv"
+# rm -f ${out}/functionnal_profile.sample.tsv
+# while IFS=$'\t' read -r name f1 f2
+# do
+#     echo -e "${name}\t${out}/${name}/${name}_cat-paired.fastq" >> ${out}/functionnal_profile.sample.tsv
+# done < ${sample_tsv}
 
 echo "To submit to slurm, execute the following command:"
 read sample_nbr f <<< $(wc -l ${sample_tsv})

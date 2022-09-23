@@ -133,8 +133,8 @@ echo "moving contaminants fastqs to subdir"
 mkdir -p $tmp/${sample}_contaminants
 mv $tmp/${sample}*contam*.fastq $tmp/${sample}_contaminants/
 
-echo "concatenate paired output, for HUMAnN single-end run"
-cat $tmp/${sample}_paired_1.fastq $tmp/${sample}_paired_2.fastq > $tmp/${sample}_cat-paired.fastq
+# echo "concatenate paired output, for HUMAnN single-end run"
+# cat $tmp/${sample}_paired_1.fastq $tmp/${sample}_paired_2.fastq > $tmp/${sample}_cat-paired.fastq
 
 echo "copying all kneaddata results to $out"
 cp -fr $tmp/${sample}* $out/

@@ -100,15 +100,14 @@ $ bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh --out precocess/ --s
 ## Results wil be stored to this path: precocess/
 ## Slurm output path not specified, will output logs in: precocess//logs
 outputting preprocess slurm script to precocess//preprocess.kneaddata.slurm.sh
-Generate taxonomic profiling sample tsv: precocess//taxonomic_profile.sample.tsv
-Generate functionnal profiling sample tsv: precocess//functionnal_profile.sample.tsv
+Generate preprocessed reads sample tsv: precocess/preprocessed_reads.sample.tsv
 To submit to slurm, execute the following command:
 sbatch --array=1-187 precocess//preprocess.kneaddata.slurm.sh
 
 ```
 
-Notice that preprocess script generates 2 tab seperated sample files that should be used
-for the taxonomic profile pipeline and for the functionnal profile pipeline.
+Notice that preprocess script generates sample tsv file (i.e. precocess/preprocessed_reads.sample.tsv) that should be used
+for the taxonomic profile and the functionnal profile pipeline.
 
 Finally, the preprocess script can be executed on a single sample.
 Use -h option to view usage:
@@ -166,6 +165,8 @@ Slurm options:
 
 ```
 
+The sample_tsv that can be used was created in the preprocess step (i.e. precocess/preprocessed_reads.sample.tsv).
+
 The taxonomic profile script can also be executed on a single sample.
 Use -h option to view usage:
 
@@ -221,6 +222,8 @@ Slurm options:
 
 ```
 
+The sample_tsv that can be used was created in the preprocess step (i.e. precocess/preprocessed_reads.sample.tsv).
+
 The functionnal profile script can also be executed on a single sample.
 Use -h option to view usage:
 
@@ -249,7 +252,12 @@ Options:
 
 ### Run assembly, binning and bin refinement pipelines ###
 
-Before running this pipeline, make sure singularity and BBmap executables are in your path.
+Before running this pipeline, make sure singularity and BBmap executables are in your path. On ip29, just do the following:
+
+```
+module load singularity mugqic/BBMap/38.90
+
+```
 
 For full list of options:
 
@@ -291,8 +299,12 @@ Slurm options:
 
 Most default values should be ok in a cluster environment. Make sure you specify sample_tsv, ouput path and steps you wich to execute (assembly and/or binning and/or refinement). Obviously, before running binning, you must perform assembly step.
 
+The sample_tsv that can be used was created in the preprocess step (i.e. precocess/preprocessed_reads.sample.tsv).
+
 Here a re some example commands you can perform for this pipeline:
 ```
+# on ip29, load singularity and bbmap in path
+module load singularity mugqic/BBMap/38.90
 
 # Run all steps with defualt parameters
 $ bash ${ILL_PIPELINES}/generateslurm_assembly_bin_refinement.metawrap.sh \
@@ -328,6 +340,9 @@ Finally, the assembly, binning and refinement script can be executed on a single
 Use -h option to view usage:
 
 ```
+# on ip29, load singularity and bbmap in path
+module load singularity mugqic/BBMap/38.90
+
 
 ## assembly script usage:
 $ bash /home/jflucier/localhost/projet/ILL_pipelines/scripts/assembly.metawrap.sh -h

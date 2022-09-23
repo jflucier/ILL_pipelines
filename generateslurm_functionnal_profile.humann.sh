@@ -152,14 +152,16 @@ module use $MUGQIC_INSTALL_HOME/modulefiles
 module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
 export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
-export __fastq=$(echo -e "$__sample_line" | cut -f2)
+export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
+export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 
 bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 -o '${out}'/$__sample \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' -m '${mem}' \
 -s $__sample \
--fq $__fastq \
+-fq1 $__fastq_file1 \
+-fq2 $__fastq_file2 \
 --search_mode '$search_mode'
 --nt_db '$nt_db' \
 --prot_db '$prot_db' \

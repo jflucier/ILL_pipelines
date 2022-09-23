@@ -32,7 +32,8 @@ mem="30G"
 sample="false";
 out="false";
 tmp="false";
-fq="false";
+fq1="false";
+fq2="false";
 search_mode="dual"
 nt_db="false"
 prot_db="/project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref"
@@ -40,7 +41,7 @@ log='false'
 
 # load in params
 # load in params
-SHORT_OPTS="ht:m:o:s:fq:tmp:"
+SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
 LONG_OPTS='help,search_mode,nt_db,prot_db,log'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
@@ -60,7 +61,8 @@ while true; do
         -m) mem=$2; shift 2;;
         -s) sample=$2; shift 2;;
         -o) out=$2; shift 2;;
-        -fq) fq=$2; shift 2;;
+        -fq1) fq1=$2; shift 2;;
+		-fq2) fq2=$2; shift 2;;
         --search_mode) search_mode=$2; shift 2;;
 		--nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
@@ -114,15 +116,19 @@ echo "## NT database: $nt_db"
 echo "## Protein database: $prot_db"
 
 echo "analysing sample $sample with metawrap"
-echo "fastq path: $fq"
+echo "fastq1 path: $fq1"
+echo "fastq2 path: $fq2"
 
-fq1_name=$(basename $fq)
+fq1_name=$(basename $fq1)
+fq2_name=$(basename $fq2)
 
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-echo "copying fastq $fq"
-cp $fq ${tmp}/${fq1_name}
+echo "copying fastq1 $fq1"
+cp $fq1 ${tmp}/${fq1_name}
+echo "copying fastq2 $fq2"
+cp $fq2 ${tmp}/${fq2_name}
 
 mkdir ${tmp}/db
 echo "copying nucleotide bowtie index ${nt_db}"
@@ -142,6 +148,10 @@ echo "outputting to ${tmp}/${__sample}"
 
 mkdir -p ${out}/${search_mode}
 
+echo "concatenate paired output, for HUMAnN single-end run"
+cat ${tmp}/${fq1_name} ${tmp}/${fq2_name} > $tmp/${sample}_cat-paired.fastq
+
+
 case $search_mode in
 
   "DUAL")
@@ -149,7 +159,7 @@ case $search_mode in
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
-    --input ${tmp}/${fq1_name} \
+    --input $tmp/${sample}_cat-paired.fastq \
     --output ${tmp}/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__tmp_nt_db \
     --protein-database $__tmp_prot_db \
@@ -161,7 +171,7 @@ case $search_mode in
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
-    --input ${tmp}/${fq1_name} \
+    --input $tmp/${sample}_cat-paired.fastq \
     --output ${tmp}/${__sample} --output-basename ${__sample} \
     --nucleotide-database $__tmp_nt_db \
     --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
@@ -172,7 +182,7 @@ case $search_mode in
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
-    --input ${tmp}/${fq1_name} \
+    --input $tmp/${sample}_cat-paired.fastq \
     --output ${tmp}/${__sample} --output-basename ${__sample} \
     --protein-database $__tmp_prot_db \
     --bypass-prescreen --bypass-nucleotide-search
