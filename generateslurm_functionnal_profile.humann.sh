@@ -165,7 +165,7 @@ bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 --search_mode '$search_mode' \
 --nt_db '$nt_db' \
 --prot_db '$prot_db' \
---log '$log'
+--log '$log'/humann_${__sample}.log
 
 ' >> ${out}/functionnal_profile.$search_mode.slurm.sh
 
