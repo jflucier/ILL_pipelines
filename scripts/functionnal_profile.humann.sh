@@ -79,11 +79,31 @@ else
     echo "## Sample name: $sample"
 fi
 
-if [ "$search_mode" != "dual" ] || [ "$search_mode" != "nt" ] || [ "$refinement_step" = "prot" ]; then
-    echo "Search mode provided is $search_mode. Value must be one of the following: dual, nt or prot"
+# if [ "$search_mode" != "dual" ] || [ "$search_mode" != "nt" ] || [ "$refinement_step" = "prot" ]; then
+#     echo "Search mode provided is $search_mode. Value must be one of the following: dual, nt or prot"
+#     help_message; exit 1
+# fi
+# echo "## Search mode: $search_mode"
+case $search_mode in
+
+  "dual")
+    echo "Caslling humann using search mode DUAL"
+    ;;
+
+  "nt")
+  echo "Caslling humann using search mode nt"
+    ;;
+
+  "prot")
+  echo "Caslling humann using search mode prot"
+    ;;
+
+  *)
+    echo "Provided mode unrecongnised: $search_mode"
+    echo "Possible modes are: dual, nt or prot"
     help_message; exit 1
-fi
-echo "## Search mode: $search_mode"
+    ;;
+esac
 
 if [ "$out" = "false" ]; then
     echo "Please provide an output path"
