@@ -89,8 +89,8 @@ if [ "$out" = "false" ]; then
     echo "Please provide an output path"
     help_message; exit 1
 else
-    mkdir -p ${out}/${search_mode}
-    echo "## Results wil be stored to this path: ${out}/${search_mode}"
+    mkdir -p ${out}
+    echo "## Results wil be stored to this path: ${out}"
 fi
 
 if [ "$tmp" = "false" ]; then
@@ -102,7 +102,7 @@ else
 fi
 
 if [ "$log" = "false" ]; then
-    log=${out}/${search_mode}/humann_${__sample}.log
+    log=${out}/humann_${__sample}.log
     echo "## Humann log path not specified, will use this path: $log"
 else
     echo "## Will output logs in: $log"
@@ -146,7 +146,7 @@ echo "running humann"
 mkdir -p ${tmp}/${__sample}
 echo "outputting to ${tmp}/${__sample}"
 
-mkdir -p ${out}/${search_mode}
+mkdir -p ${out}
 
 echo "concatenate paired output, for HUMAnN single-end run"
 cat ${tmp}/${fq1_name} ${tmp}/${fq2_name} > $tmp/${sample}_cat-paired.fastq
@@ -235,7 +235,7 @@ humann_split_stratified_table \
 --input ${tmp}/${__sample}/${__sample}_genefamilies.tsv \
 --output ${tmp}/${__sample}/${__sample}_community_tables/
 
-echo "copying results to ${out}/${search_mode}"
-cp -r ${tmp}/${__sample}/* ${out}/${search_mode}/
+echo "copying results to ${out}"
+cp -r ${tmp}/${__sample}/* ${out}/
 
 echo "done ${__sample}"
