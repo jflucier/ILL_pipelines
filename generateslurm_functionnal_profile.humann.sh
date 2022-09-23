@@ -96,9 +96,6 @@ elif [[ ! -d "$out" ]]; then
     echo "## Output path $out doesnt exist. Will create it!"
 fi
 
-mkdir -p $out
-echo "## Results will be stored to this path: $out"
-
 if [ "$log" = "false" ]; then
     log=$out/logs
     echo "## Slurm output path not specified, will output logs in: $log"
@@ -120,6 +117,9 @@ if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$refinement_
     help_message; exit 1
 fi
 echo "## Search mode: $search_mode"
+mkdir -p $out/$search_mode
+echo "## Results will be stored to this path: $out/$search_mode"
+
 
 echo "outputting humann custom slurm script to ${out}/functionnal_profile.$search_mode.slurm.sh"
 
@@ -156,7 +156,7 @@ export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
 export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 
 bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
--o '${out}'/$__sample \
+-o '${out}'/'$search_mode'/$__sample \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' -m '${mem}' \
 -s $__sample \
