@@ -121,9 +121,9 @@ if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$refinement_
 fi
 echo "## Search mode: $search_mode"
 
-echo "outputting humann custom slurm script to ${out}/functionnal_profile.slurm.sh"
+echo "outputting humann custom slurm script to ${out}/functionnal_profile.$search_mode.slurm.sh"
 
-echo '#!/bin/bash' > ${out}/functionnal_profile.slurm.sh
+echo '#!/bin/bash' > ${out}/functionnal_profile.$search_mode.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${out}'
@@ -134,12 +134,12 @@ echo '
 #SBATCH -n '${threads}'
 #SBATCH -A '${alloc}'
 #SBATCH -J functionnal_profile
-' >> ${out}/functionnal_profile.slurm.sh
+' >> ${out}/functionnal_profile.$search_mode.slurm.sh
 
 if [ "$email" != "false" ]; then
 echo '
 #SBATCH --mail-user='${email}'
-' >> ${out}/functionnal_profile.slurm.sh
+' >> ${out}/functionnal_profile.$search_mode.slurm.sh
 fi
 
 echo '
@@ -167,8 +167,8 @@ bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 --prot_db '$prot_db' \
 --log '$log'
 
-' >> ${out}/functionnal_profile.slurm.sh
+' >> ${out}/functionnal_profile.$search_mode.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
 read sample_nbr f <<< $(wc -l ${sample_tsv})
-echo "sbatch --array=1-$sample_nbr ${out}/functionnal_profile.slurm.sh"
+echo "sbatch --array=1-$sample_nbr ${out}/functionnal_profile.$search_mode.slurm.sh"
