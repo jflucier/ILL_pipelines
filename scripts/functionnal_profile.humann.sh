@@ -79,7 +79,7 @@ else
     echo "## Sample name: $sample"
 fi
 
-if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$refinement_step" = "prot" ]; then
+if [ "$search_mode" != "dual" ] || [ "$search_mode" != "nt" ] || [ "$refinement_step" = "prot" ]; then
     echo "Search mode provided is $search_mode. Value must be one of the following: dual, nt or prot"
     help_message; exit 1
 fi
@@ -154,7 +154,7 @@ cat ${tmp}/${fq1_name} ${tmp}/${fq2_name} > $tmp/${sample}_cat-paired.fastq
 
 case $search_mode in
 
-  "DUAL")
+  "dual")
     echo "Caslling humann using search mode DUAL"
     humann \
     -v --threads ${threads} \
@@ -166,7 +166,7 @@ case $search_mode in
     --bypass-prescreen --bypass-nucleotide-index
     ;;
 
-  "NT")
+  "nt")
   echo "Caslling humann using search mode nt"
     humann \
     -v --threads ${threads} \
@@ -177,7 +177,7 @@ case $search_mode in
     --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
     ;;
 
-  "PROT")
+  "prot")
   echo "Caslling humann using search mode prot"
     humann \
     -v --threads ${threads} \
