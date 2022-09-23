@@ -162,7 +162,7 @@ bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 -s $__sample \
 -fq1 $__fastq_file1 \
 -fq2 $__fastq_file2 \
---search_mode '$search_mode'
+--search_mode '$search_mode' \
 --nt_db '$nt_db' \
 --prot_db '$prot_db' \
 --log '$log'
