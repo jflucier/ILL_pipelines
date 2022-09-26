@@ -8,9 +8,9 @@
 * [Installation](#installation)
 * [How to run](#how-to-run)
     * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
-    * [Run taxonomic profile on samples](#Run-taxonomic-profile-on-samples)
-    * [Run HUMAnN functionnal profile on samples](#Run-HUMAnN-functionnal-profile-on-samples)
-    * [Run assembly, binning and bin refinement](#Run-assembly,-binning-and-bin-refinement)
+    * [Run Kraken2 taxonomic profile](#Run-Kraken2-taxonomic-profile)
+    * [Run HUMAnN functionnal profile](#Run-HUMAnN-functionnal-profile)
+    * [Run MetaWRAP assembly, binning and bin refinement](#Run-MetaWRAP-assembly,-binning-and-bin-refinement)
 
 ----
 
@@ -60,7 +60,7 @@ To run pipelines you need to create a sample spread with 3 columns like this tab
 
 **Important note: TSV files must not have header line.**
 
-### Run preprocess kneaddata pipelines ###
+### Run preprocess kneaddata ###
 
 Before running this pipeline, make sure [kneaddata](https://github.com/biobakery/kneaddata) is installed.
 
@@ -136,7 +136,7 @@ Options:
 ```
 
 
-### Run taxonomic profile on samples ###
+### Run Kraken2 taxonomic profile ###
 
 Before running this pipeline, make sure [kraken2](https://github.com/DerrickWood/kraken2), [Bracken](https://github.com/jenniferlu717/Bracken) and [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools) and acessible in PATH variable.
 
@@ -191,7 +191,7 @@ Options:
 
 ```
 
-### Run HUMAnN functionnal profile on samples ###
+### Run HUMAnN functionnal profile ###
 
 Before running this pipeline, make sure [HUMAnN](https://huttenhower.sph.harvard.edu/humann/) environment is acessible.
 
@@ -250,7 +250,7 @@ Options:
 
 ```
 
-### Run assembly, binning and bin refinement pipelines ###
+### Run MetaWRAP assembly, binning and bin refinement pipelines ###
 
 Before running this pipeline, make sure singularity and BBmap executables are in your path. On ip29, just do the following:
 
