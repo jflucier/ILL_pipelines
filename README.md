@@ -250,7 +250,7 @@ Options:
 
 ```
 
-### Run MetaWRAP assembly, binning and bin refinement pipelines ###
+### Run MetaWRAP assembly, binning and bin refinement ###
 
 Before running this pipeline, make sure singularity and BBmap executables are in your path. On ip29, just do the following:
 
