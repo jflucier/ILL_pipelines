@@ -118,8 +118,8 @@ check_software_dependencies
 alloc="def-ilafores"
 email="false"
 walltime="24:00:00"
-threads="48"
-mem="251G"
+threads="40"
+mem="250G"
 log="false"
 
 sample_tsv="false";

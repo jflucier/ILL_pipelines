@@ -12,6 +12,7 @@ help_message () {
     echo "	--out STR	path to output dir"
     echo "	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)"
     echo "	--bracken_readlen	bracken read length option (default 150)"
+    echo "      --confidence    kraken confidence level to reduce false-positive rate (default 0.05)"
 
     echo ""
     echo "Slurm options:"
@@ -33,20 +34,21 @@ export EXE_PATH=$(dirname "$0")
 # initialisation
 alloc="def-ilafores"
 email="false"
-walltime="6:00:00"
+walltime="24:00:00"
 threads="24"
-mem="125G"
+mem="31G"
 log="false"
 
 sample_tsv="false";
 out="false";
 kraken_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517"
 bracken_readlen="150"
+confidence="0.05"
 
 # load in params
 SHORT_OPTS="h"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,\
-sample_tsv,out,kraken_db,bracken_readlen'
+sample_tsv,out,kraken_db,bracken_readlen,confidence'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -65,6 +67,7 @@ while true; do
         --slurm_email) email=$2; shift 2;;
         --slurm_walltime) walltime=$2; shift 2;;
         --slurm_threads) threads=$2; shift 2;;
+        --confidence) threads=$2; shift 2;;
         --slurm_mem) mem=$2; shift 2;;
         --sample_tsv) sample_tsv=$2; shift 2;;
         --out) out=$2; shift 2;;
@@ -144,7 +147,8 @@ bash '${EXE_PATH}'/scripts/taxonomic_profile.sample.sh \
 -fq1 $__fastq_file1 \
 -fq2 $__fastq_file2 \
 --kraken_db '$kraken_db' \
---bracken_readlen '$bracken_readlen'
+--bracken_readlen '$bracken_readlen' \
+--confidence '$confidence'
 
 ' >> ${out}/taxonomic_profile.samples.slurm.sh
 

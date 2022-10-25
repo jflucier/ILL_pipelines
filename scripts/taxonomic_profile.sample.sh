@@ -17,6 +17,7 @@ help_message () {
     echo "	-fq2	path to fastq2"
     echo "	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)"
     echo "	--bracken_readlen	bracken read length option (default 150)"
+    echo "	--confidence	kraken confidence level to reduce false-positive rate (default 0.05)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -36,10 +37,11 @@ fq1="false";
 fq2="false";
 kraken_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517"
 bracken_readlen="150"
+confidence="0.05"
 
 # load in params
 SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
-LONG_OPTS='help,kraken_db,bracken_readlen'
+LONG_OPTS='help,kraken_db,bracken_readlen,confidence'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -62,6 +64,7 @@ while true; do
         -fq1) fq1=$2; shift 2;;
         -fq2) fq2=$2; shift 2;;
 		--db) kraken_db=$2; shift 2;;
+                --confidence) confidence=$2; shift 2;;
         --bracken_readlen) bracken_readlen=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
@@ -89,7 +92,7 @@ if [ "$tmp" = "false" ]; then
     echo "## No temp folder provided. Will use: $tmp"
 fi
 
-echo "analysing sample $sample with metawrap"
+echo "analysing sample $sample with kraken2 using $confidence confidence level"
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
 
@@ -110,7 +113,7 @@ export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
 mkdir $tmp/${sample}
 echo "running kraken. Kraken ouptut: $tmp/${sample}/"
 kraken2 \
---memory-mapping \
+--confidence ${confidence} \
 --paired \
 --threads ${threads} \
 --db ${kraken_db} \
