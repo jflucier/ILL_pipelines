@@ -67,7 +67,7 @@ while true; do
         --slurm_email) email=$2; shift 2;;
         --slurm_walltime) walltime=$2; shift 2;;
         --slurm_threads) threads=$2; shift 2;;
-        --confidence) threads=$2; shift 2;;
+        --confidence) confidence=$2; shift 2;;
         --slurm_mem) mem=$2; shift 2;;
         --sample_tsv) sample_tsv=$2; shift 2;;
         --out) out=$2; shift 2;;

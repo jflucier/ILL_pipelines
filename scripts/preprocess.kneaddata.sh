@@ -15,8 +15,9 @@ help_message () {
     echo "	-m	memory (default 40G)"
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
-    echo "	--db	kneaddata database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)"
-    echo "	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)"
+    echo "	--db	path(s) to contaminant genome(s) (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)"
+    echo "      --trimmomatic_adapters  adapter file default (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10)"
+    echo "      --trimmomatic_options   quality trimming options (default SLIDINGWINDOW:4:30 MINLEN:100)"
     echo "	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)"
 
     echo ""
@@ -36,7 +37,8 @@ tmp="false";
 fq1="false";
 fq2="false";
 db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj"
-trimmomatic_options="ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100"
+trimmomatic_options="SLIDINGWINDOW:4:30 MINLEN:100"
+trimmomatic_adapters="ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10"
 bowtie2_options="--very-sensitive-local"
 
 ##### need to bypass getopt because bowtie parameters passing has -- #####
@@ -67,6 +69,7 @@ while true; do
         -fq2) fq2=$2; shift 2;;
 		--db) db=$2; shift 2;;
         --trimmomatic_options) trimmomatic_options=$2; shift 2;;
+        --trimmomatic_adapters) trimmomatic_adapters=$2; shift 2;;
         --bowtie2_options) bowtie2_options=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
@@ -94,13 +97,12 @@ if [ "$tmp" = "false" ]; then
     echo "## No temp folder provided. Will use: $tmp"
 fi
 
-echo "analysing sample $sample with metawrap"
+echo "Preprocessing and quality control of sample $sample"
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
-
 
 echo "upload fastq1 to $tmp/"
 cp $fq1 $tmp/$fq1_name
@@ -122,12 +124,12 @@ kneaddata -v \
 --output-prefix ${sample} \
 --threads ${threads} \
 --max-memory ${mem} \
---trimmomatic-options="${trimmomatic_options}" \
+--trimmomatic-options="${trimmomatic_adapters} ${trimmomatic_options}" \
 --run-fastqc-start \
 --run-fastqc-end
 
 echo "deleting kneaddata uncessary files"
-rm $tmp/${sample}*repeats* $tmp/${sample}*trimmed*
+rm $tmp/${sample}*repeats* $tmp/${sample}*trimmed* ##changer ici si pas de decontam
 
 echo "moving contaminants fastqs to subdir"
 mkdir -p $tmp/${sample}_contaminants

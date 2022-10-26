@@ -10,8 +10,9 @@ help_message () {
 	echo ""
 	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
     echo "	--out STR	path to output dir"
-    echo "	--db	kneaddata database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)"
-    echo "	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)"
+    echo "	--db	path(s) to contaminant genome(s) (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)"
+    echo "	--trimmomatic_adapters	adapter file default (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10)"
+    echo "	--trimmomatic_options	quality trimming options (default SLIDINGWINDOW:4:30 MINLEN:100)"
     echo "	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)"
 
     echo ""
@@ -42,14 +43,15 @@ log="false"
 sample_tsv="false";
 out="false";
 db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj"
-trimmomatic_options="ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100"
+trimmomatic_options="SLIDINGWINDOW:4:30 MINLEN:100"
+trimmomatic_adapters="ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10"
 bowtie2_options="--very-sensitive-local"
 
 # load in params
 SHORT_OPTS="h"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,\
 sample_tsv,out,db\
-trimmomatic_options,bowtie2_options'
+trimmomatic_options,trimmomatic_adapters,bowtie2_options'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -74,6 +76,7 @@ while true; do
         --out) out=$2; shift 2;;
 		--db) db=$2; shift 2;;
         --trimmomatic_options) trimmomatic_options=$2; shift 2;;
+        --trimmomatic_adapters) trimmomatic_adapters=$2; shift 2;;
         --bowtie2_options) bowtie2_options=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
@@ -151,7 +154,7 @@ bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' -m '${mem}' \
 -s $__sample -fq1 $__fastq_file1 -fq2 $__fastq_file2 \
---trimmomatic_options "'$trimmomatic_options'" \
+--trimmomatic_options "'${trimmomatic_adapters} ${trimmomatic_options}'" \
 --bowtie2_options "'$bowtie2_options'" \
 --db '$db'
 ' >> ${out}/preprocess.kneaddata.slurm.sh
