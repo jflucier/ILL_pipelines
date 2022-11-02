@@ -12,7 +12,7 @@ help_message () {
     echo "	--out STR	path to output dir"
     echo "	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)"
     echo "	--bracken_readlen	bracken read length option (default 150)"
-    echo "      --confidence    kraken confidence level to reduce false-positive rate (default 0.05)"
+    echo "      --confidence    kraken confidence level to reduce false-positive rate (default 0.1)"
 
     echo ""
     echo "Slurm options:"
@@ -21,7 +21,7 @@ help_message () {
     echo "	--slurm_email \"your@email.com\"	Slurm email setting"
     echo "	--slurm_walltime STR	slurm requested walltime (default 6:00:00)"
     echo "	--slurm_threads INT	slurm requested number of threads (default 24)"
-    echo "	--slurm_mem STR	slurm requested memory (default 125G)"
+    echo "	--slurm_mem STR	slurm requested memory (default 31G)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -43,7 +43,7 @@ sample_tsv="false";
 out="false";
 kraken_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517"
 bracken_readlen="150"
-confidence="0.05"
+confidence="0.1"
 
 # load in params
 SHORT_OPTS="h"
