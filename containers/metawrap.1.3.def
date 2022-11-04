@@ -13,6 +13,7 @@ From: ubuntu:20.04
     export PATH=/miniconda3/envs/gtdbtk-env/bin/:$PATH
     export GTDBTK_DATA_PATH=/GTDB
     export PATH=/miniconda3/envs/roary-env/bin/:$PATH
+
 %post
     apt-get update && apt-get -y upgrade
 
