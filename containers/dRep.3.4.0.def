@@ -1,0 +1,27 @@
+# build new image using this command:
+# singularity build --force --fakeroot dRep.3.4.0.tmp.sif dRep.3.4.0.def
+
+## test
+# singularity exec --writable-tmpfs -e \
+# dRep3.4.0.sif \
+# dRep check_dependencies
+
+BootStrap: docker
+From: quay.io/biocontainers/drep:3.4.0--pyhdfd78af_0
+
+%environment
+    export PATH=/ANIcalculator_v1:$PATH
+
+%post
+    #instal checkm
+    pip3 install numpy
+    pip3 install matplotlib
+    pip3 install pysam
+    pip3 install checkm-genome
+
+    # install ANIcalculator
+    cd /
+    wget https://ani.jgi.doe.gov/download_files/ANIcalculator_v1.tgz
+    tar -xvzf ANIcalculator_v1.tgz
+    chown -R root:root /ANIcalculator_v1
+    chmod -R a+rwx /ANIcalculator_v1
