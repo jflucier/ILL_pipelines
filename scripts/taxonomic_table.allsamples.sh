@@ -11,12 +11,8 @@ help_message () {
 	echo ""
 	echo "	--kreports STR	base path regex to retrieve kreports by taxonomic level. For example, /path/taxonomic_profile/*/*_bracken/*_bracken_P.kreport would retreive all phylums level reports "
 	echo "	--taxa_code STR	Taxonomy one letter code (D, P, C, O, F, G, S)"
-	echo "	-o STR	path to output dir"
-    echo "	-tmp STR	path to temp dir (default output_dir/temp)"
-    echo "	-t	# of threads (default 8)"
-    echo "	--bowtie_index_name  name of the bowtie index that will be generated"
-    echo "	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan)"
-    echo "	--confidence	kraken confidence level to reduce false-positive rate (default 0.05)"
+	echo "	--out STR	path to output dir"
+    echo "	--tmp STR	path to temp dir (default output_dir/temp)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -29,16 +25,12 @@ export EXE_PATH=$(dirname "$0")
 # initialisation
 kreports='false'
 code='false'
-threads="8"
-mem="40G"
-bowtie_idx_name="false";
 out="false";
 tmp="false";
-choco_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan"
 
 # load in params
-SHORT_OPTS="ht:m:o:tmp:"
-LONG_OPTS='help,taxa_code,kreports,bowtie_index_name,chocophlan_db,confidence'
+SHORT_OPTS="h"
+LONG_OPTS='help,taxa_code,kreports,out,tmp'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -52,14 +44,10 @@ while true; do
     # echo $1
 	case "$1" in
         -h | --help) help_message; exit 1; shift 1;;
-        -t) threads=$2; shift 2;;
-        -tmp) tmp=$2; shift 2;;
-        -m) mem=$2; shift 2;;
+        --tmp) tmp=$2; shift 2;;
         --kreports) kreports="$2"; shift 2;;
 		--taxa_code) code="$2"; shift 2;;
-        -o) out=$2; shift 2;;
-		--nt_dbname) bowtie_idx_name=$2; shift 2;;
-        --chocophlan_db) choco_db=$2; shift 2;;
+        --out) out=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
 	esac
@@ -81,7 +69,6 @@ if [ "$code" = "false" ]; then
     help_message; exit 1
 fi
 
-
 if [ "$out" = "false" ]; then
     echo "Please provide an output path"
     help_message; exit 1
@@ -96,12 +83,6 @@ if [ "$tmp" = "false" ]; then
     echo "## No temp folder provided. Will use: $tmp"
 fi
 
-if [ "$bowtie_idx_name" = "false" ]; then
-    echo "Please provide a bowtie index name"
-    help_message; exit 1
-else
-    echo "## Bowtie index will be generated in this path: $out/${bowtie_idx_name}"
-fi
 
 echo "loading kraken env"
 source /project/def-ilafores/common/kraken2/venv/bin/activate
