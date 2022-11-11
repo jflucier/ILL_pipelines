@@ -2,50 +2,154 @@
 
 set -e
 
-echo "load and valdiate env"
-# load and valdiate env
+help_message () {
+	echo ""
+	echo "Usage: generateslurm_taxonomic_profile.allsamples.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame"
+	echo "Options:"
+
+	echo ""
+    echo "	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport)."
+    echo "	--out STR	path to output dir"
+    echo "	--bowtie_index_name  name of the bowtie index that will be generated"
+    echo "	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan)"
+
+    echo ""
+    echo "Slurm options:"
+    echo "	--slurm_alloc STR	slurm allocation (default def-ilafores)"
+    echo "	--slurm_log STR	slurm log file output directory (default to output_dir/logs)"
+    echo "	--slurm_email \"your@email.com\"	Slurm email setting"
+    echo "	--slurm_walltime STR	slurm requested walltime (default 24:00:00)"
+    echo "	--slurm_threads INT	slurm requested number of threads (default 48)"
+    echo "	--slurm_mem STR	slurm requested memory (default 251G)"
+
+    echo ""
+    echo "  -h --help	Display help"
+
+	echo "";
+}
+
+
 export EXE_PATH=$(dirname "$0")
 
-if [ -z ${1+x} ]; then
-    echo "Please provide a configuration file. See ${EXE_PATH}/my.example.config for an example."
-    exit 1
+# initialisation
+alloc="def-ilafores"
+email="false"
+walltime="24:00:00"
+threads="48"
+mem="251G"
+log="false"
+
+kreports='false'
+out="false";
+bowtie_idx_name="false";
+choco_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan"
+
+SHORT_OPTS="h"
+LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,\
+kreports,out,bowtie_index_name,chocophlan_db'
+
+OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
+# make sure the params are entered correctly
+if [ $? -ne 0 ];
+then
+    help_message;
+    exit 1;
 fi
 
-export CONF_PARAMETERS=$1
-source $CONF_PARAMETERS
+while true; do
+    # echo $1
+	case "$1" in
+		-h | --help) help_message; exit 1; shift 1;;
+        --slurm_alloc) alloc=$2; shift 2;;
+        --slurm_log) log=$2; shift 2;;
+        --slurm_email) email=$2; shift 2;;
+        --slurm_walltime) walltime=$2; shift 2;;
+        --slurm_threads) threads=$2; shift 2;;
+        --slurm_mem) mem=$2; shift 2;;
+        --kreports) kreports=$2; shift 2;;
+        --out) out=$2; shift 2;;
+		--bowtie_idx_name) bowtie_idx_name=$2; shift 2;;
+        --choco_db) choco_db=$2; shift 2;;
+        --) help_message; exit 1; shift; break ;;
+		*) break;;
+	esac
+done
 
-${EXE_PATH}/scripts/global.checkenv.sh
-${EXE_PATH}/scripts/taxonomic_profile.allsamples.checkenv.sh
+if [ "$kreports" = "false" ]; then
+    echo "Please provide a species taxonomic level kraken report regex."
+    help_message; exit 1
+fi
 
-mkdir -p ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/logs
+kreport_files=$(ls $kreports | wc -l)
+if [ $kreport_files -eq 0 ]
+    echo "Provided species kreport regex $kreports returned 0 report files. Please validate your regex."
+    help_message; exit 1
+fi
 
-echo "outputting all sample taxonomic profile slurm script to ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh"
-echo '#!/bin/bash' > ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh
+if [ "$out" = "false" ]; then
+    echo "Please provide an output path"
+    help_message; exit 1
+elif [[ ! -d "$out" ]]; then
+    echo "## Output path $out doesnt exist. Will create it!"
+fi
+
+mkdir -p $out
+
+echo "## Results wil be stored to this path: $out"
+
+if [ "$log" = "false" ]; then
+    log=$out/logs
+    echo "## Slurm output path not specified, will output logs in: $log"
+else
+    echo "## Will output logs in: $log"
+fi
+
+mkdir -p $log
+
+if [ "$bowtie_idx_name" = "false" ]; then
+    echo "Please provide a bowtie index name"
+    help_message; exit 1
+else
+    echo "## Bowtie index will be generated in this path: $out/${bowtie_idx_name}"
+fi
+
+echo "outputting all sample taxonomic profile slurm script to $out/taxonomic_profile.allsamples.slurm.sh"
+echo '#!/bin/bash' > $out/taxonomic_profile.allsamples.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D '${OUTPUT_PATH}'
-#SBATCH -o '${OUTPUT_PATH}'/'${TAXONOMIC_ALL_OUTPUT_NAME}'/logs/taxonomic_profile_all-%A.slurm.out
-#SBATCH --time='${TAXONOMIC_ALL_SLURM_WALLTIME}'
-#SBATCH --mem='${TAXONOMIC_ALL_SLURM_MEMORY}'
-#SBATCH --mail-user='${SLURM_JOB_EMAIL}'
+#SBATCH -D '${out}'
+#SBATCH -o '${out}'/logs/taxonomic_profile_all-%A.slurm.out
+#SBATCH --time='${walltime}'
+#SBATCH --mem='${mem}'
 #SBATCH -N 1
-#SBATCH -n '${TAXONOMIC_ALL_SLURM_NBR_THREADS}'
-#SBATCH -A '${SLURM_ALLOCATION}'
+#SBATCH -n '${threads}'
+#SBATCH -A '${alloc}'
 #SBATCH -J all_taxonomic_profile
+' >> ${out}/taxonomic_profile.allsamples.slurm.sh
 
+if [ "$email" != "false" ]; then
+echo '
+#SBATCH --mail-user='${email}'
+' >> ${out}/taxonomic_profile.allsamples.slurm.sh
+fi
 
+echo '
 newgrp def-ilafores
 echo "loading env"
 export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
 module use $MUGQIC_INSTALL_HOME/modulefiles
 
 bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
-'$CONF_PARAMETERS' \
-$SLURM_TMPDIR
+--kreports "'$kreports'" \
+--out '${out}' \
+--tmp $SLURM_TMPDIR \
+--threads '${threads}' \
+--bowtie_index_name '$bowtie_idx_name' \
+--chocophlan_db '$choco_db'
 
-' >> ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh
+' >> ${out}/taxonomic_profile.allsamples.slurm.sh
 
 echo "To submit to slurm, execute the following command:"
-echo "sbatch ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}/taxonomic_profile.allsamples.slurm.sh"
+echo "sbatch ${out}/taxonomic_profile.allsamples.slurm.sh"
 
 echo "done!"

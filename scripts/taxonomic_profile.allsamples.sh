@@ -2,96 +2,130 @@
 
 set -e
 
-echo "load and valdiate env"
-# load and valdiate env
+help_message () {
+	echo ""
+	echo "Usage: taxonomic_profile.allsample.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame "
+	echo "Options:"
+
+	echo ""
+	echo "	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport)."
+    echo "	--out STR	path to output dir"
+    echo "	--tmp STR	path to temp dir (default output_dir/temp)"
+    echo "	--threads	# of threads (default 8)"
+    echo "	--bowtie_index_name  name of the bowtie index that will be generated"
+    echo "	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan)"
+
+    echo ""
+    echo "  -h --help	Display help"
+
+	echo "";
+}
+
 export EXE_PATH=$(dirname "$0")
 
-if [ -z ${1+x} ]; then
-    echo "Please provide a configuration file. See ${EXE_PATH}/my.example.config for an example."
-    exit 1
+# initialisation
+kreports='false'
+threads="8"
+bowtie_idx_name="false";
+out="false";
+tmp="false";
+choco_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan"
+
+# load in params
+SHORT_OPTS="h"
+LONG_OPTS='help,threads,tmp,kreports,out,bowtie_index_name,chocophlan_db'
+
+OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
+# make sure the params are entered correctly
+if [ $? -ne 0 ];
+then
+    help_message;
+    exit 1;
 fi
 
-export CONF_PARAMETERS=$1
-export TMP_DIR=$2
+while true; do
+    # echo $1
+	case "$1" in
+        -h | --help) help_message; exit 1; shift 1;;
+        --threads) threads=$2; shift 2;;
+        --tmp) tmp=$2; shift 2;;
+        --kreports) kreports="$2"; shift 2;;
+        --out) out=$2; shift 2;;
+		--bowtie_index_name) bowtie_idx_name=$2; shift 2;;
+        --chocophlan_db) choco_db=$2; shift 2;;
+        --) help_message; exit 1; shift; break ;;
+		*) break;;
+	esac
+done
 
-module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
+if [ "$kreports" = "false" ]; then
+    echo "Please provide a species taxonomic level kraken report regex."
+    help_message; exit 1
+fi
+
+kreport_files=$(ls $kreports | wc -l)
+if [ $kreport_files -eq 0 ]
+    echo "Provided species kreport regex $kreports returned 0 report files. Please validate your regex."
+    help_message; exit 1
+fi
+
+if [ "$out" = "false" ]; then
+    echo "Please provide an output path"
+    help_message; exit 1
+else
+    mkdir -p $out
+    echo "## Results wil be stored to this path: $out/"
+fi
+
+if [ "$tmp" = "false" ]; then
+    tmp=$out/temp
+    mkdir -p $tmp
+    echo "## No temp folder provided. Will use: $tmp"
+fi
+
+if [ "$bowtie_idx_name" = "false" ]; then
+    echo "Please provide a bowtie index name"
+    help_message; exit 1
+else
+    echo "## Bowtie index will be generated in this path: $out/${bowtie_idx_name}"
+fi
+
+echo "loading kraken env"
 source /project/def-ilafores/common/kraken2/venv/bin/activate
 export PATH=/project/def-ilafores/common/kraken2:/project/def-ilafores/common/Bracken:$PATH
 export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
 
-source $CONF_PARAMETERS
-
-${EXE_PATH}/global.checkenv.sh
-${EXE_PATH}/taxonomic_profile.allsamples.checkenv.sh
-
-mkdir -p ${OUTPUT_PATH}/${TAXONOMIC_ALL_OUTPUT_NAME}
-
-__all_taxas=$(echo "${TAXONOMIC_LEVEL[@]}")
-
-
 echo "BUGS-LIST CREATION (FOR HUMANN DB CREATION)"
-echo "combine all samples kreports in one"
-export __KREPORTS=$(ls $TAXONOMIC_ALL_BRACKEN_KREPORTS)
+kreport_filelist=$(ls $kreports)
+echo "combine all species kreports in one using these $kreport_files files: $kreport_filelist"
+
 /project/def-ilafores/common/KrakenTools/combine_kreports.py \
--r $__KREPORTS \
--o $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_S.kreport \
+-r $kreport_filelist \
+-o $tmp/${bowtie_idx_name}_S.kreport \
 --only-combined --no-headers
 
 echo "convert kreport to mpa"
 python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
--r $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_S.kreport \
--o $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_temp_S.MPA.TXT
+-r $tmp/${bowtie_idx_name}_S.kreport \
+-o $tmp/${bowtie_idx_name}_temp_S.MPA.TXT
 
 echo "modify mpa for humann support"
-grep "|s" $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}_temp_S.MPA.TXT \
+grep "|s" $tmp/${bowtie_idx_name}_temp_S.MPA.TXT \
 | awk '{printf("%s\t\n", $0)}' - \
-| awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - > $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT
-
-for taxa_str in $__all_taxas
-do
-    taxa_oneletter=${taxa_str%%:*}
-    taxa_name=${taxa_str#*:}
-
-    echo "JOINT TAXONOMIC TABLES using taxonomic level-specific bracken reestimated abundances for $taxa_name"
-
-    for report_f in $OUTPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.kreport
-    do
-        python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
-        -r $report_f -o ${report_f//.kreport/}.MPA.TXT --display-header
-    done
-
-    echo "runinng combine for $taxa_name"
-    python /project/def-ilafores/common/KrakenTools/combine_mpa.py \
-    -i $OUTPUT_PATH/*/*_bracken/*_bracken_${taxa_oneletter}.MPA.TXT \
-    -o $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/temp_${taxa_oneletter}.tsv
-
-    sed -i "s/_bracken_${taxa_oneletter}.kreport//g" $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/temp_${taxa_oneletter}.tsv
-
-    if [[ ${taxa_oneletter_tmp} == "D" ]]
-    then
-        taxa_oneletter_tmp="K"
-    else
-        taxa_oneletter_tmp=${taxa_oneletter_tmp};
-    fi
-
-    grep -E "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/temp_${taxa_oneletter}.tsv > $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/taxtable_${taxa_oneletter}.tsv
-done
-
+| awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - > $tmp/${bowtie_idx_name}-bugs_list.MPA.TXT
 
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
 ### gen python chocphlan cusotm db
-cd $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}
+cd $tmp
 echo "runnin create prescreen db. This step might take long"
-python -u ${EXE_PATH}/create_prescreen_db.py $TAXONOMIC_ALL_CHOCOPHLAN_DB $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT
+python -u ${EXE_PATH}/create_prescreen_db.py $choco_db $tmp/${bowtie_idx_name}-bugs_list.MPA.TXT
 ### gen bowtie index on db
-mv _custom_chocophlan_database.ffn ${TAXONOMIC_ALL_NT_DBNAME}.ffn
-bowtie2-build --threads ${TAXONOMIC_ALL_SLURM_NBR_THREADS} ${TAXONOMIC_ALL_NT_DBNAME}.ffn  ${TAXONOMIC_ALL_NT_DBNAME}
+mv _custom_chocophlan_database.ffn ${bowtie_idx_name}.ffn
+bowtie2-build --threads ${threads} ${bowtie_idx_name}.ffn  ${bowtie_idx_name}
 
-# echo "Please move $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME} bowtie index to the location of your custom chocophlan db."
-# echo "i.e. mv $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}* /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/"
-# echo "Also move $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT to the location of your custom chocophlan db for reference."
-# echo "i.e. mv $OUTPUT_PATH/${TAXONOMIC_ALL_OUTPUT_NAME}/${TAXONOMIC_ALL_NT_DBNAME}-bugs_list.MPA.TXT /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/"
+echo "copying all files to $out"
+cp -fr $tmp/* $out/
 
 echo "humann custom buglist db analysis completed"
