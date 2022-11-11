@@ -101,7 +101,7 @@ do
 	-r $report_f -o ${report_f//.kreport/}.MPA.TXT --display-header
 done
 
-echo "runinng combine_mpa for $taxa_oneletter"
+echo "runinng combine_mpa for taxonomy $taxa_oneletter"
 mpa_reports=${kreports%.kreport}.MPA.TXT
 python /project/def-ilafores/common/KrakenTools/combine_mpa.py \
 -i $mpa_reports \
