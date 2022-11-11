@@ -46,7 +46,8 @@ choco_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan"
 
 SHORT_OPTS="h"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,\
-kreports,out,bowtie_index_name,chocophlan_db'
+kreports,out,\
+bowtie_index_name,chocophlan_db'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -57,7 +58,7 @@ then
 fi
 
 while true; do
-    # echo $1
+    # echo "$1 -- $2"
 	case "$1" in
 		-h | --help) help_message; exit 1; shift 1;;
         --slurm_alloc) alloc=$2; shift 2;;
@@ -69,13 +70,11 @@ while true; do
         --kreports) kreports=$2; shift 2;;
         --out) out=$2; shift 2;;
 		--bowtie_index_name) bowtie_idx_name=$2; shift 2;;
-        --choco_db) choco_db=$2; shift 2;;
+        --chocophlan_db) choco_db=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
 	esac
 done
-
-echo $threads
 
 if [ "$kreports" = "false" ]; then
     echo "Please provide a species taxonomic level kraken report regex."
