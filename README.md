@@ -8,7 +8,9 @@
 * [Installation](#installation)
 * [How to run](#how-to-run)
     * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
-    * [Run Kraken2 taxonomic profile](#Run-Kraken2-taxonomic-profile)
+    * [Run Kraken2 taxonomic profile per sample](#Run-Kraken2-taxonomic-profile-per-sample)
+    * [Generate taxonomy table on all samples for a specific taxonomic level](#Generate-taxonomy-table-on-all-samples-for-a-specific-taxonomic-level)
+    * [Generate HUMAnN bugs list](#Generate-HUMAnN-bugs-list)
     * [Run HUMAnN functionnal profile](#Run-HUMAnN-functionnal-profile)
     * [Run MetaWRAP assembly, binning and bin refinement](#Run-MetaWRAP-assembly,-binning-and-bin-refinement)
 
@@ -23,7 +25,8 @@
 5. [Bracken](https://github.com/jenniferlu717/Bracken)
 6. [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools)
 7. [HUMAnN](https://huttenhower.sph.harvard.edu/humann/)
-
+8. [KrakenTools](https://github.com/jenniferlu717/KrakenTools)
+9. [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 
 Please install the required software in a location of your choice and put in PATH variable.
 
@@ -136,7 +139,7 @@ Options:
 ```
 
 
-### Run Kraken2 taxonomic profile ###
+### Run Kraken2 taxonomic profile per sample ###
 
 Before running this pipeline, make sure [kraken2](https://github.com/DerrickWood/kraken2), [Bracken](https://github.com/jenniferlu717/Bracken) and [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools) and acessible in PATH variable.
 
@@ -188,6 +191,94 @@ Options:
 	--bracken_readlen	bracken read length option (default 150)
 
   -h --help	Display help
+
+```
+
+### Generate taxonomy table on all samples for a specific taxonomic level ###
+
+Before running this pipeline, make sure [KrakenTools](https://github.com/jenniferlu717/KrakenTools) is acessible in PATH variable.
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh -h
+
+Usage: taxonomic_profile.allsample.sh -i 'kraken_report_regex' -o /path/to/out --nt_dbname mydb
+Options:
+
+	--kreports STR	base path regex to retrieve kreports by taxonomic level. For example, /path/taxonomic_profile/*/*_bracken/*_bracken_P.kreport would retreive all phylums level reports
+	--taxa_code STR	Taxonomy one letter code (D, P, C, O, F, G, S)
+	--out STR	path to output dir
+	--tmp STR	path to temp dir (default output_dir/temp)
+
+  -h --help	Display help
+
+```
+
+The kreports parameter is a regular expression that points to all kraken report files that will be used in analysis. An example call to process all kraken report at the taxonomic level = classes would look like:
+
+```
+kreports="/nfs3_ib/ip29-ib/ip29/ilafores_group/projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_C.kreport"
+taxa_code=C
+out=test
+tmp=test/temp
+
+bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh \
+--kreports "$kreports" \
+--taxa_code $taxa_code \
+--out ${out} \
+--tmp $tmp
+
+```
+
+### Generate HUMAnN bugs list ###
+
+Before running this pipeline, make sure [KrakenTools](https://github.com/jenniferlu717/KrakenTools) and [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) are acessible in PATH variable.
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_taxonomic_profile.allsamples.sh -h
+
+Usage: generateslurm_taxonomic_profile.allsamples.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame
+Options:
+
+	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: /home/jflucier/tmp/taxonomic_profile/*/*_bracken/*_bracken_S.kreport).
+	--out STR	path to output dir
+	--bowtie_index_name  name of the bowtie index that will be generated
+	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan)
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 48)
+	--slurm_mem STR	slurm requested memory (default 251G)
+
+  -h --help	Display help
+
+```
+
+The kreports parameter is a regular expression that points to all species level kraken report files that will be used in analysis.
+
+If you wish, the humann bug list generation can be directly runned locally on serve using similar code as below:
+
+```
+kreports="/nfs3_ib/ip29-ib/ip29/ilafores_group/projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_S.kreport"
+out=test
+tmp=test/temp
+threads=24
+bowtie_idx_name=my_bt_idx
+choco_db=/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan
+
+bash $ILL_PIPELINES//scripts/taxonomic_profile.allsamples.sh \
+--kreports "$kreports" \
+--out ${out} \
+--tmp $tmp \
+--threads ${threads} \
+--bowtie_index_name $bowtie_idx_name \
+--chocophlan_db $choco_db
 
 ```
 
