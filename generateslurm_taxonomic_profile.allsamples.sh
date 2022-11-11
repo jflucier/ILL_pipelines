@@ -75,6 +75,8 @@ while true; do
 	esac
 done
 
+echo $threads
+
 if [ "$kreports" = "false" ]; then
     echo "Please provide a species taxonomic level kraken report regex."
     help_message; exit 1
