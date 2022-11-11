@@ -139,6 +139,8 @@ echo "loading env"
 export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
 module use $MUGQIC_INSTALL_HOME/modulefiles
 
+module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5
+
 bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --kreports "'$kreports'" \
 --out '${out}' \

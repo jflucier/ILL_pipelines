@@ -64,7 +64,7 @@ if [ "$kreports" = "false" ]; then
 fi
 
 kreport_files=$(ls $kreports | wc -l)
-if [ $kreport_files -eq 0 ]
+if [ $kreport_files -eq 0 ]; then
     echo "Provided species kreport regex $kreports returned 0 report files. Please validate your regex."
     help_message; exit 1
 fi
@@ -95,6 +95,17 @@ source /project/def-ilafores/common/kraken2/venv/bin/activate
 export PATH=/project/def-ilafores/common/kraken2:/project/def-ilafores/common/Bracken:$PATH
 export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
 
+echo "checking bowtie is in path"
+if ! command -v "bowtie2" &> /dev/null
+then
+    echo "##**** bowtie2 could not be found in path ****"
+    echo "## Please update path variable to make bowtie2 available"
+    echo "## Modify this line: export PATH=/path/to/bowtie2/bin:\$PATH"
+    echo "##**********************************"
+    echo "##"
+    exit 1
+fi
+
 echo "BUGS-LIST CREATION (FOR HUMANN DB CREATION)"
 kreport_filelist=$(ls $kreports)
 echo "combine all species kreports in one using these $kreport_files files: $kreport_filelist"
@@ -120,10 +131,10 @@ export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PA
 ### gen python chocphlan cusotm db
 cd $tmp
 echo "runnin create prescreen db. This step might take long"
-python -u ${EXE_PATH}/create_prescreen_db.py $choco_db $tmp/${bowtie_idx_name}-bugs_list.MPA.TXT
+python -u ${EXE_PATH}/create_prescreen_db.py $choco_db ${bowtie_idx_name}-bugs_list.MPA.TXT
 ### gen bowtie index on db
 mv _custom_chocophlan_database.ffn ${bowtie_idx_name}.ffn
-bowtie2-build --threads ${threads} ${bowtie_idx_name}.ffn  ${bowtie_idx_name}
+cd -
 
 echo "copying all files to $out"
 cp -fr $tmp/* $out/
