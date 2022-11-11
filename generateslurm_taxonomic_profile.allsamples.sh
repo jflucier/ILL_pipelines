@@ -68,7 +68,7 @@ while true; do
         --slurm_mem) mem=$2; shift 2;;
         --kreports) kreports=$2; shift 2;;
         --out) out=$2; shift 2;;
-		--bowtie_idx_name) bowtie_idx_name=$2; shift 2;;
+		--bowtie_index_name) bowtie_idx_name=$2; shift 2;;
         --choco_db) choco_db=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
