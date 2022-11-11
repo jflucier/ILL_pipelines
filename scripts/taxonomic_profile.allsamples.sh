@@ -134,7 +134,7 @@ echo "runnin create prescreen db. This step might take long"
 python -u ${EXE_PATH}/create_prescreen_db.py $choco_db ${bowtie_idx_name}-bugs_list.MPA.TXT
 ### gen bowtie index on db
 mv _custom_chocophlan_database.ffn ${bowtie_idx_name}.ffn
-cd -
+bowtie2-build --threads ${threads} ${bowtie_idx_name}.ffn  ${bowtie_idx_name}
 
 echo "copying all files to $out"
 cp -fr $tmp/* $out/
