@@ -96,11 +96,12 @@ kreport_filelist=$(ls $kreports | wc -l)
 
 for report_f in $kreports
 do
+	echo "running kreport2mpa on $report_f"
 	python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
 	-r $report_f -o ${report_f//.kreport/}.MPA.TXT --display-header
 done
 
-echo "runinng combine for $taxa_oneletter"
+echo "runinng combine_mpa for $taxa_oneletter"
 mpa_reports=${kreports%.kreport}.MPA.TXT
 python /project/def-ilafores/common/KrakenTools/combine_mpa.py \
 -i $mpa_reports \
