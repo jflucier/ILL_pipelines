@@ -59,7 +59,7 @@ if [ "$kreports" = "false" ]; then
 fi
 
 kreport_files=$(ls $kreports | wc -l)
-if [ $kreport_files -eq 0 ]
+if [ $kreport_files -eq 0 ]; then
     echo "Provided kreport regex $kreports returned 0 report files. Please validate your regex."
     help_message; exit 1
 fi
