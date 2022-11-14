@@ -116,7 +116,7 @@ else
     taxa_oneletter_tmp=${taxa_oneletter};
 fi
 
-grep -E "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $tmp/temp_${taxa_oneletter}.tsv > $tmp/taxtable_${taxa_oneletter}.tsv
+grep -iE "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $tmp/temp_${taxa_oneletter}.tsv > $tmp/taxtable_${taxa_oneletter}.tsv
 
 echo "copying results back to $out"
 cp -fr $tmp/* $out/
