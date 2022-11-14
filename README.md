@@ -231,6 +231,40 @@ bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh \
 
 ```
 
+If you wish to generate a taxonomy table for all txonomic levels, create a bash script similar to the following:
+
+```
+export TAXONOMIC_ALL_LEVEL=(
+    "D:domains"
+    "P:phylums"
+    "C:classes"
+    "O:orders"
+    "F:families"
+    "G:genuses"
+    "S:species"
+)
+
+out=test
+tmp=test/temp
+
+for taxa_str in ${TAXONOMIC_ALL_LEVEL[@]}
+do
+    taxa_code=${taxa_str%%:*}
+    taxa_name=${taxa_str#*:}
+
+    echo "generating taxonomic table for taxonomic level $taxa_name --> $taxa_code"
+    kreports="/nfs3_ib/ip29-ib/ip29/ilafores_group/projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_"$taxa_code".kreport"
+    # echo $kreports
+    bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh \
+    --kreports "$kreports" \
+    --taxa_code $taxa_code \
+    --out $out \
+    --tmp $tmp
+done
+
+
+```
+
 ### Generate HUMAnN bugs list ###
 
 Before running this pipeline, make sure [KrakenTools](https://github.com/jenniferlu717/KrakenTools) and [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) are acessible in PATH variable.
