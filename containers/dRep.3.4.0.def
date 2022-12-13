@@ -17,21 +17,54 @@
 # dRep ....
 
 BootStrap: docker
-From: quay.io/biocontainers/drep:3.4.0--pyhdfd78af_0
+From: ubuntu:22.04
 
 %environment
     export CHECKM_DATA_PATH=/checkm
+    export PATH=/pplacer-Linux-v1.1.alpha19:$PATH
 
 %post
-    #instal checkm
+    apt-get update && apt-get -y upgrade
+
+    apt-get -y install \
+    build-essential \
+    wget \
+    bzip2 \
+    ca-certificates \
+    git \
+    less \
+    hmmer \
+    unzip \
+    python3 \
+    python3-pip \
+    prodigal
+
+    # # install hmmer
+    # cd /
+    # wget http://eddylab.org/software/hmmer/hmmer-3.3.2.tar.gz
+    # tar -xvzf hmmer-3.3.2.tar.gz
+    # cd hmmer-3.3.2
+    # ./configure
+    # make
+    # make install
+
+    cd /
+    wget https://github.com/matsen/pplacer/releases/download/v1.1.alpha19/pplacer-linux-v1.1.alpha19.zip
+    unzip pplacer-linux-v1.1.alpha19.zip
+
+
+    #install checkm
     pip3 install numpy==1.23.1
     pip3 install matplotlib==3.5.2
     pip3 install pysam==0.20.0
     pip3 install checkm-genome==1.2.2
+    pip3 install drep==3.4.0
 
     # setup checkm
     #checkm set db path
-    sed -i 's/\"\"/\"\/checkm\"/g' /usr/local/lib/python3.10/site-packages/checkm/DATA_CONFIG
+    sed -i 's/\"\"/\"\/checkm\"/g' /usr/local/lib/python3.10/dist-packages/checkm/DATA_CONFIG
+
+
 
     # install ANIcalculator -- NOT WORKING!!!! nsimscan missing lib libstdc++.so.6
     # make unavailable on image os... need to install everything from scratch if we want this tool!
