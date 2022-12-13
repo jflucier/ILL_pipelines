@@ -22,11 +22,12 @@ From: ubuntu:22.04
 %environment
     export CHECKM_DATA_PATH=/checkm
     export PATH=/pplacer-Linux-v1.1.alpha19:$PATH
+    export PATH=/mash-Linux64-v2.3:$PATH
 
 %post
     apt-get update && apt-get -y upgrade
 
-    apt-get -y install \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     build-essential \
     wget \
     bzip2 \
@@ -37,22 +38,18 @@ From: ubuntu:22.04
     unzip \
     python3 \
     python3-pip \
-    prodigal
+    tzdata \
+    prodigal \
+    mummer \
+    mash \
+    fastani
 
-    # # install hmmer
-    # cd /
-    # wget http://eddylab.org/software/hmmer/hmmer-3.3.2.tar.gz
-    # tar -xvzf hmmer-3.3.2.tar.gz
-    # cd hmmer-3.3.2
-    # ./configure
-    # make
-    # make install
-
+    # install pplacer
     cd /
     wget https://github.com/matsen/pplacer/releases/download/v1.1.alpha19/pplacer-linux-v1.1.alpha19.zip
     unzip pplacer-linux-v1.1.alpha19.zip
 
-
+    cd /
     #install checkm
     pip3 install numpy==1.23.1
     pip3 install matplotlib==3.5.2
@@ -64,22 +61,7 @@ From: ubuntu:22.04
     #checkm set db path
     sed -i 's/\"\"/\"\/checkm\"/g' /usr/local/lib/python3.10/dist-packages/checkm/DATA_CONFIG
 
-
-
-    # install ANIcalculator -- NOT WORKING!!!! nsimscan missing lib libstdc++.so.6
-    # make unavailable on image os... need to install everything from scratch if we want this tool!
+    # install mash
     # cd /
-    # wget https://ani.jgi.doe.gov/download_files/ANIcalculator_v1.tgz
-    # tar -xvzf ANIcalculator_v1.tgz
-    # chown -R root:root /ANIcalculator_v1
-    # chmod -R a+rwx /ANIcalculator_v1
-    #
-    # cd /ANIcalculator_v1
-    # wget https://github.com/abadona/qsimscan/archive/refs/heads/master.zip
-    # unzip master.zip
-    # cd /ANIcalculator_v1/qsimscan-master/
-    # make
-    #
-    # cd ../
-    # mv nsimscan nsimscan.old
-    # cp qsimscan-master/nsimscan/nsimscan .
+    # wget https://github.com/marbl/Mash/releases/download/v2.3/mash-Linux64-v2.3.tar
+    # tar -xvf mash-Linux64-v2.3.tar
