@@ -98,11 +98,14 @@ echo "fastq2 path: $fq2"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
+kraken_db_name=$(basename $kraken_db)
 
 echo "upload fastq1 to $tmp/$fq1_name"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
+echo "upload kraken db to $tmp/$kraken_db_name"
+cp -r $kraken_db $tmp/$kraken_db_name
 
 ### Kraken
 echo "loading kraken env"
@@ -116,7 +119,7 @@ kraken2 \
 --confidence ${confidence} \
 --paired \
 --threads ${threads} \
---db ${kraken_db} \
+--db $tmp/$kraken_db_name \
 --use-names \
 --output $tmp/${sample}/${sample}_taxonomy_nt \
 --classified-out $tmp/${sample}/${sample}_classified_reads_#.fastq \

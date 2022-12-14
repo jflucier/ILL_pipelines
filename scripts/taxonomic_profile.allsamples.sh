@@ -130,8 +130,12 @@ export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PA
 
 ### gen python chocphlan cusotm db
 cd $tmp
+choco_db_name=$(basename $choco_db)
+echo "upload chocophlan db to $tmp/$choco_db_name"
+cp -r $choco_db $tmp/$choco_db_name
+
 echo "runnin create prescreen db. This step might take long"
-python -u ${EXE_PATH}/create_prescreen_db.py $choco_db ${bowtie_idx_name}-bugs_list.MPA.TXT
+python -u ${EXE_PATH}/create_prescreen_db.py $tmp/$choco_db_name ${bowtie_idx_name}-bugs_list.MPA.TXT
 ### gen bowtie index on db
 mv _custom_chocophlan_database.ffn ${bowtie_idx_name}.ffn
 bowtie2-build --threads ${threads} ${bowtie_idx_name}.ffn  ${bowtie_idx_name}
