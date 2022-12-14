@@ -103,11 +103,14 @@ echo "fastq2 path: $fq2"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
+db_name=$(basename $db)
 
 echo "upload fastq1 to $tmp/"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp"
 cp $fq2 $tmp/$fq2_name
+echo "upload fastq2 to $tmp"
+cp ${db}.* $tmp/
 
 ### Preproc
 source /project/def-ilafores/common/kneaddata/bin/activate
@@ -118,7 +121,7 @@ kneaddata -v \
 --log ${out}/kneaddata-${sample}.log \
 --input $tmp/${fq1_name} \
 --input $tmp/${fq2_name} \
--db ${db} \
+-db ${tmp}/${db_name} \
 --bowtie2-options="${bowtie2_options}" \
 -o $tmp/ \
 --output-prefix ${sample} \
