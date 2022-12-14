@@ -109,7 +109,7 @@ echo "upload fastq1 to $tmp/"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp"
 cp $fq2 $tmp/$fq2_name
-echo "upload fastq2 to $tmp"
+echo "upload db to $tmp"
 cp ${db}.* $tmp/
 
 ### Preproc
