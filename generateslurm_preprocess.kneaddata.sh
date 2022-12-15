@@ -199,9 +199,12 @@ do
 	    end_i='$sample_nbr'
 	fi
 
-	sleep $batch_time
 	echo "submitting sbatch --array=$start_i-$end_i ${out}/preprocess.kneaddata.slurm.sh"
 	sbatch --array=$start_i-$end_i '${out}'/preprocess.kneaddata.slurm.sh
+
+	echo "next submittion in $batch_time sec"
+	sleep $batch_time
+
 done
 
 echo "done"
