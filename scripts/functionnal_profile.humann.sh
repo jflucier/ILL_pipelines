@@ -87,15 +87,15 @@ fi
 case $search_mode in
 
   "dual")
-    echo "Caslling humann using search mode DUAL"
+    echo "Calling humann using search mode DUAL"
     ;;
 
   "nt")
-  echo "Caslling humann using search mode nt"
+  echo "Calling humann using search mode nt"
     ;;
 
   "prot")
-  echo "Caslling humann using search mode prot"
+  echo "Calling humann using search mode prot"
     ;;
 
   *)
@@ -145,10 +145,8 @@ fq2_name=$(basename $fq2)
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-echo "copying fastq1 $fq1"
-cp $fq1 ${tmp}/${fq1_name}
-echo "copying fastq2 $fq2"
-cp $fq2 ${tmp}/${fq2_name}
+echo "concatenate fastq files for single-end HUMAnN run"
+cat $fq1 $fq2 > $tmp/${sample}_cat-paired.fastq
 
 mkdir ${tmp}/db
 echo "copying nucleotide bowtie index ${nt_db}"
@@ -168,10 +166,6 @@ echo "outputting to ${tmp}/${__sample}"
 
 mkdir -p ${out}
 
-echo "concatenate paired output, for HUMAnN single-end run"
-cat ${tmp}/${fq1_name} ${tmp}/${fq2_name} > $tmp/${sample}_cat-paired.fastq
-
-
 case $search_mode in
 
   "dual")
@@ -187,7 +181,7 @@ case $search_mode in
     ;;
 
   "nt")
-  echo "Caslling humann using search mode nt"
+  echo "Calling humann using search mode nt"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
@@ -198,7 +192,7 @@ case $search_mode in
     ;;
 
   "prot")
-  echo "Caslling humann using search mode prot"
+  echo "Calling humann using search mode prot"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
