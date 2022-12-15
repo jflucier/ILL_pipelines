@@ -135,7 +135,7 @@ fi
 echo "## NT database: $nt_db"
 echo "## Protein database: $prot_db"
 
-echo "analysing sample $sample with metawrap"
+echo "analysing sample $sample with HUMAnN 3.0.1"
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
 
@@ -149,27 +149,26 @@ echo "concatenate fastq files for single-end HUMAnN run"
 cat $fq1 $fq2 > $tmp/${sample}_cat-paired.fastq
 
 mkdir -p ${tmp}/db
-echo "copying nucleotide bowtie index ${nt_db}"
-export __nt_db_idx=$(basename ${nt_db})
-cp ${nt_db}*.bt2 ${tmp}/db/
-
-echo "copying protein diamond index ${prot_db}"
-export __prot_db_idx=$(basename ${prot_db})
-cp -r ${prot_db} ${tmp}/db
-
-export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
-export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
-
-echo "running humann"
 mkdir -p ${tmp}/${sample}
-echo "outputting to ${tmp}/${sample}"
-
 mkdir -p ${out}
+
+echo "running humann, outputting to ${tmp}/${sample}"
 
 case $search_mode in
 
   "dual")
-    echo "Calling humann using search mode DUAL"
+  echo "copying nucleotide bowtie index ${nt_db}"
+  export __nt_db_idx=$(basename ${nt_db})
+  cp ${nt_db}*.bt2 ${tmp}/db/
+
+  echo "copying protein diamond index ${prot_db}"
+  export __prot_db_idx=$(basename ${prot_db})
+  cp -r ${prot_db} ${tmp}/db
+
+  export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
+  export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
+
+   echo "Calling humann using search mode DUAL"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
@@ -181,17 +180,29 @@ case $search_mode in
     ;;
 
   "nt")
+  echo "copying nucleotide bowtie index ${nt_db}"
+  export __nt_db_idx=$(basename ${nt_db})
+  cp ${nt_db}*.bt2 ${tmp}/db/
+
+  export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
+  
   echo "Calling humann using search mode nt"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
     --input $tmp/${sample}_cat-paired.fastq \
-    --output ${tmp}/${sample} --output-basename ${sample} \
+ --resume   --output ${tmp}/${sample} --output-basename ${sample} \
     --nucleotide-database $__tmp_nt_db \
     --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
     ;;
 
   "prot")
+  echo "copying protein diamond index ${prot_db}"
+  export __prot_db_idx=$(basename ${prot_db})
+  cp -r ${prot_db} ${tmp}/db
+
+  export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
+
   echo "Calling humann using search mode prot"
     humann \
     -v --threads ${threads} \
@@ -209,8 +220,8 @@ case $search_mode in
     ;;
 esac
 
-rm -f ${tmp}/${sample}/*cpm*
-rm -f ${tmp}/${sample}/*relab*
+#rm -f ${tmp}/${sample}/*cpm*
+#rm -f ${tmp}/${sample}/*relab*
 
 echo "running humann rename and regroup table on uniref dbs"
 for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;

@@ -92,7 +92,6 @@ if [ "$tmp" = "false" ]; then
     echo "## No temp folder provided. Will use: $tmp"
 fi
 
-echo "analysing sample $sample containment with Sourmash against ${SM_db_prefix}.$kmer index"
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
 
@@ -117,6 +116,8 @@ done
 echo "loading Sourmash env"
 conda activate sourmash
 module load StdEnv/2020 mugqic/bowtie2/2.3.5
+
+echo "analysing sample $sample containment using $(sourmash --version) against ${SM_db_prefix}.$kmer index"
 
 mkdir $tmp/${sample}
 echo "...generate sample fracminhash sketch with sourmash sketch"

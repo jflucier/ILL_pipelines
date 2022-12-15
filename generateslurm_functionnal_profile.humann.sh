@@ -112,7 +112,7 @@ fi
 echo "## NT database: $nt_db"
 echo "## Protein database: $prot_db"
 
-if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$refinement_step" = "prot" ]; then
+if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$search_mode" != "prot" ]; then
     echo "Search mode provided is $search_mode. Value must be one of the following: dual, nt or prot"
     help_message; exit 1
 fi
