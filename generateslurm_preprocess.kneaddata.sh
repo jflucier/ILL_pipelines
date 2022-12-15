@@ -179,6 +179,33 @@ done < ${sample_tsv}
 #     echo -e "${name}\t${out}/${name}/${name}_cat-paired.fastq" >> ${out}/functionnal_profile.sample.tsv
 # done < ${sample_tsv}
 
-echo "To submit to slurm, execute the following command:"
 read sample_nbr f <<< $(wc -l ${sample_tsv})
-echo "sbatch --array=1-$sample_nbr ${out}/preprocess.kneaddata.slurm.sh"
+
+echo "generating sbatch submittion script"
+echo '#!/bin/bash' > ${out}/submit.preprocess.slurm.sh
+echo '
+
+tot_batch=$(('$sample_nbr' / 5))
+batch_time=600
+tot_time_s=$((tot_batch * batch_time))
+tot_time_m=$((tot_time_s / 60))
+
+echo "sbatch will be submitted by batch for the next $tot_time_m min"
+
+for (( start_i=1; start_i<='$sample_nbr'; start_i+=5 ))
+do
+	end_i=$((start_i+4))
+	if [ "$end_i" -gt "'$sample_nbr'" ]; then
+	    end_i='$sample_nbr'
+	fi
+
+	sleep $batch_time
+	echo "submitting sbatch --array=$start_i-$end_i ${out}/preprocess.kneaddata.slurm.sh"
+	sbatch --array=$start_i-$end_i '${out}'/preprocess.kneaddata.slurm.sh
+done
+
+echo "done"
+' >> ${out}/submit.preprocess.slurm.sh
+
+echo "To submit to slurm, execute the following command:"
+echo "bash ${out}/submit.preprocess.slurm.sh"
