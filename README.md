@@ -148,7 +148,7 @@ For full list of options:
 ```
 $ bash $ILL_PIPELINES/generateslurm_taxonomic_profile.sample.sh -h
 
-Usage: generateslurm_taxonomic_profile.sample.sh --sample_tsv /path/to/tsv --out /path/to/out [--db] [--trimmomatic_options "trim options"] [--bowtie2_options "bowtie2 options"]
+Usage: generateslurm_taxonomic_profile.sample.sh --sample_tsv /path/to/tsv --out /path/to/out [--kraken_db "kraken database"]
 Options:
 
 	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
@@ -175,9 +175,9 @@ Use -h option to view usage:
 
 ```
 
-$ $ILL_PIPELINES/scripts/taxonomic_profile.sample.sh -h
+$ bash $ILL_PIPELINES/scripts/taxonomic_profile.sample.sh -h
 
-Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] [--trimmomatic_options "trim options"] [--bowtie2_options "bowtie2 options"]
+Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--kraken_db "kraken database"]
 Options:
 
 	-s STR	sample name

@@ -13,9 +13,9 @@ help_message () {
     echo "	-tmp STR	path to temp dir (default output_dir/temp)"
     echo "	-t	# of threads (default 8)"
     echo "	-m	memory (default 40G)"
-    echo "	--metabat2_bins	path to metabats bin direcotry"
-    echo "	--maxbin2_bins	path to maxbin2 bin direcotry"
-    echo "	--concoct_bins	path to concoct bin direcotry"
+    echo "	--metabat2_bins	path to metabats bin directory"
+    echo "	--maxbin2_bins	path to maxbin2 bin directory"
+    echo "	--concoct_bins	path to concoct bin direcotory"
     echo "	--refinement_min_compl INT	refinement bin minimum completion percent (default 50)"
     echo "	--refinement_max_cont INT	refinement bin maximum contamination percent (default 10)"
     echo ""
@@ -154,6 +154,8 @@ metawrap bin_refinement -t $threads -m $BINNING_MEM --quick \
 -A /out/metabat2_bins/ \
 -B /out/maxbin2_bins/ \
 -C /out/concoct_bins/
+
+sed '1s/$/\tsampID/;2,$s/$/\t'${sample}'/' /out/bin_refinement/metawrap_50_10_bins.stats > /out/bin_refinement/${sample}_refined.stats
 
 echo "copying bin_refinement results back to $out"
 mkdir -p $out

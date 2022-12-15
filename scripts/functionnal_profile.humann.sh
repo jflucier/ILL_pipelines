@@ -62,9 +62,9 @@ while true; do
         -s) sample=$2; shift 2;;
         -o) out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
-		-fq2) fq2=$2; shift 2;;
+	-fq2) fq2=$2; shift 2;;
         --search_mode) search_mode=$2; shift 2;;
-		--nt_db) nt_db=$2; shift 2;;
+	--nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
         --log) log=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
@@ -87,15 +87,15 @@ fi
 case $search_mode in
 
   "dual")
-    echo "Caslling humann using search mode DUAL"
+    echo "Calling humann using search mode DUAL"
     ;;
 
   "nt")
-  echo "Caslling humann using search mode nt"
+  echo "Calling humann using search mode nt"
     ;;
 
   "prot")
-  echo "Caslling humann using search mode prot"
+  echo "Calling humann using search mode prot"
     ;;
 
   *)
@@ -135,7 +135,7 @@ fi
 echo "## NT database: $nt_db"
 echo "## Protein database: $prot_db"
 
-echo "analysing sample $sample with metawrap"
+echo "analysing sample $sample with HUMAnN 3.0.1"
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
 
@@ -145,37 +145,30 @@ fq2_name=$(basename $fq2)
 source /project/def-ilafores/common/humann3/bin/activate
 export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
 
-echo "copying fastq1 $fq1"
-cp $fq1 ${tmp}/${fq1_name}
-echo "copying fastq2 $fq2"
-cp $fq2 ${tmp}/${fq2_name}
+echo "concatenate fastq files for single-end HUMAnN run"
+cat $fq1 $fq2 > $tmp/${sample}_cat-paired.fastq
 
-mkdir ${tmp}/db
-echo "copying nucleotide bowtie index ${nt_db}"
-export __nt_db_idx=$(basename ${nt_db})
-cp ${nt_db}*.bt2l ${tmp}/db/
-
-echo "copying protein diamond index ${prot_db}"
-export __prot_db_idx=$(basename ${prot_db})
-cp -r ${prot_db} ${tmp}/db
-
-export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
-export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
-
-echo "running humann"
+mkdir -p ${tmp}/db
 mkdir -p ${tmp}/${sample}
-echo "outputting to ${tmp}/${sample}"
-
 mkdir -p ${out}
 
-echo "concatenate paired output, for HUMAnN single-end run"
-cat ${tmp}/${fq1_name} ${tmp}/${fq2_name} > $tmp/${sample}_cat-paired.fastq
-
+echo "running humann, outputting to ${tmp}/${sample}"
 
 case $search_mode in
 
   "dual")
-    echo "Calling humann using search mode DUAL"
+  echo "copying nucleotide bowtie index ${nt_db}"
+  export __nt_db_idx=$(basename ${nt_db})
+  cp ${nt_db}*.bt2 ${tmp}/db/
+
+  echo "copying protein diamond index ${prot_db}"
+  export __prot_db_idx=$(basename ${prot_db})
+  cp -r ${prot_db} ${tmp}/db
+
+  export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
+  export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
+
+   echo "Calling humann using search mode DUAL"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
@@ -187,18 +180,30 @@ case $search_mode in
     ;;
 
   "nt")
-  echo "Caslling humann using search mode nt"
+  echo "copying nucleotide bowtie index ${nt_db}"
+  export __nt_db_idx=$(basename ${nt_db})
+  cp ${nt_db}*.bt2 ${tmp}/db/
+
+  export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
+  
+  echo "Calling humann using search mode nt"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
     --input $tmp/${sample}_cat-paired.fastq \
-    --output ${tmp}/${sample} --output-basename ${sample} \
+ --resume   --output ${tmp}/${sample} --output-basename ${sample} \
     --nucleotide-database $__tmp_nt_db \
     --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
     ;;
 
   "prot")
-  echo "Caslling humann using search mode prot"
+  echo "copying protein diamond index ${prot_db}"
+  export __prot_db_idx=$(basename ${prot_db})
+  cp -r ${prot_db} ${tmp}/db
+
+  export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
+
+  echo "Calling humann using search mode prot"
     humann \
     -v --threads ${threads} \
     --o-log ${log} \
@@ -215,8 +220,8 @@ case $search_mode in
     ;;
 esac
 
-rm -f ${tmp}/${sample}/*cpm*
-rm -f ${tmp}/${sample}/*relab*
+#rm -f ${tmp}/${sample}/*cpm*
+#rm -f ${tmp}/${sample}/*relab*
 
 echo "running humann rename and regroup table on uniref dbs"
 for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
