@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/bash -l
 
 set -e
 
 help_message () {
 	echo ""
-	echo "Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] [--trimmomatic_options \"trim options\"] [--bowtie2_options \"bowtie2 options\"]"
+	echo "Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2"
 	echo "Options:"
 
 	echo ""
@@ -17,7 +17,7 @@ help_message () {
     echo "	-fq2	path to fastq2"
     echo "	--SM_db	sourmash databases directory path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/SM_db)"
     echo "	--SM_db_prefix	sourmash database prefix, allowing wildcards (default gtdb-rs207)"
-	echo "	--kmer	choice of k-mer, dependent on database choices (default k21, make sure to have them available)"
+	echo "	--kmer	choice of k-mer size, dependent on available databases (default 21, make sure to have them available)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -37,7 +37,7 @@ fq1="false";
 fq2="false";
 SM_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/sourmash_db"
 SM_db_prefix="gtdb-rs207"
-kmer="k21"
+kmer="21"
 
 # load in params
 SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
@@ -105,10 +105,10 @@ echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
 
 echo "upload Sourmash db to $tmp"
-for file in ${SM_db}/${SM_db_prefix}*.${kmer}.zip; do \
+for file in ${SM_db}/${SM_db_prefix}*.k${kmer}.zip; do \
 	cp -r "$file" $tmp; 
 done
-for file in ${SM_db}/${SM_db_prefix}*lineages.sqldb; do \
+for file in ${SM_db}/${SM_db_prefix}*.sqldb; do \
 	cp -r "$file" $tmp; 
 done
 
@@ -117,38 +117,38 @@ echo "loading Sourmash env"
 conda activate sourmash
 module load StdEnv/2020 mugqic/bowtie2/2.3.5
 
-echo "analysing sample $sample containment using $(sourmash --version) against ${SM_db_prefix}.$kmer index"
+echo "analysing sample $sample containment using $(sourmash --version) against ${SM_db_prefix}.k${kmer} index"
 
-mkdir $tmp/${sample}
+mkdir -p $tmp/${sample}
 echo "...generate sample fracminhash sketch with sourmash sketch"
 sourmash sketch dna \
 	-p k=$kmer,scaled=1000,abund \
 	--merge $sample \
-	-o $tmp/${sample}/${sample}.${kmer}.sig \
+	-o $tmp/${sample}/${sample}.k${kmer}.sig \
 	$tmp/${fq1_name} \
 	$tmp/${fq2_name}
 
 echo "...determine metagenome composition using sourmash gather"
 sourmash gather \
-	$tmp/${sample}/${sample}.${kmer}.sig \
-	$tmp/${SM_db_prefix}*-${kmer}.zip \
-	-o $tmp/${sample}/${sample}.${kmer}.csv
+	$tmp/${sample}/${sample}.k${kmer}.sig \
+	$tmp/${SM_db_prefix}*k${kmer}.zip \
+	-o $tmp/${sample}/${sample}.k${kmer}.csv
 
 echo "...assign taxonomy using sourmash taxonomy"
 sourmash tax annotate \
-	-g $tmp/${sample}/${sample}.${kmer}.csv \
-	-t $tmp/${SM_db_prefix}*lineages.sqldb \
+	-g $tmp/${sample}/${sample}.k${kmer}.csv \
+	-t $tmp/${SM_db_prefix}*.sqldb \
 	-o $tmp/${sample}
 
 echo "...summarise results to species level"
-mkdir $tmp/${sample}/
+mkdir -p $tmp/${sample}/
 sourmash tax metagenome \
-	-g $tmp/${sample}/${sample}.${kmer}.with-lineages.csv \
+	-g $tmp/${sample}/${sample}.k${kmer}.with-lineages.csv \
 	--rank species \
-	-t $tmp/${SM_db_prefix}*lineages.sqldb \
+	-t $tmp/${SM_db_prefix}*.sqldb \
 	-o $tmp/${sample}
 				
 echo "copying all results to $out"
-mkdir -p ${out}/taxSM_${SM_db_prefxi}_${kmer} && cp -fr $tmp/${sample}/* $_
+mkdir -p ${out}/taxSM_${SM_db_prefxi}_k${kmer} && cp -fr $tmp/${sample}/* $_
 
 echo "taxonomic profile of ${sample} completed!"
