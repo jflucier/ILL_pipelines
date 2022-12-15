@@ -111,6 +111,8 @@ else
     echo "## Will output logs in: $log"
 fi
 
+read sample_nbr f <<< $(wc -l ${sample_tsv})
+sleep_factor=$((600 / $sample_nbr))
 
 mkdir -p $log
 
@@ -148,6 +150,10 @@ export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
 export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
 export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
+
+sleep_time=$((SLURM_ARRAY_TASK_ID*'$sleep_factor'))
+echo "will sleep $sleep_time sec to prevent jamming network will transfering files to nodes"
+sleep $sleep_time
 
 bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 -o '${out}'/$__sample \

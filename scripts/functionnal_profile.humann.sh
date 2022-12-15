@@ -122,7 +122,7 @@ else
 fi
 
 if [ "$log" = "false" ]; then
-    log=${out}/humann_${__sample}.log
+    log=${out}/humann_${sample}.log
     echo "## Humann log path not specified, will use this path: $log"
 else
     echo "## Will output logs in: $log"
@@ -161,8 +161,8 @@ export __tmp_nt_db=${tmp}/db/${__nt_db_idx}
 export __tmp_prot_db=${tmp}/db/${__prot_db_idx}
 
 echo "running humann"
-mkdir -p ${tmp}/${__sample}
-echo "outputting to ${tmp}/${__sample}"
+mkdir -p ${tmp}/${sample}
+echo "outputting to ${tmp}/${sample}"
 
 mkdir -p ${out}
 
@@ -174,7 +174,7 @@ case $search_mode in
     -v --threads ${threads} \
     --o-log ${log} \
     --input $tmp/${sample}_cat-paired.fastq \
-    --output ${tmp}/${__sample} --output-basename ${__sample} \
+    --output ${tmp}/${sample} --output-basename ${sample} \
     --nucleotide-database $__tmp_nt_db \
     --protein-database $__tmp_prot_db \
     --bypass-prescreen --bypass-nucleotide-index
@@ -186,7 +186,7 @@ case $search_mode in
     -v --threads ${threads} \
     --o-log ${log} \
     --input $tmp/${sample}_cat-paired.fastq \
-    --output ${tmp}/${__sample} --output-basename ${__sample} \
+    --output ${tmp}/${sample} --output-basename ${sample} \
     --nucleotide-database $__tmp_nt_db \
     --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
     ;;
@@ -197,7 +197,7 @@ case $search_mode in
     -v --threads ${threads} \
     --o-log ${log} \
     --input $tmp/${sample}_cat-paired.fastq \
-    --output ${tmp}/${__sample} --output-basename ${__sample} \
+    --output ${tmp}/${sample} --output-basename ${sample} \
     --protein-database $__tmp_prot_db \
     --bypass-prescreen --bypass-nucleotide-search
     ;;
@@ -209,8 +209,8 @@ case $search_mode in
     ;;
 esac
 
-rm -f ${tmp}/${__sample}/*cpm*
-rm -f ${tmp}/${__sample}/*relab*
+rm -f ${tmp}/${sample}/*cpm*
+rm -f ${tmp}/${sample}/*relab*
 
 echo "running humann rename and regroup table on uniref dbs"
 for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
@@ -231,25 +231,25 @@ do
 
 	echo "...regrouping genes to $__NAMES reactions"
 	humann_regroup_table \
-    --input ${tmp}/${__sample}/${__sample}_genefamilies.tsv \
-	--output ${tmp}/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
+    --input ${tmp}/${sample}/${sample}_genefamilies.tsv \
+	--output ${tmp}/${sample}/${sample}_genefamilies_${__MAP}.tsv \
     --groups ${uniref_db}
 
 	echo  "...attaching names to $__MAP codes" ## For convenience
 	humann_rename_table \
-    --input ${tmp}/${__sample}/${__sample}_genefamilies_${__MAP}.tsv \
-	--output ${tmp}/${__sample}/${__sample}_genefamilies_${__MAP}_named.tsv \
+    --input ${tmp}/${sample}/${sample}_genefamilies_${__MAP}.tsv \
+	--output ${tmp}/${sample}/${sample}_genefamilies_${__MAP}_named.tsv \
     --names $__NAMES
 done
 
 echo "...creating community-level profiles"
-rm -fr ${tmp}/${__sample}/${__sample}_community_tables/*
-mkdir -p ${tmp}/${__sample}/${__sample}_community_tables
+rm -fr ${tmp}/${sample}/${sample}_community_tables/*
+mkdir -p ${tmp}/${sample}/${sample}_community_tables
 humann_split_stratified_table \
---input ${tmp}/${__sample}/${__sample}_genefamilies.tsv \
---output ${tmp}/${__sample}/${__sample}_community_tables/
+--input ${tmp}/${sample}/${sample}_genefamilies.tsv \
+--output ${tmp}/${sample}/${sample}_community_tables/
 
 echo "copying results to ${out}"
-cp -r ${tmp}/${__sample}/* ${out}/
+cp -r ${tmp}/${sample}/* ${out}/
 
-echo "done ${__sample}"
+echo "done ${sample}"
