@@ -62,9 +62,9 @@ while true; do
         -s) sample=$2; shift 2;;
         -o) out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
-		-fq2) fq2=$2; shift 2;;
+	-fq2) fq2=$2; shift 2;;
         --search_mode) search_mode=$2; shift 2;;
-		--nt_db) nt_db=$2; shift 2;;
+	--nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
         --log) log=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
@@ -148,10 +148,10 @@ export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PA
 echo "concatenate fastq files for single-end HUMAnN run"
 cat $fq1 $fq2 > $tmp/${sample}_cat-paired.fastq
 
-mkdir ${tmp}/db
+mkdir -p ${tmp}/db
 echo "copying nucleotide bowtie index ${nt_db}"
 export __nt_db_idx=$(basename ${nt_db})
-cp ${nt_db}*.bt2l ${tmp}/db/
+cp ${nt_db}*.bt2 ${tmp}/db/
 
 echo "copying protein diamond index ${prot_db}"
 export __prot_db_idx=$(basename ${prot_db})
