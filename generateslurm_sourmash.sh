@@ -10,7 +10,7 @@ help_message () {
 	echo ""
 	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
     echo "	--out STR	path to output dir"
-    echo "      --SM_db sourmash databases directory path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/SM_db)"
+    echo "      --SM_db sourmash databases directory path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/sourmash_db)"
     echo "      --SM_db_prefix  sourmash database prefix, allowing wildcards (default gtdb-rs207)"
     echo "  --kmer  choice of k-mer, dependent on database choices (default 21, make sure to have them available)"
 
