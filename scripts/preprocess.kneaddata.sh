@@ -143,5 +143,6 @@ mv $tmp/${sample}*contam*.fastq $tmp/${sample}_contaminants/
 
 echo "copying all kneaddata results to $out"
 cp -fr $tmp/${sample}* $out/
+cp $tmp/fastqc/*.html $out/
 
 echo "done ${sample}"
