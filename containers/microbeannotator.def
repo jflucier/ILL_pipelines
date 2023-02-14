@@ -1,0 +1,50 @@
+# build new image using this command:
+# singularity build --force --fakeroot microbeannotator.sif microbeannotator.def
+
+BootStrap: docker
+From: ubuntu:20.04
+
+%setup
+
+%environment
+  export PATH=/miniconda3/bin:$PATH
+  export PATH=/miniconda3/envs/microbeannotator/bin/:$PATH
+
+%post
+  apt-get update && apt-get -y upgrade
+
+  ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+
+  # # needed for concoct
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get -y install \
+  build-essential \
+  wget \
+  git \
+  less
+
+  rm -rf /var/lib/apt/lists/*
+  apt-get clean
+
+  #Installing Anaconda 3 https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+  cd /
+  wget -c https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+  /bin/bash Miniconda3-py39_4.11.0-Linux-x86_64.sh -bfp /miniconda3
+  export PATH=/miniconda3/bin:$PATH
+
+  conda config --file /miniconda3/.condarc --add channels defaults
+  conda config --file /miniconda3/.condarc --add channels conda-forge
+  conda config --file /miniconda3/.condarc --add channels bioconda
+  conda config --file /miniconda3/.condarc --add channels cruizperez
+
+  echo ". /miniconda3/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+  echo "conda activate microbeannotator" >> $SINGULARITY_ENVIRONMENT
+
+  . /miniconda3/etc/profile.d/conda.sh
+  conda create -n microbeannotator python=3.7 pip microbeannotator=2.0.5
+  conda activate microbeannotator
+  pip3 install hmmer==0.1.0
+  pip3 install wget
+  pip3 install biopython
+
+  conda deactivate
