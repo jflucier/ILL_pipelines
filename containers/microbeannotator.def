@@ -2,7 +2,7 @@
 # singularity build --force --fakeroot microbeannotator.sif microbeannotator.def
 
 BootStrap: docker
-From: ubuntu:20.04
+From: ubuntu:22.04
 
 %setup
 
@@ -21,7 +21,8 @@ From: ubuntu:20.04
   build-essential \
   wget \
   git \
-  less
+  less \
+  diamond-aligner
 
   rm -rf /var/lib/apt/lists/*
   apt-get clean
@@ -46,5 +47,10 @@ From: ubuntu:20.04
   pip3 install hmmer==0.1.0
   pip3 install wget
   pip3 install biopython
+  pip3 install pandas
+  pip3 install matplotlib
+  pip3 install seaborn
+  pip3 install psutil
+
 
   conda deactivate
