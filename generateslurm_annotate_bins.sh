@@ -10,7 +10,8 @@ help_message () {
 	echo ""
   echo "	-o STR	path to output dir"
   echo "	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information."
-	echo "	-db	MicrobeAnnotator DB path (default: /net/nfs-ip34/fast/def-ilafores/MicrobeAnnotator_DB)."
+	echo "	-ma_db	MicrobeAnnotator DB path (default: /net/nfs-ip34/fast/def-ilafores/MicrobeAnnotator_DB)."
+	echo "	-gtdb_db	GTDBTK DB path (default: /net/nfs-ip34/fast/def-ilafores/GTDB/release207_v2)."
 
   echo ""
   echo "Slurm options:"
@@ -40,9 +41,10 @@ log="false"
 
 drep="false"
 out="false"
-db="/net/nfs-ip34/fast/def-ilafores/MicrobeAnnotator_DB"
+ma_db="/net/nfs-ip34/fast/def-ilafores/MicrobeAnnotator_DB"
+gtdb_db="/net/nfs-ip34/fast/def-ilafores/GTDB/release207_v2"
 
-SHORT_OPTS="ht:drep:o:db:"
+SHORT_OPTS="ht:drep:o:ma_db:gtdb_db:"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
@@ -65,7 +67,8 @@ while true; do
     --slurm_mem) mem=$2; shift 2;;
 		-o) out=$2; shift 2;;
 		-drep) drep=$2; shift 2;;
-    -db) db=$2; shift 2;;
+    -ma_db) ma_db=$2; shift 2;;
+    -gtdb_db) gtdb_db=$2; shift 2;;
     --) help_message; exit 1; shift; break ;;
 		*) break;;
 	esac
@@ -96,7 +99,8 @@ mkdir -p $log
 echo "## Annotate parameters:"
 echo "## drep path: $drep"
 echo "## Ouptut path: $out"
-echo "## MicrobeAnnotator DB path: $db"
+echo "## MicrobeAnnotator DB path: $ma_db"
+echo "## GTDB DB path: $gtdb_db"
 echo "## Number of threads: $threads"
 
 
@@ -105,7 +109,7 @@ echo '#!/bin/bash' > $out/submit_annotate.slurm.sh
 echo '
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D '${out}'
-#SBATCH -o '${out}'/logs/drep-%A.slurm.out
+#SBATCH -o '${out}'/logs/annotate-%A.slurm.out
 #SBATCH --time='${walltime}'
 #SBATCH --mem='${mem}'
 #SBATCH -N 1
@@ -127,7 +131,8 @@ module load StdEnv/2020 apptainer/1.1.5
 bash '${EXE_PATH}'/scripts/annotate_bins.dRep.sh \
 -t '${threads}' \
 -drep '$drep' \
--db '$db' \
+-ma_db '$db' \
+-gtdb_db '$gtdb_db' \
 -o '${out}' \
 -tmp $SLURM_TMPDIR
 

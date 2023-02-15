@@ -1,5 +1,5 @@
 # build new image using this command:
-# singularity build --force --fakeroot gtdbtk.sif gtdbtk.def
+# singularity build --force --fakeroot gtdbtk.2.2.1.sif gtdbtk.2.2.1.def
 
 BootStrap: docker
 From: ubuntu:22.04

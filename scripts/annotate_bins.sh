@@ -12,7 +12,9 @@ help_message () {
   echo "	-o STR	path to output dir"
 	echo "	-t	# of threads (default 8)"
   echo "	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information."
-	echo "	-db	MicrobeAnnotator DB path (default: /fast/def-ilafores/MicrobeAnnotator_DB)."
+	echo "	-ma_db	MicrobeAnnotator DB path (default: /fast/def-ilafores/MicrobeAnnotator_DB)."
+	echo "	-gtdb_db	GTDB DB path (default: /fast/def-ilafores/GTDB/release207_v2)."
+
   echo ""
   echo "  -h --help	Display help"
 
@@ -40,12 +42,13 @@ check_software_dependencies
 threads="8"
 out="false"
 drep="false"
-db="/fast/def-ilafores/MicrobeAnnotator_DB"
+ma_db="/fast/def-ilafores/MicrobeAnnotator_DB"
+gtdb_db="/fast/def-ilafores/GTDB/release207_v2"
 tmp="false"
 
 
 # load in params
-SHORT_OPTS="ht:o:drep:db:tmp:"
+SHORT_OPTS="ht:o:drep:ma_db:gtdb_db:tmp:"
 LONG_OPTS='help'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
@@ -64,7 +67,8 @@ while true; do
     -t) threads=$2; shift 2;;
     -o) out=$2; shift 2;;
 		-drep) drep=$2; shift 2;;
-    -db) db=$2; shift 2;;
+    -ma_db) ma_db=$2; shift 2;;
+    -gtdb_db) gtdb_db=$2; shift 2;;
     -tmp) tmp=$2; shift 2;;
     --) help_message; exit 1; shift; break ;;
 		*) break;;
@@ -94,7 +98,8 @@ fi
 echo "## Annotate parameters:"
 echo "## drep path: $drep"
 echo "## Ouptut path: $out"
-echo "## MicrobeAnnotator DB path: $db"
+echo "## MicrobeAnnotator DB path: $ma_db"
+echo "## GTDB DB path: $gtdb_db"
 echo "## Number of threads: $threads"
 echo "## Temp folder: $tmp"
 
@@ -119,13 +124,22 @@ echo "Will run microbeannotator using $ma_process precoesses and $ma_threads thr
 mkdir $tmp/microbeannotator_out
 singularity exec --writable-tmpfs -e \
 -B $tmp/metawrap_out:/input \
--B $db:/ma_db \
+-B $ma_db:/ma_db \
 -B $tmp/microbeannotator_out:/out \
 /home/def-ilafores/programs/ILL_pipelines/containers/microbeannotator.sif \
 microbeannotator --method diamond --processes $ma_process --threads $ma_threads --refine \
 -i /input/bin_translated_genes/*.faa \
 -d /ma_db \
 -o /out
+
+echo "Will run gtdbtk using $threads threads"
+mkdir $tmp/gtdbtk_out
+singularity exec --writable-tmpfs -e \
+--env GTDBTK_DATA_PATH=$gtdb_db \
+-B $tmp/gtdbtk_out:/out \
+-B $tmp/drep:/drep \
+-e ${EXE_PATH}/../containers/gtdbtk.2.2.1.sif \
+gtdbtk classify_wf --cpus $threads --genome_dir /drep --out_dir /out
 
 echo "copying results back to $out/"
 mkdir -p $out/
