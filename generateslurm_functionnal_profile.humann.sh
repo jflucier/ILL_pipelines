@@ -12,7 +12,7 @@ help_message () {
     echo "	--out STR	path to output dir"
     echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)"
     echo "	--nt_db	the nucleotide database to use"
-    echo "	--prot_db	the protein database to use (default /project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref)"
+    echo "	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref)"
 
     echo ""
     echo "Slurm options:"
@@ -44,7 +44,7 @@ sample_tsv="false";
 out="false";
 search_mode="dual"
 nt_db="false"
-prot_db="/project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref"
+prot_db="/home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref"
 
 # load in params
 SHORT_OPTS="h"

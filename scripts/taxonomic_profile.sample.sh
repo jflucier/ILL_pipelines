@@ -15,7 +15,7 @@ help_message () {
     echo "	-m	memory (default 40G)"
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
-    echo "	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)"
+    echo "	--kraken_db	kraken2 database path (default /net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
     echo "	--bracken_readlen	bracken read length option (default 150)"
     echo "	--confidence	kraken confidence level to reduce false-positive rate (default 0.05)"
 
@@ -35,7 +35,7 @@ out="false";
 tmp="false";
 fq1="false";
 fq2="false";
-kraken_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517"
+kraken_db="/net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517"
 bracken_readlen="150"
 confidence="0.05"
 
@@ -109,9 +109,9 @@ cp -r $kraken_db $tmp/$kraken_db_name
 
 ### Kraken
 echo "loading kraken env"
-source /project/def-ilafores/common/kraken2/venv/bin/activate
-export PATH=/project/def-ilafores/common/kraken2:/project/def-ilafores/common/Bracken:$PATH
-export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
+source /home/def-ilafores/programs/ILL_pipelineskraken2/venv/bin/activate
+export PATH=/home/def-ilafores/programs/ILL_pipelineskraken2:/home/def-ilafores/programs/ILL_pipelinesBracken:$PATH
+export PATH=/home/def-ilafores/programs/ILL_pipelinesKronaTools-2.8.1/bin:$PATH
 
 mkdir $tmp/${sample}
 echo "running kraken. Kraken ouptut: $tmp/${sample}/"
@@ -160,13 +160,13 @@ do
     -l $taxa_oneletter
 
     echo "creating mpa formatted file for ${taxa_oneletter}"
-    python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
+    python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
     -r $tmp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
     -o $tmp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.MPA.TXT \
     --display-header
 
     echo "creating kronagrams for ${taxa_oneletter}"
-    python /project/def-ilafores/common/KrakenTools/kreport2krona.py \
+    python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2krona.py \
     -r $tmp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
     -o $tmp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.krona
 
@@ -177,7 +177,7 @@ do
 
 done
 
-python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
+python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
 -r $tmp/${sample}/${sample}_bracken/${sample}_bracken_S.kreport \
 -o $tmp/${sample}/${sample}_bracken/${sample}_temp.MPA.TXT
 

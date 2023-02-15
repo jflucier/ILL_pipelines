@@ -46,7 +46,7 @@ To install ILL pipelines you need to:
 
     ``export ILL_PIPELINES=/path/to/ILL_pipelines ``
 
-    Note: On ip29, ILL pipelines path is /project/def-ilafores/common/ILL_pipelines
+    Note: On ip29, ILL pipelines path is /home/def-ilafores/programs/ILL_pipelinesILL_pipelines
 
 
 ----
@@ -77,7 +77,7 @@ Options:
 
 	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
 	--out STR	path to output dir
-	--db	kneaddata database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--db	kneaddata database path (default /net/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
 	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
 	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
 
@@ -129,7 +129,7 @@ Options:
 	-m	memory (default 40G)
 	-fq1	path to fastq1
 	-fq2	path to fastq2
-	--db	kneaddata database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--db	kneaddata database path (default /net/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
 	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
 	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
 
@@ -153,7 +153,7 @@ Options:
 
 	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
 	--out STR	path to output dir
-	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--kraken_db	kraken2 database path (default /net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
 	--bracken_readlen	bracken read length option (default 150)
 
 Slurm options:
@@ -187,7 +187,7 @@ Options:
 	-m	memory (default 40G)
 	-fq1	path to fastq1
 	-fq2	path to fastq2
-	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--kraken_db	kraken2 database path (default /net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
 	--bracken_readlen	bracken read length option (default 150)
 
   -h --help	Display help
@@ -218,7 +218,7 @@ Options:
 The kreports parameter is a regular expression that points to all kraken report files that will be used in analysis. An example call to process all kraken report at the taxonomic level = classes would look like:
 
 ```
-kreports="/nfs3_ib/ip29-ib/ip29/ilafores_group/projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_C.kreport"
+kreports="/net/nfs-ip34/home/def-ilafores//projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_C.kreport"
 taxa_code=C
 out=test
 tmp=test/temp
@@ -253,7 +253,7 @@ do
     taxa_name=${taxa_str#*:}
 
     echo "generating taxonomic table for taxonomic level $taxa_name --> $taxa_code"
-    kreports="/nfs3_ib/ip29-ib/ip29/ilafores_group/projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_"$taxa_code".kreport"
+    kreports="/net/nfs-ip34/home/def-ilafores//projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_"$taxa_code".kreport"
     # echo $kreports
     bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh \
     --kreports "$kreports" \
@@ -280,7 +280,7 @@ Options:
 	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: /home/jflucier/tmp/taxonomic_profile/*/*_bracken/*_bracken_S.kreport).
 	--out STR	path to output dir
 	--bowtie_index_name  name of the bowtie index that will be generated
-	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan)
+	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
 
 Slurm options:
 	--slurm_alloc STR	slurm allocation (default def-ilafores)
@@ -299,12 +299,12 @@ The kreports parameter is a regular expression that points to all species level 
 If you wish, the humann bug list generation can be directly runned locally on serve using similar code as below:
 
 ```
-kreports="/nfs3_ib/ip29-ib/ip29/ilafores_group/projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_S.kreport"
+kreports="/net/nfs-ip34/home/def-ilafores//projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_S.kreport"
 out=test
 tmp=test/temp
 threads=24
 bowtie_idx_name=my_bt_idx
-choco_db=/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan
+choco_db=/net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan
 
 bash $ILL_PIPELINES//scripts/taxonomic_profile.allsamples.sh \
 --kreports "$kreports" \
@@ -332,7 +332,7 @@ Options:
 	--out STR	path to output dir
 	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)
 	--nt_db	the nucleotide database to use
-	--prot_db	the protein database to use (default /project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref)
+	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref)
 
 Slurm options:
 	--slurm_alloc STR	slurm allocation (default def-ilafores)
@@ -367,7 +367,7 @@ Options:
 	-fq	path to fastq
 	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)
 	--nt_db	the nucleotide database to use
-	--prot_db	the protein database to use (default /project/def-ilafores/common/humann3/lib/python3.7/site-packages/humann/data/uniref)
+	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref)
 	--log	logging file path (default /path/output/log.txt)
 
   -h --help	Display help

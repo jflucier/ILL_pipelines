@@ -1,6 +1,6 @@
 ## concoct
 module load singularity/3.7
-cd /project/def-ilafores/common/ILL_pipelines/metawrap_custom
+cd /home/def-ilafores/programs/ILL_pipelinesILL_pipelines/metawrap_custom
 
 ## build metawrap
 module load singularity/3.7
@@ -24,9 +24,9 @@ concoct -h
 
 ## metabat
 module load singularity/3.7
-cd /project/def-ilafores/common/ILL_pipelines/metawrap_custom
+cd /home/def-ilafores/programs/ILL_pipelinesILL_pipelines/metawrap_custom
 
-# on laptop and transfert to ip29:/project/def-ilafores/common/ILL_pipelines/metawrap_custom
+# on laptop and transfert to ip29:/home/def-ilafores/programs/ILL_pipelinesILL_pipelines/metawrap_custom
 sudo singularity build --force metabat.2.15.5.sif docker://metabat/metabat:latest
 singularity exec --writable-tmpfs -e \
 metabat.2.15.5.sif \
@@ -46,7 +46,7 @@ docker run --workdir $(pwd) --volume $(pwd):$(pwd) metabat/metabat:latest runMet
 # mkdir tests/test_data/integration_test_data
 # tar -xvzf v1.0.tar.gz -C tests/test_data/integration_test_data --strip-components=1
 # pip install gsl[antlr,yaml]
-# export CPATH=/project/def-ilafores/common/gsl-2.7/include:$CPATH
-# export LD_LIBRARY_PATH=/project/def-ilafores/common/gsl-2.7/lib:$LD_LIBRARY_PATH
-# export LIBRARY_PATH=/project/def-ilafores/common/gsl-2.7/lib:$LIBRARY_PATH
+# export CPATH=/home/def-ilafores/programs/ILL_pipelinesgsl-2.7/include:$CPATH
+# export LD_LIBRARY_PATH=/home/def-ilafores/programs/ILL_pipelinesgsl-2.7/lib:$LD_LIBRARY_PATH
+# export LIBRARY_PATH=/home/def-ilafores/programs/ILL_pipelinesgsl-2.7/lib:$LIBRARY_PATH
 # python setup.py install

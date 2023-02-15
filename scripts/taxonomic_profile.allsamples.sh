@@ -13,7 +13,7 @@ help_message () {
     echo "	--tmp STR	path to temp dir (default output_dir/temp)"
     echo "	--threads	# of threads (default 8)"
     echo "	--bowtie_index_name  name of the bowtie index that will be generated"
-    echo "	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan)"
+    echo "	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -29,7 +29,7 @@ threads="8"
 bowtie_idx_name="false";
 out="false";
 tmp="false";
-choco_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan"
+choco_db="/net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan"
 
 # load in params
 SHORT_OPTS="h"
@@ -91,9 +91,9 @@ else
 fi
 
 echo "loading kraken env"
-source /project/def-ilafores/common/kraken2/venv/bin/activate
-export PATH=/project/def-ilafores/common/kraken2:/project/def-ilafores/common/Bracken:$PATH
-export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
+source /home/def-ilafores/programs/ILL_pipelineskraken2/venv/bin/activate
+export PATH=/home/def-ilafores/programs/ILL_pipelineskraken2:/home/def-ilafores/programs/ILL_pipelinesBracken:$PATH
+export PATH=/home/def-ilafores/programs/ILL_pipelinesKronaTools-2.8.1/bin:$PATH
 
 echo "checking bowtie is in path"
 if ! command -v "bowtie2" &> /dev/null
@@ -110,13 +110,13 @@ echo "BUGS-LIST CREATION (FOR HUMANN DB CREATION)"
 kreport_filelist=$(ls $kreports)
 echo "combine all species kreports in one using these $kreport_files files: $kreport_filelist"
 
-/project/def-ilafores/common/KrakenTools/combine_kreports.py \
+/home/def-ilafores/programs/ILL_pipelinesKrakenTools/combine_kreports.py \
 -r $kreport_filelist \
 -o $tmp/${bowtie_idx_name}_S.kreport \
 --only-combined --no-headers
 
 echo "convert kreport to mpa"
-python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
+python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
 -r $tmp/${bowtie_idx_name}_S.kreport \
 -o $tmp/${bowtie_idx_name}_temp_S.MPA.TXT
 
@@ -125,8 +125,8 @@ grep "|s" $tmp/${bowtie_idx_name}_temp_S.MPA.TXT \
 | awk '{printf("%s\t\n", $0)}' - \
 | awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - > $tmp/${bowtie_idx_name}-bugs_list.MPA.TXT
 
-source /project/def-ilafores/common/humann3/bin/activate
-export PATH=/nfs3_ib/ip29-ib/ip29/ilafores_group/programs/diamond-2.0.14/bin:$PATH
+source /home/def-ilafores/programs/ILL_pipelineshumann3/bin/activate
+export PATH=/net/nfs-ip34/home/def-ilafores//programs/diamond-2.0.14/bin:$PATH
 
 ### gen python chocphlan cusotm db
 cd $tmp

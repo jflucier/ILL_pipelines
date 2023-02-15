@@ -4,7 +4,7 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: generateslurm_taxonomic_profile.allsamples.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame"
+	echo "Usage: generateslurm_dereplicate_bins.sh [-a {fastANI,ANIn,gANI,ANImf,goANI}] [...] --bins_tsv /ath/to/tsv -o /path/to/out "
 	echo "Options:"
 
 	echo ""

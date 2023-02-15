@@ -10,7 +10,7 @@ help_message () {
 	echo ""
 	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
     echo "	--out STR	path to output dir"
-    echo "	--kraken_db	kraken2 database path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517)"
+    echo "	--kraken_db	kraken2 database path (default /net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
     echo "	--bracken_readlen	bracken read length option (default 150)"
     echo "      --confidence    kraken confidence level to reduce false-positive rate (default 0.05)"
 
@@ -41,7 +41,7 @@ log="false"
 
 sample_tsv="false";
 out="false";
-kraken_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/kraken2_dbs/k2_pluspfp_16gb_20210517"
+kraken_db="/net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517"
 bracken_readlen="150"
 confidence="0.05"
 

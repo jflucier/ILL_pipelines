@@ -144,9 +144,9 @@ mkdir ${tmp}/bin_refinement/
 export BINNING_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
--B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
--B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_nt:/NCBI_nt \
--B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/NCBI_tax:/NCBI_tax \
+-B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
+-B /net/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B /net/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
 metawrap bin_refinement -t $threads -m $BINNING_MEM --quick \
 -c $refinement_min_compl -x $refinement_max_cont \

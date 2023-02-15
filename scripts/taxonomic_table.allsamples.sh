@@ -85,9 +85,9 @@ fi
 
 
 echo "loading kraken env"
-source /project/def-ilafores/common/kraken2/venv/bin/activate
-export PATH=/project/def-ilafores/common/kraken2:/project/def-ilafores/common/Bracken:$PATH
-export PATH=/project/def-ilafores/common/KronaTools-2.8.1/bin:$PATH
+source /home/def-ilafores/programs/ILL_pipelineskraken2/venv/bin/activate
+export PATH=/home/def-ilafores/programs/ILL_pipelineskraken2:/home/def-ilafores/programs/ILL_pipelinesBracken:$PATH
+export PATH=/home/def-ilafores/programs/ILL_pipelinesKronaTools-2.8.1/bin:$PATH
 
 taxa_oneletter=$code
 
@@ -97,13 +97,13 @@ kreport_filelist=$(ls $kreports | wc -l)
 for report_f in $kreports
 do
 	echo "running kreport2mpa on $report_f"
-	python /project/def-ilafores/common/KrakenTools/kreport2mpa.py \
+	python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
 	-r $report_f -o ${report_f//.kreport/}.MPA.TXT --display-header
 done
 
 echo "runinng combine_mpa for taxonomy $taxa_oneletter"
 mpa_reports=${kreports%.kreport}.MPA.TXT
-python /project/def-ilafores/common/KrakenTools/combine_mpa.py \
+python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/combine_mpa.py \
 -i $mpa_reports \
 -o $tmp/temp_${taxa_oneletter}.tsv
 

@@ -1,4 +1,4 @@
-#!/project/def-ilafores/common/humann3/bin/python
+#!/home/def-ilafores/programs/ILL_pipelineshumann3/bin/python
 
 import os
 import re

@@ -11,7 +11,7 @@ help_message () {
     echo "	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport)."
     echo "	--out STR	path to output dir"
     echo "	--bowtie_index_name  name of the bowtie index that will be generated"
-    echo "	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan)"
+    echo "	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)"
 
     echo ""
     echo "Slurm options:"
@@ -42,7 +42,7 @@ log="false"
 kreports='false'
 out="false";
 bowtie_idx_name="false";
-choco_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/humann_dbs/chocophlan"
+choco_db="/net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan"
 
 SHORT_OPTS="h"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,\

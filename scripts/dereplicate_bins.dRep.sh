@@ -139,7 +139,7 @@ mkdir -p $tmp/drep_out
 singularity exec --writable-tmpfs \
 -B $tmp/bins:/data \
 -B $tmp/drep_out:/out \
--B /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/checkm_db:/checkm \
+-B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
 -e ${EXE_PATH}/../containers/dRep.3.4.0.sif \
 dRep dereplicate /out/ \
 --genomes /data/all_fastas.txt \
@@ -165,9 +165,12 @@ do
         print $_;
     }
     ' $f > ${f}.newheader
+
+    rm $f
+    mv ${f}.newheader $f
 done
 
-cat $tmp/drep_out/*.newheader > $tmp/drep_out/salmon_index/bin_assembly.fa
+cat $tmp/drep_out/*.fa > $tmp/drep_out/salmon_index/bin_assembly.fa
 assembly=$tmp/drep_out/salmon_index/bin_assembly.fa
 salmon index -p $threads -t $assembly -i $tmp/drep_out/salmon_index
 

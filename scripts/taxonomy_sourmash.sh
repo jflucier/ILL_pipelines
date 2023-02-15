@@ -15,7 +15,7 @@ help_message () {
     echo "	-m	memory (default 40G)"
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
-    echo "	--SM_db	sourmash databases directory path (default /nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/SM_db)"
+    echo "	--SM_db	sourmash databases directory path (default /net/nfs-ip34/fast/def-ilafores/SM_db)"
     echo "	--SM_db_prefix	sourmash database prefix, allowing wildcards (default gtdb-rs207)"
 	echo "	--kmer	choice of k-mer size, dependent on available databases (default 21, make sure to have them available)"
 
@@ -35,7 +35,7 @@ out="false";
 tmp="false";
 fq1="false";
 fq2="false";
-SM_db="/nfs3_ib/ip29-ib/ssdpool/shared/ilafores_group/sourmash_db"
+SM_db="/net/nfs-ip34/fast/def-ilafores/sourmash_db"
 SM_db_prefix="gtdb-rs207"
 kmer="21"
 
