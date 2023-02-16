@@ -125,7 +125,6 @@ echo '
 fi
 
 echo '
-newgrp def-ilafores
 module load StdEnv/2020 apptainer/1.1.5
 
 bash '${EXE_PATH}'/scripts/annotate_bins.dRep.sh \
