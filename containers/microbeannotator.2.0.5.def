@@ -4,6 +4,9 @@
 BootStrap: docker
 From: ubuntu:22.04
 
+%files
+  /home/jflucier/localhost/projet/ILL_pipelines/containers/microbeannotator.2.0.5.refseq_data_downloader.patch /temp/refseq_data_downloader.py
+
 %setup
 
 %environment
@@ -57,3 +60,8 @@ From: ubuntu:22.04
   pip3 install microbeannotator==2.0.5
 
   conda deactivate
+
+  ### patch for microbeannotator_db_builder refseq download bug: https://github.com/cruizperez/MicrobeAnnotator/issues/15
+  mv /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py.bak
+  cp /temp/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/
+
