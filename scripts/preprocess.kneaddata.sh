@@ -113,7 +113,7 @@ echo "upload db to $tmp"
 cp ${db}.* $tmp/
 
 ### Preproc
-source /home/def-ilafores/programs/ILL_pipelineskneaddata/bin/activate
+#source /home/def-ilafores/programs/ILL_pipelineskneaddata/bin/activate
 
 echo "running kneaddata. kneaddata ouptut: $tmp/"
 ###### pas de decontamine, output = $tmp/${sample}/*repeats* --> peut changer etape pour fastp et cutadapt
