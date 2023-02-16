@@ -123,8 +123,8 @@ singularity exec --writable-tmpfs -e \
 ${EXE_PATH}/../containers/kneaddata.0.12.0.sif \
 kneaddata -v \
 --log /out/kneaddata-${sample}.log \
---input /temp/${fq1_name} \
---input /temp/${fq2_name} \
+--input1 /temp/${fq1_name} \
+--input2 /temp/${fq2_name} \
 -db /temp/${db_name} \
 --bowtie2-options="${bowtie2_options}" \
 -o /temp/ \
