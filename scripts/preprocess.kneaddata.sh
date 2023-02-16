@@ -117,13 +117,17 @@ source /home/def-ilafores/programs/ILL_pipelineskneaddata/bin/activate
 
 echo "running kneaddata. kneaddata ouptut: $tmp/"
 ###### pas de decontamine, output = $tmp/${sample}/*repeats* --> peut changer etape pour fastp et cutadapt
+singularity exec --writable-tmpfs -e \
+-B $tmp:/temp \
+-B ${out}:/out \
+${EXE_PATH}/../containers/kneaddata.0.12.0.sif \
 kneaddata -v \
---log ${out}/kneaddata-${sample}.log \
---input $tmp/${fq1_name} \
---input $tmp/${fq2_name} \
--db ${tmp}/${db_name} \
+--log /out/kneaddata-${sample}.log \
+--input /temp/${fq1_name} \
+--input /temp/${fq2_name} \
+-db /temp/${db_name} \
 --bowtie2-options="${bowtie2_options}" \
--o $tmp/ \
+-o /temp/ \
 --output-prefix ${sample} \
 --threads ${threads} \
 --max-memory ${mem} \

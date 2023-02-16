@@ -126,7 +126,7 @@ singularity exec --writable-tmpfs -e \
 -B $tmp/metawrap_out:/input \
 -B $ma_db:/ma_db \
 -B $tmp/microbeannotator_out:/out \
-/home/def-ilafores/programs/ILL_pipelines/containers/microbeannotator.sif \
+${EXE_PATH}/../containers/microbeannotator.2.0.5.sif \
 microbeannotator --method diamond --processes $ma_process --threads $ma_threads --refine \
 -i /input/bin_translated_genes/*.faa \
 -d /ma_db \
