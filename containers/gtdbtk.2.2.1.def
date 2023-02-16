@@ -7,11 +7,6 @@ From: ubuntu:22.04
 %setup
 
 %environment
-#  export PATH=/mash-Linux64-v2.3:$PATH
-#  export PATH=/FastTree_2.1.11:$PATH
-#  export PATH=/pplacer-Linux-v1.1.alpha19:$PATH
-#  export PATH=/fastANI-Linux64-v1.33:$PATH
-#  export PATH=/hmmer-3.3.2/bin:$PATH
 
 %post
   apt-get update && apt-get -y upgrade
