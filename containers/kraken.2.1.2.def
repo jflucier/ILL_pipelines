@@ -9,8 +9,9 @@ From: ubuntu:22.04
 %environment
   export KRAKEN2_DIR=/kraken2-2.1.2
   export PATH=/kraken2-2.1.2:$PATH
-  #export PATH=/Trimmomatic-0.33:$PATH
-  #export PATH=/TRF-4.09.1/src:$PATH
+  export PATH=/Bracken-2.8:$PATH
+  export PATH=/KrakenTools-1.2:$PATH
+  export PATH=/Krona-2.8.1/bin:$PATH
 
 %post
   apt-get update && apt-get -y upgrade
@@ -20,7 +21,8 @@ From: ubuntu:22.04
   wget rsync \
   git \
   less \
-  ncbi-blast+
+  ncbi-blast+ \
+  python3 python3-dev python3-pip python3-venv
 
   rm -rf /var/lib/apt/lists/*
   apt-get clean
@@ -31,3 +33,19 @@ From: ubuntu:22.04
   export KRAKEN2_DIR=/kraken2-2.1.2
   cd /kraken2-2.1.2
   ./install_kraken2.sh $KRAKEN2_DIR
+
+  cd /
+  wget --output-document=Bracken-2.8.tar.gz https://github.com/jenniferlu717/Bracken/archive/refs/tags/v2.8.tar.gz
+  tar -xvzf Bracken-2.8.tar.gz
+  cd /Bracken-2.8
+  bash install_bracken.sh
+
+  cd /
+  wget --output-document=KrakenTools-1.2.tar.gz https://github.com/jenniferlu717/KrakenTools/archive/refs/tags/v1.2.tar.gz
+  tar -xvzf KrakenTools-1.2.tar.gz
+
+  cd /
+  wget --output-document=Krona-2.8.1.tar.gz https://github.com/marbl/Krona/archive/refs/tags/v2.8.1.tar.gz
+  tar -xvzf Krona-2.8.1.tar.gz
+  cd /Krona-2.8.1/KronaTools/
+  ./install.pl --prefix=/Krona-2.8.1

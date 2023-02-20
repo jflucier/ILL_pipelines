@@ -115,17 +115,20 @@ export PATH=/home/def-ilafores/programs/ILL_pipelinesKronaTools-2.8.1/bin:$PATH
 
 mkdir $tmp/${sample}
 echo "running kraken. Kraken ouptut: $tmp/${sample}/"
+singularity exec --writable-tmpfs -e \
+-B $tmp:/temp \
+${EXE_PATH}/../containers/kraken.2.1.2.sif \
 kraken2 \
 --confidence ${confidence} \
 --paired \
 --threads ${threads} \
---db $tmp/$kraken_db_name \
+--db /temp/$kraken_db_name \
 --use-names \
---output $tmp/${sample}/${sample}_taxonomy_nt \
---classified-out $tmp/${sample}/${sample}_classified_reads_#.fastq \
---unclassified-out $tmp/${sample}/${sample}_unclassified_reads_#.fastq \
---report $tmp/${sample}/${sample}.kreport \
-$tmp/${fq1_name} $tmp/${fq2_name}
+--output /temp/${sample}/${sample}_taxonomy_nt \
+--classified-out /temp/${sample}/${sample}_classified_reads_#.fastq \
+--unclassified-out /temp/${sample}/${sample}_unclassified_reads_#.fastq \
+--report /temp/${sample}/${sample}.kreport \
+/temp/${fq1_name} /temp/${fq2_name}
 
 # echo "copying all results to $out"
 # cp -fr $tmp/${sample}/* $out/
@@ -151,35 +154,50 @@ do
     taxa_oneletter=${taxa_str%%:*}
     taxa_name=${taxa_str#*:}
     echo "running bracken on $taxa. Bracken Output: $tmp/${sample}/${sample}_bracken/${sample}_${taxa_oneletter}.bracken"
+    singularity exec --writable-tmpfs -e \
+    -B $tmp:/temp \
+    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
     bracken \
-    -d ${kraken_db} \
-    -i $tmp/${sample}/${sample}.kreport \
-    -o $tmp/${sample}/${sample}_bracken/${sample}_${taxa_oneletter}.bracken \
-    -w $tmp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
+    -d /temp/$kraken_db_name \
+    -i /temp/${sample}/${sample}.kreport \
+    -o /temp/${sample}/${sample}_bracken/${sample}_${taxa_oneletter}.bracken \
+    -w /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
     -r $bracken_readlen \
     -l $taxa_oneletter
 
     echo "creating mpa formatted file for ${taxa_oneletter}"
-    python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
-    -r $tmp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
-    -o $tmp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.MPA.TXT \
+    singularity exec --writable-tmpfs -e \
+    -B $tmp:/temp \
+    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
+    python3 /KrakenTools-1.2/kreport2mpa.py \
+    -r /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
+    -o /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.MPA.TXT \
     --display-header
 
     echo "creating kronagrams for ${taxa_oneletter}"
-    python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2krona.py \
-    -r $tmp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
-    -o $tmp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.krona
+    singularity exec --writable-tmpfs -e \
+    -B $tmp:/temp \
+    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
+    python3 /KrakenTools-1.2/kreport2krona.py \
+    -r /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
+    -o /temp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.krona
 
     echo "generate html from kronagram for ${taxa_oneletter}"
+    singularity exec --writable-tmpfs -e \
+    -B $tmp:/temp \
+    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
     ktImportText \
-		$tmp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.krona \
-		-o $tmp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.html
+		/temp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.krona \
+		-o /temp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.html
 
 done
 
-python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
--r $tmp/${sample}/${sample}_bracken/${sample}_bracken_S.kreport \
--o $tmp/${sample}/${sample}_bracken/${sample}_temp.MPA.TXT
+singularity exec --writable-tmpfs -e \
+-B $tmp:/temp \
+${EXE_PATH}/../containers/kraken.2.1.2.sif \
+python3 /KrakenTools-1.2/kreport2mpa.py \
+-r /temp/${sample}/${sample}_bracken/${sample}_bracken_S.kreport \
+-o /temp/${sample}/${sample}_bracken/${sample}_temp.MPA.TXT
 
 top_bugs=`wc -l $tmp/${sample}/${sample}_bracken/${sample}_temp.MPA.TXT | awk '{print $1}'`
 
