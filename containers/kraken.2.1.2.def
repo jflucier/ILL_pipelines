@@ -1,0 +1,33 @@
+# build new image using this command:
+# singularity build --force --fakeroot kneaddata.0.12.0.sif kneaddata.0.12.0.def
+
+BootStrap: docker
+From: ubuntu:22.04
+
+%setup
+
+%environment
+  export KRAKEN2_DIR=/kraken2-2.1.2
+  export PATH=/kraken2-2.1.2:$PATH
+  #export PATH=/Trimmomatic-0.33:$PATH
+  #export PATH=/TRF-4.09.1/src:$PATH
+
+%post
+  apt-get update && apt-get -y upgrade
+
+  apt-get -y install \
+  build-essential \
+  wget rsync \
+  git \
+  less \
+  ncbi-blast+
+
+  rm -rf /var/lib/apt/lists/*
+  apt-get clean
+
+  cd /
+  wget --output-document=kraken2-2.1.2.tar.gz https://github.com/DerrickWood/kraken2/archive/refs/tags/v2.1.2.tar.gz
+  tar -xvzf kraken2-2.1.2.tar.gz
+  export KRAKEN2_DIR=/kraken2-2.1.2
+  cd /kraken2-2.1.2
+  ./install_kraken2.sh $KRAKEN2_DIR
