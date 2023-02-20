@@ -108,10 +108,6 @@ echo "upload kraken db to $tmp/$kraken_db_name"
 cp -r $kraken_db $tmp/$kraken_db_name
 
 ### Kraken
-echo "loading kraken env"
-source /home/def-ilafores/programs/ILL_pipelineskraken2/venv/bin/activate
-export PATH=/home/def-ilafores/programs/ILL_pipelineskraken2:/home/def-ilafores/programs/ILL_pipelinesBracken:$PATH
-export PATH=/home/def-ilafores/programs/ILL_pipelinesKronaTools-2.8.1/bin:$PATH
 
 mkdir $tmp/${sample}
 echo "running kraken. Kraken ouptut: $tmp/${sample}/"
