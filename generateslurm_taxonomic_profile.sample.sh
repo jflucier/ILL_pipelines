@@ -131,8 +131,7 @@ fi
 echo '
 newgrp def-ilafores
 echo "loading env"
-export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
-module use $MUGQIC_INSTALL_HOME/modulefiles
+module load StdEnv/2020 apptainer/1.1.5
 
 export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
