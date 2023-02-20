@@ -7,7 +7,9 @@ From: ubuntu:22.04
 %setup
 
 %environment
-#  export PATH=/mash-Linux64-v2.3:$PATH
+  export PATH=/miniconda3/bin:$PATH
+  export PATH=/Trimmomatic-0.33:$PATH
+  #export PATH=/TRF-4.09.1/src:$PATH
 
 %post
   apt-get update && apt-get -y upgrade
@@ -18,10 +20,43 @@ From: ubuntu:22.04
   wget \
   git \
   less \
-  bowtie2 trimmomatic \
+  unzip \
+  bowtie2 fastqc \
   python3 python3-dev python3-pip python3-venv
 
   rm -rf /var/lib/apt/lists/*
   apt-get clean
 
+  cd /
+  wget -c https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+  /bin/bash Miniconda3-py39_4.11.0-Linux-x86_64.sh -bfp /miniconda3
+  export PATH=/miniconda3/bin:$PATH
+
+  conda config --file /miniconda3/.condarc --add channels defaults
+  conda config --file /miniconda3/.condarc --add channels conda-forge
+  conda config --file /miniconda3/.condarc --add channels bioconda
+  conda config --file /miniconda3/.condarc --add channels cruizperez
+
+  echo ". /miniconda3/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+  echo "conda activate kneaddata" >> $SINGULARITY_ENVIRONMENT
+
+  . /miniconda3/etc/profile.d/conda.sh
+  conda create -n kneaddata python=3.7
+  conda activate kneaddata
+
+  cd /
+  wget https://github.com/usadellab/Trimmomatic/files/5854836/Trimmomatic-0.33.zip
+  unzip Trimmomatic-0.33.zip
+
+#  cd /
+#  wget https://github.com/Benson-Genomics-Lab/TRF/archive/refs/tags/v4.09.1.tar.gz
+#  mv v4.09.1.tar.gz trf.v4.09.1.tar.gz
+#  tar -xvzf trf.v4.09.1.tar.gz
+#  cd TRF-4.09.1/
+#  ./configure
+#  make
+
+  conda install trf=4.09.1
   pip3 install kneaddata==0.12.0
+
+  conda deactivate

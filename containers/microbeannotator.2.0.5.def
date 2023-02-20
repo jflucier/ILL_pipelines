@@ -57,11 +57,22 @@ From: ubuntu:22.04
   pip3 install requests==2.25.1
   pip3 install seaborn==0.12.2
   pip3 install hmmer==0.1.0
-  pip3 install microbeannotator==2.0.5
+  #pip3 install microbeannotator==2.0.5
+
+  # download Microbeannotator pull request to resolve issue refseq download
+  cd /
+  git clone https://github.com/silvtal/MicrobeAnnotator
+  cd MicrobeAnnotator
+  cp microbeannotator/database/conversion_database_creator.py microbeannotator/database/conversion_database_creator.py.bak
+  sed -i 's/ftp\:\/\/ftp.ebi.ac.uk\/pub\/databases\/interpro\/interpro.xml.gz/ftp\:\/\/ftp.ebi.ac.uk\/pub\/databases\/interpro\/current_release\/interpro.xml.gz/g' microbeannotator/database/conversion_database_creator.py
+  python3 setup.py install
+
+  cd /
+  rm -fr MicrobeAnnotator
 
   conda deactivate
 
   ### patch for microbeannotator_db_builder refseq download bug: https://github.com/cruizperez/MicrobeAnnotator/issues/15
-  mv /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py.bak
-  cp /temp/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/
+  #mv /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py.bak
+  #cp /temp/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/
 
