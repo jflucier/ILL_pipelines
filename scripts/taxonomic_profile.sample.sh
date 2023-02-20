@@ -104,8 +104,11 @@ echo "upload fastq1 to $tmp/$fq1_name"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
-echo "upload kraken db to $tmp/$kraken_db_name"
-cp -r $kraken_db $tmp/$kraken_db_name
+
+echo "using kraken db to $kraken_db"
+#echo "upload kraken db to $tmp/$kraken_db_name"
+#cp -r $kraken_db $tmp/$kraken_db_name
+
 
 ### Kraken
 
@@ -113,12 +116,13 @@ mkdir $tmp/${sample}
 echo "running kraken. Kraken ouptut: $tmp/${sample}/"
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
+-B $kraken_db:/db \
 ${EXE_PATH}/../containers/kraken.2.1.2.sif \
 kraken2 \
 --confidence ${confidence} \
 --paired \
 --threads ${threads} \
---db /temp/$kraken_db_name \
+--db /db \
 --use-names \
 --output /temp/${sample}/${sample}_taxonomy_nt \
 --classified-out /temp/${sample}/${sample}_classified_reads_#.fastq \
@@ -152,9 +156,10 @@ do
     echo "running bracken on $taxa. Bracken Output: $tmp/${sample}/${sample}_bracken/${sample}_${taxa_oneletter}.bracken"
     singularity exec --writable-tmpfs -e \
     -B $tmp:/temp \
+    -B $kraken_db:/db \
     ${EXE_PATH}/../containers/kraken.2.1.2.sif \
     bracken \
-    -d /temp/$kraken_db_name \
+    -d /db \
     -i /temp/${sample}/${sample}.kreport \
     -o /temp/${sample}/${sample}_bracken/${sample}_${taxa_oneletter}.bracken \
     -w /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
