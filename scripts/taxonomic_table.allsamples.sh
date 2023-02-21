@@ -84,28 +84,33 @@ if [ "$tmp" = "false" ]; then
 fi
 
 
-echo "loading kraken env"
-source /home/def-ilafores/programs/ILL_pipelineskraken2/venv/bin/activate
-export PATH=/home/def-ilafores/programs/ILL_pipelineskraken2:/home/def-ilafores/programs/ILL_pipelinesBracken:$PATH
-export PATH=/home/def-ilafores/programs/ILL_pipelinesKronaTools-2.8.1/bin:$PATH
-
 taxa_oneletter=$code
 
 echo "JOINT TAXONOMIC TABLES using taxonomic level-specific bracken reestimated abundances for $taxa_oneletter"
-kreport_filelist=$(ls $kreports | wc -l)
+#kreport_filelist=$(ls $kreports | wc -l)
 
 for report_f in $kreports
 do
 	echo "running kreport2mpa on $report_f"
-	python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
-	-r $report_f -o ${report_f//.kreport/}.MPA.TXT --display-header
+	tmp_out=${report_f//.kreport/}.MPA.TXT
+	singularity exec --writable-tmpfs -e \
+  -B $report_f:/in \
+  -B $tmp_out:/out \
+  ${EXE_PATH}/../containers/kraken.2.1.2.sif \
+  python3 /KrakenTools-1.2/kreport2mpa.py \
+  -r /in -o /out --display-header
 done
 
 echo "runinng combine_mpa for taxonomy $taxa_oneletter"
 mpa_reports=${kreports%.kreport}.MPA.TXT
-python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/combine_mpa.py \
+basepath="/$(echo \"$kreports\" | cut -d/ -f2)"
+singularity exec --writable-tmpfs -e \
+-B $basepath:$basepath \
+-B $tmp:/temp \
+${EXE_PATH}/../containers/kraken.2.1.2.sif \
+python3 /KrakenTools-1.2/combine_mpa.py \
 -i $mpa_reports \
--o $tmp/temp_${taxa_oneletter}.tsv
+-o /temp/temp_${taxa_oneletter}.tsv
 
 sed -i "s/_bracken_${taxa_oneletter}.kreport//g" $tmp/temp_${taxa_oneletter}.tsv
 

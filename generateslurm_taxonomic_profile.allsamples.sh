@@ -137,10 +137,7 @@ fi
 echo '
 newgrp def-ilafores
 echo "loading env"
-export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
-module use $MUGQIC_INSTALL_HOME/modulefiles
-
-module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5
+module load StdEnv/2020 apptainer/1.1.5
 
 bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --kreports "'$kreports'" \
@@ -149,6 +146,30 @@ bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --threads '${threads}' \
 --bowtie_index_name '$bowtie_idx_name' \
 --chocophlan_db '$choco_db'
+
+__all_taxas=(
+    "D:domains"
+    "P:phylums"
+    "C:classes"
+    "O:orders"
+    "F:families"
+    "G:genuses"
+    "S:species"
+)
+
+for taxa_str in "${__all_taxas[@]}"
+do
+  taxa_oneletter=${taxa_str%%:*}
+  taxa_name=${taxa_str#*:}
+
+  echo "running tax table for $taxa_oneletter"
+  bash '${EXE_PATH}'/scripts/taxonomic_table.allsamples.sh \
+  --kreports "'$kreports'" \
+  --out '${out}' \
+  --tmp $SLURM_TMPDIR \
+  --taxa_code $taxa_oneletter
+done
+
 
 ' >> ${out}/taxonomic_profile.allsamples.slurm.sh
 

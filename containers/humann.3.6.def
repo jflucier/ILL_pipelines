@@ -1,0 +1,81 @@
+# build new image using this command:
+# singularity build --force --fakeroot microbeannotator.sif microbeannotator.2.0.5.def
+
+BootStrap: docker
+From: ubuntu:22.04
+
+%setup
+
+%environment
+  export PATH=/miniconda3/bin:$PATH
+  export PATH=/miniconda3/envs/microbeannotator/bin/:$PATH
+
+%post
+  apt-get update && apt-get -y upgrade
+
+  ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+
+  # # needed for concoct
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get -y install \
+  build-essential \
+  wget \
+  git \
+  less \
+  diamond-aligner bowtie2 samtools \
+  python3 python3-dev python3-pip python3-venv
+
+  ln -s /usr/bin/python3 /usr/bin/python
+
+  rm -rf /var/lib/apt/lists/*
+  apt-get clean
+
+  pip3 install MetaPhlAn==4.0.4
+  pip3 install humann==3.6
+
+#  #Installing Anaconda 3 https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+#  cd /
+#  wget -c https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+#  /bin/bash Miniconda3-py39_4.11.0-Linux-x86_64.sh -bfp /miniconda3
+#  export PATH=/miniconda3/bin:$PATH
+#
+#  conda config --file /miniconda3/.condarc --add channels defaults
+#  conda config --file /miniconda3/.condarc --add channels conda-forge
+#  conda config --file /miniconda3/.condarc --add channels bioconda
+#  conda config --file /miniconda3/.condarc --add channels cruizperez
+#
+#  echo ". /miniconda3/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+#  echo "conda activate microbeannotator" >> $SINGULARITY_ENVIRONMENT
+#
+#  . /miniconda3/etc/profile.d/conda.sh
+#  conda create -n microbeannotator python=3.7
+#  conda activate microbeannotator
+#  pip3 install attrs==20.3.0
+#  pip3 install biopython==1.81
+#  pip3 install matplotlib==3.5.3
+#  pip3 install pandas==1.3.5
+#  pip3 install psutil==5.9.4
+#  pip3 install wget==3.2
+#  pip3 install pywget==0.31
+#  pip3 install requests==2.25.1
+#  pip3 install seaborn==0.12.2
+#  pip3 install hmmer==0.1.0
+#  #pip3 install microbeannotator==2.0.5
+#
+#  # download Microbeannotator pull request to resolve issue refseq download
+#  cd /
+#  git clone https://github.com/silvtal/MicrobeAnnotator
+#  cd MicrobeAnnotator
+#  cp microbeannotator/database/conversion_database_creator.py microbeannotator/database/conversion_database_creator.py.bak
+#  sed -i 's/ftp\:\/\/ftp.ebi.ac.uk\/pub\/databases\/interpro\/interpro.xml.gz/ftp\:\/\/ftp.ebi.ac.uk\/pub\/databases\/interpro\/current_release\/interpro.xml.gz/g' microbeannotator/database/conversion_database_creator.py
+#  python3 setup.py install
+#
+#  cd /
+#  rm -fr MicrobeAnnotator
+#
+#  conda deactivate
+
+  ### patch for microbeannotator_db_builder refseq download bug: https://github.com/cruizperez/MicrobeAnnotator/issues/15
+  #mv /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py.bak
+  #cp /temp/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/
+

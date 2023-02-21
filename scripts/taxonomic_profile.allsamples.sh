@@ -90,35 +90,28 @@ else
     echo "## Bowtie index will be generated in this path: $out/${bowtie_idx_name}"
 fi
 
-echo "loading kraken env"
-source /home/def-ilafores/programs/ILL_pipelineskraken2/venv/bin/activate
-export PATH=/home/def-ilafores/programs/ILL_pipelineskraken2:/home/def-ilafores/programs/ILL_pipelinesBracken:$PATH
-export PATH=/home/def-ilafores/programs/ILL_pipelinesKronaTools-2.8.1/bin:$PATH
-
-echo "checking bowtie is in path"
-if ! command -v "bowtie2" &> /dev/null
-then
-    echo "##**** bowtie2 could not be found in path ****"
-    echo "## Please update path variable to make bowtie2 available"
-    echo "## Modify this line: export PATH=/path/to/bowtie2/bin:\$PATH"
-    echo "##**********************************"
-    echo "##"
-    exit 1
-fi
-
 echo "BUGS-LIST CREATION (FOR HUMANN DB CREATION)"
 kreport_filelist=$(ls $kreports)
+basepath="/$(echo \"$kreports\" | cut -d/ -f2)"
 echo "combine all species kreports in one using these $kreport_files files: $kreport_filelist"
-
-/home/def-ilafores/programs/ILL_pipelinesKrakenTools/combine_kreports.py \
+singularity exec --writable-tmpfs -e \
+-B $basepath:$basepath \
+-B $tmp:/temp \
+${EXE_PATH}/../containers/kraken.2.1.2.sif \
+python3 /KrakenTools-1.2/combine_kreports.py \
 -r $kreport_filelist \
--o $tmp/${bowtie_idx_name}_S.kreport \
+-o /temp/${bowtie_idx_name}_S.kreport \
 --only-combined --no-headers
 
 echo "convert kreport to mpa"
-python /home/def-ilafores/programs/ILL_pipelinesKrakenTools/kreport2mpa.py \
--r $tmp/${bowtie_idx_name}_S.kreport \
--o $tmp/${bowtie_idx_name}_temp_S.MPA.TXT
+
+singularity exec --writable-tmpfs -e \
+-B $basepath:$basepath \
+-B $tmp:/temp \
+${EXE_PATH}/../containers/kraken.2.1.2.sif \
+python3 /KrakenTools-1.2/kreport2mpa.py \
+-r /temp/${bowtie_idx_name}_S.kreport \
+-o /temp/${bowtie_idx_name}_temp_S.MPA.TXT
 
 echo "modify mpa for humann support"
 grep "|s" $tmp/${bowtie_idx_name}_temp_S.MPA.TXT \
