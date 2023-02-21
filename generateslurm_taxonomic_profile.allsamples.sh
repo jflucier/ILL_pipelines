@@ -171,6 +171,8 @@ done
 
 ' >> ${out}/taxonomic_profile.allsamples.slurm.sh
 
+echo ""
+echo ""
 echo "To run, execute the following commands:"
 echo "export SLURM_TMPDIR=/path/to/your/temp"
 echo "bash ${out}/taxonomic_profile.allsamples.slurm.sh"
