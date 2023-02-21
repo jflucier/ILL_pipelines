@@ -128,10 +128,19 @@ echo "upload chocophlan db to $tmp/$choco_db_name"
 cp -r $choco_db $tmp/$choco_db_name
 
 echo "runnin create prescreen db. This step might take long"
-python -u ${EXE_PATH}/create_prescreen_db.py $tmp/$choco_db_name ${bowtie_idx_name}-bugs_list.MPA.TXT
+singularity exec --writable-tmpfs -e \
+-B ${EXE_PATH}:/code \
+-B $tmp:/temp \
+${EXE_PATH}/../containers/humann.3.6.sif \
+python3 -u /code/create_prescreen_db.py \
+/temp/$choco_db_name /temp/${bowtie_idx_name}-bugs_list.MPA.TXT
+
 ### gen bowtie index on db
-mv _custom_chocophlan_database.ffn ${bowtie_idx_name}.ffn
-bowtie2-build --threads ${threads} ${bowtie_idx_name}.ffn  ${bowtie_idx_name}
+mv $tmp/_custom_chocophlan_database.ffn $tmp/${bowtie_idx_name}.ffn
+singularity exec --writable-tmpfs -e \
+-B $tmp:/temp \
+${EXE_PATH}/../containers/humann.3.6.sif \
+bowtie2-build --threads ${threads} /temp/${bowtie_idx_name}.ffn  ${bowtie_idx_name}
 
 echo "copying all files to $out"
 cp -fr $tmp/* $out/
