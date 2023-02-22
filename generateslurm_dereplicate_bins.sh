@@ -141,11 +141,8 @@ echo '
 fi
 
 echo '
-newgrp def-ilafores
 echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
-
-#module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 singularity/3.7 mugqic/salmon/1.6.0
 
 bash '${EXE_PATH}'/scripts/dereplicate_bins.dRep.sh \
 -t '${threads}' -a '$algo' -p_ani '$p_ani' -s_ani '$s_ani' -cov '$cov' -comp '$comp' -con '$con' \

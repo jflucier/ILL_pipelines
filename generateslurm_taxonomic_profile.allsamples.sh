@@ -133,7 +133,6 @@ echo '
 fi
 
 echo '
-newgrp def-ilafores
 echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
 
