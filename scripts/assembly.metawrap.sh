@@ -129,7 +129,7 @@ echo "sort & reorder paired fastq using bbmap"
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
-repair.sh \
+repair.sh -Xmx${mem} \
 in=/out/$fq1_name \
 in2=/out/$fq2_name \
 out=/out/assembly/${sample}_paired_sorted_1.fastq \
