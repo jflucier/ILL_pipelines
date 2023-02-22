@@ -158,7 +158,7 @@ bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 ' >> ${out}/preprocess.kneaddata.slurm.sh
 
 echo "Generate preprocessed reads sample tsv: ${out}/preprocessed_reads.sample.tsv"
-rm -f ${out}/taxonomic_profile.sample.tsv
+rm -f ${out}/preprocessed_reads.sample.tsv
 while IFS=$'\t' read -r name f1 f2
 do
     echo -e "${name}\t${out}/${name}/${name}_paired_1.fastq\t${out}/${name}/${name}_paired_2.fastq" >> ${out}/preprocessed_reads.sample.tsv
