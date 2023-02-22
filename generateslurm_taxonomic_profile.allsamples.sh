@@ -145,6 +145,9 @@ bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --bowtie_index_name '$bowtie_idx_name' \
 --chocophlan_db '$choco_db'
 
+# clean tmp dir
+rm -fr $SLURM_TMPDIR/*
+
 __all_taxas=(
     "D:domains"
     "P:phylums"
@@ -155,14 +158,22 @@ __all_taxas=(
     "S:species"
 )
 
+basepath=$(echo "'$kreports'" | perl -ne "
+  my @t = split('"'"'/'"'"',$_);
+  pop @t;
+  print join('"'"'/'"'"',@t);
+")
+
 for taxa_str in "${__all_taxas[@]}"
 do
   taxa_oneletter=${taxa_str%%:*}
   taxa_name=${taxa_str#*:}
 
-  echo "running tax table for $taxa_oneletter"
+  report_path="${basepath}/*_bracken_${taxa_oneletter}.kreport"
+
+  echo "running tax table for $taxa_oneletter using report regex $report_path"
   bash '${EXE_PATH}'/scripts/taxonomic_table.allsamples.sh \
-  --kreports "'$kreports'" \
+  --kreports "$report_path" \
   --out '${out}' \
   --tmp $SLURM_TMPDIR \
   --taxa_code $taxa_oneletter

@@ -1,0 +1,29 @@
+# build new image using this command:
+# singularity build --force --fakeroot salmon.1.9.0.sif salmon.1.9.0.def
+
+BootStrap: docker
+From: ubuntu:22.04
+
+%setup
+
+%environment
+    export PATH=/salmon-1.9.0_linux_x86_64/bin:$PATH
+
+%post
+    apt-get update && apt-get -y upgrade
+
+    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+    export DEBIAN_FRONTEND=noninteractive
+
+    apt-get -y install \
+    build-essential \
+    wget \
+    git \
+    less
+
+    rm -rf /var/lib/apt/lists/*
+    apt-get clean
+
+    cd /
+    wget https://github.com/COMBINE-lab/salmon/releases/download/v1.9.0/salmon-1.9.0_linux_x86_64.tar.gz
+    tar -xvzf salmon-1.9.0_linux_x86_64.tar.gz

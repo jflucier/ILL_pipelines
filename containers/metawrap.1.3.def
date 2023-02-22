@@ -12,15 +12,14 @@ From: ubuntu:20.04
     export CHECKM_DATA_PATH=/checkm
     export PATH=/miniconda3/envs/gtdbtk-env/bin/:$PATH
     export GTDBTK_DATA_PATH=/GTDB
-    # export PATH=/miniconda3/envs/roary-env/bin/:$PATH
+    export PATH=/usr/share/bbmap:$PATH
 
 %post
     apt-get update && apt-get -y upgrade
 
     ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-
-    # # needed for concoct
     export DEBIAN_FRONTEND=noninteractive
+
     apt-get -yq install libmkl-rt
 
     # removed roary
@@ -44,7 +43,8 @@ From: ubuntu:20.04
     r-recommended \
     r-cran-reshape2 \
     r-cran-ggplot2 \
-    less
+    less \
+    bbmap
 
     rm -rf /var/lib/apt/lists/*
     apt-get clean
@@ -60,24 +60,10 @@ From: ubuntu:20.04
     conda config --file /miniconda3/.condarc --add channels bioconda
     conda config --file /miniconda3/.condarc --add channels ursky
 
-    # conda update conda
-    # conda init bash
-    . /miniconda3/etc/profile.d/conda.sh
-
-    echo "__conda_setup="$('/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"" >> $SINGULARITY_ENVIRONMENT
-    echo "if [ $? -eq 0 ]; then" >> $SINGULARITY_ENVIRONMENT
-    echo "    eval "$__conda_setup"" >> $SINGULARITY_ENVIRONMENT
-    echo "else" >> $SINGULARITY_ENVIRONMENT
-    echo "    if [ -f \"/miniconda3/etc/profile.d/conda.sh\" ]; then" >> $SINGULARITY_ENVIRONMENT
-    echo "        . \"/miniconda3/etc/profile.d/conda.sh\"" >> $SINGULARITY_ENVIRONMENT
-    echo "    else" >> $SINGULARITY_ENVIRONMENT
-    echo "        export PATH=\"/miniconda3/bin:$PATH\"" >> $SINGULARITY_ENVIRONMENT
-    echo "    fi" >> $SINGULARITY_ENVIRONMENT
-    echo "fi" >> $SINGULARITY_ENVIRONMENT
-    echo "unset __conda_setup" >> $SINGULARITY_ENVIRONMENT
-
     echo ". /miniconda3/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
     echo "conda activate metawrap-env" >> $SINGULARITY_ENVIRONMENT
+
+    . /miniconda3/etc/profile.d/conda.sh
 
     conda install -n base -c conda-forge -y mamba=0.15.3
 
@@ -97,7 +83,6 @@ From: ubuntu:20.04
     cp /metaWRAP/bin/config-metawrap $PREFIX/bin/
     cp -r /metaWRAP/bin/metawrap-modules $PREFIX/bin/
     cp -r /metaWRAP/bin/metawrap-scripts $PREFIX/bin/
-
 
     #nt_db and nt_tax set db path
     sed -i 's/BLASTDB\=\/scratch\/gu\/NCBI_nt/BLASTDB\=\/NCBI_nt/g' /miniconda3/envs/metawrap-env/bin/config-metawrap

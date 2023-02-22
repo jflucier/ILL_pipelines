@@ -118,9 +118,6 @@ grep "|s" $tmp/${bowtie_idx_name}_temp_S.MPA.TXT \
 | awk '{printf("%s\t\n", $0)}' - \
 | awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - > $tmp/${bowtie_idx_name}-bugs_list.MPA.TXT
 
-source /home/def-ilafores/programs/ILL_pipelineshumann3/bin/activate
-export PATH=/net/nfs-ip34/home/def-ilafores//programs/diamond-2.0.14/bin:$PATH
-
 ### gen python chocphlan cusotm db
 cd $tmp
 choco_db_name=$(basename $choco_db)
@@ -129,18 +126,19 @@ cp -r $choco_db $tmp/$choco_db_name
 
 echo "runnin create prescreen db. This step might take long"
 singularity exec --writable-tmpfs -e \
+-H $tmp \
 -B ${EXE_PATH}:/code \
 -B $tmp:/temp \
 ${EXE_PATH}/../containers/humann.3.6.sif \
 python3 -u /code/create_prescreen_db.py \
-/temp/$choco_db_name /temp/${bowtie_idx_name}-bugs_list.MPA.TXT
+$choco_db_name ${bowtie_idx_name}-bugs_list.MPA.TXT
 
 ### gen bowtie index on db
 mv $tmp/_custom_chocophlan_database.ffn $tmp/${bowtie_idx_name}.ffn
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 ${EXE_PATH}/../containers/humann.3.6.sif \
-bowtie2-build --threads ${threads} /temp/${bowtie_idx_name}.ffn  ${bowtie_idx_name}
+bowtie2-build --threads ${threads} /temp/${bowtie_idx_name}.ffn  /temp/${bowtie_idx_name}
 
 echo "copying all files to $out"
 cp -fr $tmp/* $out/

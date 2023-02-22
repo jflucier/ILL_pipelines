@@ -42,30 +42,7 @@ set_assembly_options () {
     echo "# Will use the following assembly programs: $assembly_programs"
 }
 
-check_software_dependencies () {
-
-    if ! command -v "singularity" &> /dev/null
-    then
-        echo "##**** singularity could not be found ****"
-        echo "## Please make sure the singularity executable is in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-    if ! command -v "repair.sh" &> /dev/null
-    then
-        echo "##**** BBMap could not be found ****"
-        echo "## Please make sure the BBMap executables are in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-}
-
 export EXE_PATH=$(dirname "$0")
-
-# check if singularity and bbmap in path
-check_software_dependencies
 
 # initialisation
 threads="8"
@@ -149,15 +126,14 @@ cp $fq2 $tmp/$fq2_name
 mkdir -p ${tmp}/assembly
 
 echo "sort & reorder paired fastq using bbmap"
+singularity exec --writable-tmpfs -e \
+-B ${tmp}:/out \
+${EXE_PATH}/../containers/metawrap.1.3.sif \
 repair.sh \
-in=$tmp/$fq1_name \
-in2=$tmp/$fq2_name \
-out=${tmp}/assembly/${sample}_paired_sorted_1.fastq \
-out2=${tmp}/assembly/${sample}_paired_sorted_2.fastq
-
-# echo "combining all sample reads for asssembly"
-# cat $ASSEMBLY_SAMPLE_F1_PATH_REGEX > ${tmp}/ALL_READS_1.fastq
-# cat $ASSEMBLY_SAMPLE_F2_PATH_REGEX > ${tmp}/ALL_READS_2.fastq
+in=/out/$fq1_name \
+in2=/out/$fq2_name \
+out=/out/assembly/${sample}_paired_sorted_1.fastq \
+out2=/out/assembly/${sample}_paired_sorted_2.fastq
 
 echo "metawrap assembly step using ${assembly_programs}"
 

@@ -20,30 +20,7 @@ help_message () {
 	echo "";
 }
 
-check_software_dependencies () {
-
-    if ! command -v "singularity" &> /dev/null
-    then
-        echo "##**** singularity could not be found ****"
-        echo "## Please make sure the singularity executable is in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-    if ! command -v "salmon" &> /dev/null
-    then
-        echo "##**** salmon could not be found ****"
-        echo "## Please make sure the salmon executable is in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-}
-
 export EXE_PATH=$(dirname "$0")
-
-# check if singularity and bbmap in path
-check_software_dependencies
 
 # initialisation
 threads="8"
@@ -132,11 +109,15 @@ do
     cp $f2 $tmp/data/${nf2}
 
     echo "running salmon on ${name}"
+    singularity exec --writable-tmpfs \
+    -B $tmp:/temp \
+    -B $index:/index \
+    -e ${EXE_PATH}/../containers/salmon.1.9.0.sif \
     salmon quant \
-    -i $index \
+    -i /index \
     --libType IU \
-    -1 $tmp/data/${nf1} -2 $tmp/data/${nf2} \
-    -o $tmp/quant_bins/alignment_files/${name}.quant \
+    -1 /temp/data/${nf1} -2 /temp/data/${nf2} \
+    -o /temp/quant_bins/alignment_files/${name}.quant \
     --meta -p $threads
 done
 
@@ -144,7 +125,7 @@ curr_path=$(pwd)
 cd $tmp/quant_bins/alignment_files
 
 singularity exec --writable-tmpfs \
--W $tmp/quant_bins/alignment_files \
+-H $tmp/quant_bins/alignment_files \
 -e ${EXE_PATH}/../containers/metawrap.1.3.sif \
 /miniconda3/envs/metawrap-env/bin/metawrap-scripts/summarize_salmon_files.py
 

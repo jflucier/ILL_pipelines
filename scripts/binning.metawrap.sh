@@ -53,22 +53,7 @@ set_binning_options () {
     echo "# Will use the following binning programs: $binning_programs"
 }
 
-check_software_dependencies () {
-
-    if ! command -v "singularity" &> /dev/null
-    then
-        echo "##**** singularity could not be found ****"
-        echo "## Please make sure the singularity executable is in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-}
-
 export EXE_PATH=$(dirname "$0")
-
-# check if singularity and bbmap in path
-check_software_dependencies
 
 # initialisation
 threads="8"

@@ -24,30 +24,7 @@ help_message () {
 	echo "";
 }
 
-check_software_dependencies () {
-
-    if ! command -v "singularity" &> /dev/null
-    then
-        echo "##**** singularity could not be found ****"
-        echo "## Please make sure the singularity executable is in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-	if ! command -v "salmon" &> /dev/null
-    then
-        echo "##**** salmon could not be found ****"
-        echo "## Please make sure the salmon executable is in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-}
-
 export EXE_PATH=$(dirname "$0")
-
-# check if singularity and bbmap in path
-check_software_dependencies
 
 # initialisation
 threads="8"
@@ -172,7 +149,10 @@ done
 
 cat $tmp/drep_out/*.fa > $tmp/drep_out/salmon_index/bin_assembly.fa
 assembly=$tmp/drep_out/salmon_index/bin_assembly.fa
-salmon index -p $threads -t $assembly -i $tmp/drep_out/salmon_index
+singularity exec --writable-tmpfs \
+-B $tmp:/temp \
+-e ${EXE_PATH}/../containers/salmon.1.9.0.sif \
+salmon index -p $threads -t /temp/drep_out/salmon_index/bin_assembly.fa -i /temp/drep_out/salmon_index
 
 
 echo "copying drep results back to $out/"
