@@ -41,20 +41,6 @@ trimmomatic_options="SLIDINGWINDOW:4:30 MINLEN:100"
 trimmomatic_adapters="ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10"
 bowtie2_options="--very-sensitive-local"
 
-##### need to bypass getopt because bowtie parameters passing has -- #####
-
-# # load in params
-# SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
-# LONG_OPTS='help,db,trimmomatic_options,bowtie2_options'
-
-# OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
-# # make sure the params are entered correctly
-# if [ $? -ne 0 ];
-# then
-#     help_message;
-#     exit 1;
-# fi
-
 # loop through input params
 while true; do
     # echo "$1=$2"
@@ -112,8 +98,16 @@ cp $fq2 $tmp/$fq2_name
 echo "upload db to $tmp"
 cp ${db}.* $tmp/
 
-### Preproc
-#source /home/def-ilafores/programs/ILL_pipelineskneaddata/bin/activate
+echo "running BBmap repair.sh using ${mem}"
+singularity exec --writable-tmpfs -e \
+-B ${tmp}:/temp \
+${EXE_PATH}/../containers/metawrap.1.3.sif \
+repair.sh \
+in=/temp/${fq1_name} \
+in2=/temp/${fq2_name} \
+out=/temp/paired_sorted_1.fastq \
+out2=/temp/paired_sorted_2.fastq
+
 
 echo "running kneaddata. kneaddata ouptut: $tmp/"
 ###### pas de decontamine, output = $tmp/${sample}/*repeats* --> peut changer etape pour fastp et cutadapt
@@ -123,8 +117,8 @@ singularity exec --writable-tmpfs -e \
 ${EXE_PATH}/../containers/kneaddata.0.12.0.sif \
 kneaddata -v \
 --log /out/kneaddata-${sample}.log \
---input1 /temp/${fq1_name} \
---input2 /temp/${fq2_name} \
+--input1 /temp/paired_sorted_1.fastq \
+--input2 /temp/paired_sorted_2.fastq \
 -db /temp/${db_name} \
 --bowtie2-options="${bowtie2_options}" \
 -o /temp/ \

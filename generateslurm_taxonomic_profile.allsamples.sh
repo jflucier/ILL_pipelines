@@ -178,6 +178,7 @@ do
   --taxa_code $taxa_oneletter
 done
 
+echo "done analysis taxonomic profile on all samples"
 
 ' >> ${out}/taxonomic_profile.allsamples.slurm.sh
 

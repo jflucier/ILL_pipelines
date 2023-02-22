@@ -9,7 +9,7 @@ From: ubuntu:22.04
 %environment
   export PATH=/miniconda3/bin:$PATH
   export PATH=/Trimmomatic-0.33:$PATH
-  #export PATH=/TRF-4.09.1/src:$PATH
+  export PATH=/bbmap:$PATH
 
 %post
   apt-get update && apt-get -y upgrade
@@ -48,13 +48,9 @@ From: ubuntu:22.04
   wget https://github.com/usadellab/Trimmomatic/files/5854836/Trimmomatic-0.33.zip
   unzip Trimmomatic-0.33.zip
 
-#  cd /
-#  wget https://github.com/Benson-Genomics-Lab/TRF/archive/refs/tags/v4.09.1.tar.gz
-#  mv v4.09.1.tar.gz trf.v4.09.1.tar.gz
-#  tar -xvzf trf.v4.09.1.tar.gz
-#  cd TRF-4.09.1/
-#  ./configure
-#  make
+  cd /
+  wget https://github.com/BioInfoTools/BBMap/releases/download/v35.85/BBMap_35.85.tar.gz
+  tar -xvzf BBMap_35.85.tar.gz
 
   conda install trf=4.09.1
   pip3 install kneaddata==0.12.0
