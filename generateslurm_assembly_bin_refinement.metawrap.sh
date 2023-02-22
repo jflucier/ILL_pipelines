@@ -2,26 +2,6 @@
 
 set -e
 
-check_software_dependencies () {
-
-    if ! command -v "singularity" &> /dev/null
-    then
-        echo "##**** singularity could not be found ****"
-        echo "## Please make sure the singularity executable is in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-    if ! command -v "repair.sh" &> /dev/null
-    then
-        echo "##**** BBMap could not be found ****"
-        echo "## Please make sure the BBMap executables are in your PATH variable"
-        help_message
-        exit 1
-    fi
-
-}
-
 set_assembly_options () {
 
     assembly_programs="--metaspades --megahit"
@@ -110,9 +90,6 @@ help_message () {
 
 # load and valdiate env
 export EXE_PATH=$(dirname "$0")
-
-# check if singularity and bbmap in path
-check_software_dependencies
 
 # initialisation
 alloc="def-ilafores"
@@ -241,9 +218,6 @@ then
     echo "# Bin minimum % completion: ${refinement_min_compl}%"
     echo "# Bin maximum % contamination: ${refinement_max_cont}%"
 fi
-
-
-
 
 echo "outputting slurm script to $out/assembly_bin_refinement.metawrap.slurm.sh"
 
