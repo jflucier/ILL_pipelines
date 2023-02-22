@@ -125,11 +125,11 @@ cp $fq2 $tmp/$fq2_name
 
 mkdir -p ${tmp}/assembly
 
-echo "sort & reorder paired fastq using bbmap"
+echo "running BBmap repair.sh using ${mem}"
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
 ${EXE_PATH}/../containers/metawrap.1.3.sif \
-repair.sh -Xmx${mem} \
+repair.sh \
 in=/out/$fq1_name \
 in2=/out/$fq2_name \
 out=/out/assembly/${sample}_paired_sorted_1.fastq \
