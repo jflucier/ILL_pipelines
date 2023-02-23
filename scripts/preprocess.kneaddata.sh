@@ -98,16 +98,34 @@ cp $fq2 $tmp/$fq2_name
 echo "upload db to $tmp"
 cp ${db}.* $tmp/
 
-echo "running BBmap repair.sh using ${mem}"
-singularity exec --writable-tmpfs -e \
--B ${tmp}:/temp \
-${EXE_PATH}/../containers/metawrap.1.3.sif \
-repair.sh \
-in=/temp/${fq1_name} \
-in2=/temp/${fq2_name} \
-out=/temp/paired_sorted_1.fastq \
-out2=/temp/paired_sorted_2.fastq
+#echo "running BBmap repair.sh using ${mem}"
+#singularity exec --writable-tmpfs -e \
+#-B ${tmp}:/temp \
+#${EXE_PATH}/../containers/metawrap.1.3.sif \
+#repair.sh \
+#in=/temp/${fq1_name} \
+#in2=/temp/${fq2_name} \
+#out=/temp/paired_sorted_1.fastq \
+#out2=/temp/paired_sorted_2.fastq
 
+h_test=$(zcat $tmp/${fq1_name} | head -n 1 | perl -ne '
+if($_ =~ / 1\:.*$/){
+  print "true";
+}
+else{
+  print "false";
+}
+')
+
+if [ "$h_test" = "true" ]; then
+    echo "Will reformat fastq headers for kneaddata support"
+    zcat $tmp/$fq1_name | sed 's/ 1:.*/\/1/g' | gzip > $tmp/paired_sorted_1.fastq.gz
+    zcat $tmp/$fq2_name | sed 's/ 2:.*/\/2/g' | gzip > $tmp/paired_sorted_2.fastq.gz
+else
+    echo "Fastq headers seems to be ok. Make sure to validate output and see if alll reads go to unmatched fastq"
+    ln -s $tmp/$fq1_name $tmp/paired_sorted_1.fastq.gz
+    ln -s $tmp/$fq2_name $tmp/paired_sorted_2.fastq.gz
+fi
 
 echo "running kneaddata. kneaddata ouptut: $tmp/"
 ###### pas de decontamine, output = $tmp/${sample}/*repeats* --> peut changer etape pour fastp et cutadapt
@@ -117,8 +135,8 @@ singularity exec --writable-tmpfs -e \
 ${EXE_PATH}/../containers/kneaddata.0.12.0.sif \
 kneaddata -v \
 --log /out/kneaddata-${sample}.log \
---input1 /temp/paired_sorted_1.fastq \
---input2 /temp/paired_sorted_2.fastq \
+--input1 /temp/paired_sorted_1.fastq.gz \
+--input2 /temp/paired_sorted_2.fastq.gz \
 -db /temp/${db_name} \
 --bowtie2-options="${bowtie2_options}" \
 -o /temp/ \
