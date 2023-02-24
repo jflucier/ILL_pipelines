@@ -278,7 +278,7 @@ then
     -s $__sample \
     -fq1 '${out}'/assembly/${__sample}/${__sample}_paired_sorted_1.fastq \
     -fq2 '${out}'/assembly/${__sample}/${__sample}_paired_sorted_2.fastq \
-    -a '${out}'/assembly/${__sample}/final_assembly.fasta
+    -a '${out}'/assembly/${__sample}/final_assembly.fasta \
     '$binning_programs'
 
     echo "done binning on $__sample"
