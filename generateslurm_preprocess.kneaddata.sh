@@ -149,7 +149,7 @@ export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 
 bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 -o '${out}'/$__sample \
--tmp \$SLURM_TMPDIR \
+-tmp $SLURM_TMPDIR \
 -t '${threads}' -m '${mem}' \
 -s $__sample -fq1 $__fastq_file1 -fq2 $__fastq_file2 \
 --trimmomatic_options "'${trimmomatic_adapters} ${trimmomatic_options}'" \
