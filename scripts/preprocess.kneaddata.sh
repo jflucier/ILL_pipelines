@@ -129,16 +129,22 @@ fi
 
 echo "running kneaddata. kneaddata ouptut: $tmp/"
 ###### pas de decontamine, output = $tmp/${sample}/*repeats* --> peut changer etape pour fastp et cutadapt
+basepath=$(perl -e '
+  my $a = "'$db'";
+  my @t = split("/",$a);
+  print "/" . $t[1] . "\n";
+')
+
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 -B ${out}:/out \
--B ${db}:/db \
+-B ${basepath}:${basepath} \
 ${EXE_PATH}/../containers/kneaddata.0.12.0.sif \
 kneaddata -v \
 --log /out/kneaddata-${sample}.log \
 --input1 /temp/paired_sorted_1.fastq.gz \
 --input2 /temp/paired_sorted_2.fastq.gz \
--db /db \
+-db ${db} \
 --bowtie2-options="${bowtie2_options}" \
 -o /temp/ \
 --output-prefix ${sample} \
