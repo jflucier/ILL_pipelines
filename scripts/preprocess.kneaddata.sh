@@ -12,7 +12,7 @@ help_message () {
     echo "	-o STR	path to output dir"
     echo "	-tmp STR	path to temp dir (default output_dir/temp)"
     echo "	-t	# of threads (default 8)"
-    echo "	-m	memory (default 40G)"
+    echo "	-m	memory (default 30G)"
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
     echo "	--db	path(s) to contaminant genome(s) (default /net/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)"
@@ -30,7 +30,7 @@ export EXE_PATH=$(dirname "$0")
 
 # initialisation
 threads="8"
-mem="40G"
+mem="30G"
 sample="false";
 out="false";
 tmp="false";
@@ -86,6 +86,8 @@ fi
 echo "Preprocessing and quality control of sample $sample"
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
+echo "Will use $threads threads"
+echo "Will use $mem memory"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
