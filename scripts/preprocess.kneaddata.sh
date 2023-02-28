@@ -119,12 +119,12 @@ else{
 
 if [ "$h_test" = "true" ]; then
     echo "Will reformat fastq headers for kneaddata support"
-    zcat $tmp/$fq1_name | sed 's/ 1:.*/\/1/g' | gzip > $tmp/paired_sorted_1.fastq.gz
-    zcat $tmp/$fq2_name | sed 's/ 2:.*/\/2/g' | gzip > $tmp/paired_sorted_2.fastq.gz
+    zcat $tmp/$fq1_name | sed 's/ 1:.*/\/1/g' > $tmp/paired_sorted_1.fastq
+    zcat $tmp/$fq2_name | sed 's/ 2:.*/\/2/g' > $tmp/paired_sorted_2.fastq
 else
     echo "Fastq headers seems to be ok. Make sure to validate output and see if alll reads go to unmatched fastq"
-    ln -s $tmp/$fq1_name $tmp/paired_sorted_1.fastq.gz
-    ln -s $tmp/$fq2_name $tmp/paired_sorted_2.fastq.gz
+    zcat $tmp/$fq1_name > $tmp/paired_sorted_1.fastq
+    zcat $tmp/$fq2_name > $tmp/paired_sorted_2.fastq
 fi
 
 echo "running kneaddata. kneaddata ouptut: $tmp/"
@@ -142,8 +142,8 @@ singularity exec --writable-tmpfs -e \
 ${EXE_PATH}/../containers/kneaddata.0.12.0.sif \
 kneaddata -v \
 --log /out/kneaddata-${sample}.log \
---input1 /temp/paired_sorted_1.fastq.gz \
---input2 /temp/paired_sorted_2.fastq.gz \
+--input1 /temp/paired_sorted_1.fastq \
+--input2 /temp/paired_sorted_2.fastq \
 -db ${db} \
 --bowtie2-options="${bowtie2_options}" \
 -o /temp/ \
