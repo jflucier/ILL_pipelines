@@ -16,8 +16,8 @@ help_message () {
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
     echo "	--db	path(s) to contaminant genome(s) (default /net/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)"
-    echo "      --trimmomatic_adapters  adapter file default (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10)"
-    echo "      --trimmomatic_options   quality trimming options (default SLIDINGWINDOW:4:30 MINLEN:100)"
+    echo "  --trimmomatic_adapters  adapter file default (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10)"
+    echo "  --trimmomatic_options   quality trimming options (default SLIDINGWINDOW:4:30 MINLEN:100)"
     echo "	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)"
 
     echo ""

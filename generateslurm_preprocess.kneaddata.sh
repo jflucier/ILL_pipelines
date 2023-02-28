@@ -152,7 +152,8 @@ bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' -m '${mem}' \
 -s $__sample -fq1 $__fastq_file1 -fq2 $__fastq_file2 \
---trimmomatic_options "'${trimmomatic_adapters} ${trimmomatic_options}'" \
+--trimmomatic_options "'${trimmomatic_options}'" \
+--trimmomatic_adapters "'${trimmomatic_adapters}'" \
 --bowtie2_options "'$bowtie2_options'" \
 --db '$db'
 ' >> ${out}/preprocess.kneaddata.slurm.sh
