@@ -97,8 +97,8 @@ echo "upload fastq1 to $tmp/"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp"
 cp $fq2 $tmp/$fq2_name
-#echo "upload db to $tmp"
-#cp ${db}.* $tmp/
+echo "cp singularity container to $tmp"
+cp ${EXE_PATH}/../containers/kneaddata.0.12.0.sif $tmp/
 
 #echo "running BBmap repair.sh using ${mem}"
 #singularity exec --writable-tmpfs -e \
@@ -141,7 +141,7 @@ singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 -B ${out}:/out \
 -B ${basepath}:${basepath} \
-${EXE_PATH}/../containers/kneaddata.0.12.0.sif \
+$tmp/kneaddata.0.12.0.sif \
 kneaddata -v \
 --log /out/kneaddata-${sample}.log \
 --input1 /temp/paired_sorted_1.fastq \
