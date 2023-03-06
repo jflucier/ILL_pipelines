@@ -179,7 +179,7 @@ echo '#!/bin/bash' > ${out}/submit.preprocess.slurm.sh
 echo '
 
 tot_batch=$(('$sample_nbr' / 5))
-batch_time=600
+batch_time=200
 tot_time_s=$((tot_batch * batch_time))
 tot_time_m=$((tot_time_s / 60))
 
