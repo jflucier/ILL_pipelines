@@ -140,7 +140,7 @@ metawrap bin_refinement -t $threads -m $BINNING_MEM --quick \
 -B /out/maxbin2_bins/ \
 -C /out/concoct_bins/
 
-sed '1s/$/\tsampID/;2,$s/$/\t'${sample}'/' /out/bin_refinement/metawrap_50_10_bins.stats > /out/bin_refinement/${sample}_refined.stats
+sed '1s/$/\tsampID/;2,$s/$/\t'${sample}'/' ${tmp}/bin_refinement/metawrap_50_10_bins.stats > ${tmp}/bin_refinement/${sample}_refined.stats
 
 echo "copying bin_refinement results back to $out"
 mkdir -p $out
