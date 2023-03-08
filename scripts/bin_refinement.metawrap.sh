@@ -142,6 +142,13 @@ metawrap bin_refinement -t $threads -m $BINNING_MEM --quick \
 
 sed '1s/$/\tsampID/;2,$s/$/\t'${sample}'/' ${tmp}/bin_refinement/metawrap_${refinement_min_compl}_${refinement_max_cont}_bins.stats > ${tmp}/bin_refinement/${sample}_refined.stats
 
+echo "adding sample name to bin filename"
+for bin in ${tmp}/bin_refinement/metawrap_${refinement_min_compl}_${refinement_max_cont}_bins/*.fa
+do
+  b=$(basename $bin)
+  mv $bin ${tmp}/bin_refinement/metawrap_${refinement_min_compl}_${refinement_max_cont}_bins/${sample}.${b}
+done
+
 echo "copying bin_refinement results back to $out"
 mkdir -p $out
 cp -r ${tmp}/bin_refinement/* $out/

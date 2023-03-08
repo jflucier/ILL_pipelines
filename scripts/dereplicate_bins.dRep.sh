@@ -10,16 +10,17 @@ help_message () {
 	echo ""
 	echo "	-tmp STR	path to temp dir (default output_dir/temp)"
 	echo "	-t	# of threads (default 8)"
-	echo "	-bins_tsv	A 2 column tsv of fasta bins for all samples. Columns should be sample_name<tab>/path/to/fa. No headers!"
-    echo "	-o STR	path to output dir"
+	#echo "	-bins_tsv	A 2 column tsv of fasta bins for all samples. Columns should be sample_name<tab>/path/to/fa. No headers!"
+	echo "	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa"
+  echo "	-o STR	path to output dir"
 	echo "	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information."
-    echo "	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)"
-    echo "	-s_ani	ANI threshold to form secondary clusters (default: 0.99)"
-    echo "	-cov	Minmum level of overlap between genomes when doing secondary comparisons (default: 0.1)"
-    echo "	-comp	Minimum genome completeness (default: 75)"
+  echo "	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)"
+  echo "	-s_ani	ANI threshold to form secondary clusters (default: 0.99)"
+  echo "	-cov	Minmum level of overlap between genomes when doing secondary comparisons (default: 0.1)"
+  echo "	-comp	Minimum genome completeness (default: 75)"
 	echo "	-con	Maximum genome contamination (default: 25)"
-    echo ""
-    echo "  -h --help	Display help"
+  echo ""
+  echo "  -h --help	Display help"
 
 	echo "";
 }
@@ -28,7 +29,7 @@ export EXE_PATH=$(dirname "$0")
 
 # initialisation
 threads="8"
-bins_tsv="false"
+bin_path_regex="false"
 out="false"
 tmp="false"
 algo="ANImf"
@@ -39,7 +40,7 @@ comp="75"
 con="25"
 
 # load in params
-SHORT_OPTS="ht:bins_tsv:o:a:p_ani:s_ani:cov:comp:con:tmp:"
+SHORT_OPTS="ht:bin_path_regex:o:a:p_ani:s_ani:cov:comp:con:tmp:"
 LONG_OPTS='help'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
@@ -58,7 +59,7 @@ while true; do
         -t) threads=$2; shift 2;;
         -tmp) tmp=$2; shift 2;;
         -o) out=$2; shift 2;;
-		-bins_tsv) bins_tsv=$2; shift 2;;
+		-bin_path_regex) bin_path_regex=$2; shift 2;;
         -a) algo=$2; shift 2;;
         -p_ani) p_ani=$2; shift 2;;
         -s_ani) s_ani=$2; shift 2;;
@@ -70,11 +71,15 @@ while true; do
 	esac
 done
 
-if [ "$bins_tsv" = "false" ]; then
-    echo "Please provide a 2 column bins tsv. Columns should be sample_name<tab>/path/to/fa. No headers!"
+if [ "$bin_path_regex" = "false" ]; then
+    echo "Please provide a bin regex path, i.e. /path/to/fa/*.fa."
     help_message; exit 1
 else
-	echo "## Genome bins tsv path: $bins_tsv"
+	echo "## Genome bins path: '$bin_path_regex'"
+	l=$(ls $bin_path_regex | wc -l)
+	echo "## Number of bins: $l"
+	echo "## List of bins: "
+	ls -1 $bin_path_regex
 fi
 
 if [ "$out" = "false" ]; then
@@ -103,13 +108,17 @@ echo "## Number of threads: $threads"
 echo "upload bins to $tmp/bins"
 mdkir $tmp/bins
 rm -f $tmp/all_fastas.txt
-cat $bins_tsv | while  IFS=$'\t' read  -r name path
+for bin in $bin_path_regex
 do
-	b=$(basename $path)
-    echo "copying $path to $tmp/bins/${name}_${b}"
-    echo "/data/${name}_${b}" >> $tmp/bins/all_fastas.txt
-    cp $path $tmp/bins/${s}_${b}
+    s=$(echo $bin | cut -d'/' -f7 )
+    b=$(basename $f)
+    echo "generating assembly_60_drep/saliva_samples/raw_data/${s}_${b}"
+    # symbolic link not working in drep container
+    # ln -s $f test_data/${s}_${b}
+    echo "/data/${s}_${b}" >> assembly_60_drep/saliva_samples/raw_data/all_fastas.txt
+    cp $f testset-projet_PROVID19-saliva/drep/${s}_${b}
 done
+
 
 echo "running dRep"
 mkdir -p $tmp/drep_out
