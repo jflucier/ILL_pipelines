@@ -127,7 +127,7 @@ fi
 echo '
 module load StdEnv/2020 apptainer/1.1.5
 
-bash '${EXE_PATH}'/scripts/annotate_bins.dRep.sh \
+bash '${EXE_PATH}'/scripts/annotate_bins.sh \
 -t '${threads}' \
 -drep '$drep' \
 -ma_db '$db' \
@@ -137,7 +137,12 @@ bash '${EXE_PATH}'/scripts/annotate_bins.dRep.sh \
 
 ' >> $out/submit_annotate.slurm.sh
 
+
+echo "To run LOCALLY, execute the following command:"
+echo "bash ${out}/submit_annotate.slurm.sh"
+echo "---- OR -----"
 echo "To submit to slurm, execute the following command:"
 echo "sbatch ${out}/submit_annotate.slurm.sh"
+
 
 echo "done!"
