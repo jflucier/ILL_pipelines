@@ -8,7 +8,8 @@ help_message () {
 	echo "Options:"
 
 	echo ""
-	echo "	-bins_tsv	A 2 column tsv of fasta bins for all samples. Columns should be sample_name<tab>/path/to/fa. No headers!"
+	#echo "	-bins_tsv	A 2 column tsv of fasta bins for all samples. Columns should be sample_name<tab>/path/to/fa. No headers!"
+		echo "	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa"
     echo "	-o STR	path to output dir"
 	echo "	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information."
     echo "	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)"
@@ -43,7 +44,7 @@ threads="48"
 mem="251G"
 log="false"
 
-bins_tsv="false"
+bin_path_regex="false"
 out="false"
 algo="ANImf"
 p_ani="0.95"
@@ -52,7 +53,7 @@ cov="0.1"
 comp="75"
 con="25"
 
-SHORT_OPTS="ht:bins_tsv:o:a:p_ani:s_ani:cov:comp:con:"
+SHORT_OPTS="ht:bin_path_regex:o:a:p_ani:s_ani:cov:comp:con:"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
@@ -74,7 +75,7 @@ while true; do
         --slurm_threads) threads=$2; shift 2;;
         --slurm_mem) mem=$2; shift 2;;
 		-o) out=$2; shift 2;;
-		-bins_tsv) bins_tsv=$2; shift 2;;
+		-bin_path_regex) bin_path_regex=$2; shift 2;;
         -a) algo=$2; shift 2;;
         -p_ani) p_ani=$2; shift 2;;
         -s_ani) s_ani=$2; shift 2;;
@@ -86,11 +87,15 @@ while true; do
 	esac
 done
 
-if [ "$bins_tsv" = "false" ]; then
-    echo "Please provide a 2 column bins tsv. Columns should be sample_name<tab>/path/to/fa. No headers!"
+if [ "$bin_path_regex" = "false" ]; then
+    echo "Please provide a bin regex path, i.e. /path/to/fa/*.fa."
     help_message; exit 1
 else
-	echo "## Genome bins tsv path: $bins_tsv"
+	echo "## Genome bins path: '$bin_path_regex'"
+	l=$(ls $bin_path_regex | wc -l)
+	echo "## Number of bins: $l"
+	echo "## List of bins: "
+	ls -1 $bin_path_regex
 fi
 
 if [ "$out" = "false" ]; then
@@ -146,7 +151,7 @@ module load StdEnv/2020 apptainer/1.1.5
 
 bash '${EXE_PATH}'/scripts/dereplicate_bins.dRep.sh \
 -t '${threads}' -a '$algo' -p_ani '$p_ani' -s_ani '$s_ani' -cov '$cov' -comp '$comp' -con '$con' \
--bins_tsv '$bins_tsv' \
+-bin_path_regex "'$bin_path_regex'" \
 -o '${out}' \
 -tmp $SLURM_TMPDIR
 

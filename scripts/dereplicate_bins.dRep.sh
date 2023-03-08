@@ -106,26 +106,25 @@ echo "## Maximum genome contamination: $con"
 echo "## Number of threads: $threads"
 
 echo "upload bins to $tmp/bins"
-mdkir $tmp/bins
-rm -f $tmp/all_fastas.txt
+mkdir $tmp/raw_bins
+rm -f $tmp/raw_bins/all_fastas.txt
 for bin in $bin_path_regex
 do
-    s=$(echo $bin | cut -d'/' -f7 )
-    b=$(basename $f)
-    echo "generating assembly_60_drep/saliva_samples/raw_data/${s}_${b}"
+    fn=$(basename $bin)
+#    s=${fn%.bin.[0-9]*.fa}
     # symbolic link not working in drep container
     # ln -s $f test_data/${s}_${b}
-    echo "/data/${s}_${b}" >> assembly_60_drep/saliva_samples/raw_data/all_fastas.txt
-    cp $f testset-projet_PROVID19-saliva/drep/${s}_${b}
+    echo "/data/${fn}" >> $tmp/raw_bins/all_fastas.txt
+    cp $bin $tmp/raw_bins/
 done
 
 
 echo "running dRep"
 mkdir -p $tmp/drep_out
 singularity exec --writable-tmpfs \
--B $tmp/bins:/data \
+-B $tmp/raw_bins:/data \
 -B $tmp/drep_out:/out \
--B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
+-B /cvmfs/datahub.genap.ca/vhost34/def-ilafores/checkm_db:/checkm \
 -e ${EXE_PATH}/../containers/dRep.3.4.0.sif \
 dRep dereplicate /out/ \
 --genomes /data/all_fastas.txt \
@@ -137,7 +136,7 @@ dRep dereplicate /out/ \
 echo "generating salmon index on drep results in $tmp/drep_out/salmon_index"
 mkdir $tmp/drep_out/salmon_index
 ## header must be unique, add sample name
-for f in $tmp/drep_out/*.fa
+for f in $tmp/drep_out/dereplicated_genomes/*.fa
 do
     echo "running $f"
     bn=$(basename $f)
@@ -156,7 +155,7 @@ do
     mv ${f}.newheader $f
 done
 
-cat $tmp/drep_out/*.fa > $tmp/drep_out/salmon_index/bin_assembly.fa
+cat $tmp/drep_out/dereplicated_genomes/*.fa > $tmp/drep_out/salmon_index/bin_assembly.fa
 assembly=$tmp/drep_out/salmon_index/bin_assembly.fa
 singularity exec --writable-tmpfs \
 -B $tmp:/temp \
