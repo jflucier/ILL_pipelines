@@ -149,14 +149,27 @@ echo '
 echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
 
-bash '${EXE_PATH}'/scripts/dereplicate_bins.dRep.sh \
--t '${threads}' -a '$algo' -p_ani '$p_ani' -s_ani '$s_ani' -cov '$cov' -comp '$comp' -con '$con' \
--bin_path_regex "'$bin_path_regex'" \
--o '${out}' \
--tmp $SLURM_TMPDIR
+if [ -z ${SLURM_TMPDIR+x} ]
+then
+  echo "SLURM_TMPDIR is unset. Not running on compute node"
+  bash '${EXE_PATH}'/scripts/dereplicate_bins.dRep.sh \
+  -t '${threads}' -a '$algo' -p_ani '$p_ani' -s_ani '$s_ani' -cov '$cov' -comp '$comp' -con '$con' \
+  -bin_path_regex "'$bin_path_regex'" \
+  -o '${out}'
+else
+  echo "SLURM_TMPDIR is set to '$SLURM_TMPDIR'. Running on a compute node!"
+  bash '${EXE_PATH}'/scripts/dereplicate_bins.dRep.sh \
+  -t '${threads}' -a '$algo' -p_ani '$p_ani' -s_ani '$s_ani' -cov '$cov' -comp '$comp' -con '$con' \
+  -bin_path_regex "'$bin_path_regex'" \
+  -o '${out}' \
+  -tmp $SLURM_TMPDIR
+fi
 
 ' >> $out/submit_dRep.slurm.sh
 
+echo "To run LOCALLY, execute the following command:"
+echo "bash ${out}/submit_dRep.slurm.sh"
+echo "---- OR -----"
 echo "To submit to slurm, execute the following command:"
 echo "sbatch ${out}/submit_dRep.slurm.sh"
 
