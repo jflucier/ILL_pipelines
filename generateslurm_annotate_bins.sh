@@ -125,15 +125,28 @@ echo '
 fi
 
 echo '
+echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
 
-bash '${EXE_PATH}'/scripts/annotate_bins.sh \
--t '${threads}' \
--drep '$drep' \
--ma_db '$db' \
--gtdb_db '$gtdb_db' \
--o '${out}' \
--tmp $SLURM_TMPDIR
+if [ -z ${SLURM_TMPDIR+x} ]
+then
+  echo "SLURM_TMPDIR is unset. Not running on compute node"
+  bash '${EXE_PATH}'/scripts/annotate_bins.sh \
+  -t '${threads}' \
+  -drep '$drep' \
+  -ma_db '$db' \
+  -gtdb_db '$gtdb_db' \
+  -o '${out}'
+else
+  echo "SLURM_TMPDIR is set to $SLURM_TMPDIR. Running on a compute node!"
+  bash '${EXE_PATH}'/scripts/annotate_bins.sh \
+  -t '${threads}' \
+  -drep '$drep' \
+  -ma_db '$db' \
+  -gtdb_db '$gtdb_db' \
+  -o '${out}' \
+  -tmp $SLURM_TMPDIR
+fi
 
 ' >> $out/submit_annotate.slurm.sh
 
