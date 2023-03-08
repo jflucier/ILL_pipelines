@@ -157,7 +157,7 @@ then
   -bin_path_regex "'$bin_path_regex'" \
   -o '${out}'
 else
-  echo "SLURM_TMPDIR is set to '$SLURM_TMPDIR'. Running on a compute node!"
+  echo "SLURM_TMPDIR is set to $SLURM_TMPDIR. Running on a compute node!"
   bash '${EXE_PATH}'/scripts/dereplicate_bins.dRep.sh \
   -t '${threads}' -a '$algo' -p_ani '$p_ani' -s_ani '$s_ani' -cov '$cov' -comp '$comp' -con '$con' \
   -bin_path_regex "'$bin_path_regex'" \
