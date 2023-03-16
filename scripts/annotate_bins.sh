@@ -10,7 +10,7 @@ help_message () {
 	echo ""
 	echo "	-tmp STR	path to temp dir (default output_dir/temp)"
   echo "	-o STR	path to output dir"
-	echo "	-t	# of threads (default 8)"
+	echo "	-t	# of threads (default 24)"
   echo "	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information."
 	echo "	-ma_db	MicrobeAnnotator DB path (default: /fast/def-ilafores/MicrobeAnnotator_DB)."
 	echo "	-gtdb_db	GTDB DB path (default: /fast/def-ilafores/GTDB/release207_v2)."
@@ -39,7 +39,7 @@ export EXE_PATH=$(dirname "$0")
 check_software_dependencies
 
 # initialisation
-threads="8"
+threads="24"
 out="false"
 drep="false"
 ma_db="/fast/def-ilafores/MicrobeAnnotator_DB"
@@ -119,16 +119,16 @@ metaWRAP annotate_bins -t $threads \
 -b /drep
 
 ma_process=$(($threads / 2))
-ma_threads=$(($threads - $ma_process))
+ma_threads=2
 echo "Will run microbeannotator using $ma_process precoesses and $ma_threads threads"
 mkdir $tmp/microbeannotator_out
 singularity exec --writable-tmpfs -e \
--B $tmp/metawrap_out:/input \
+-B $tmp:$tmp \
 -B $ma_db:/ma_db \
 -B $tmp/microbeannotator_out:/out \
 ${EXE_PATH}/../containers/microbeannotator.2.0.5.sif \
 microbeannotator --method diamond --processes $ma_process --threads $ma_threads --refine \
--i /input/bin_translated_genes/*.faa \
+-i $(ls $tmp/metawrap_out/bin_translated_genes/*.faa) \
 -d /ma_db \
 -o /out
 
@@ -136,10 +136,10 @@ echo "Will run gtdbtk using $threads threads"
 mkdir $tmp/gtdbtk_out
 singularity exec --writable-tmpfs -e \
 --env GTDBTK_DATA_PATH=$gtdb_db \
--B $tmp/gtdbtk_out:/out \
--B $tmp/drep:/drep \
+-B /home:/home \
+-B /fast:/fast \
 -e ${EXE_PATH}/../containers/gtdbtk.2.2.1.sif \
-gtdbtk classify_wf --cpus $threads --genome_dir /drep --out_dir /out
+gtdbtk classify_wf --cpus $threads --genome_dir $tmp/drep --out_dir $tmp/gtdbtk_out --mash_db $gtdb_db --extension fa
 
 echo "copying results back to $out/"
 mkdir -p $out/
