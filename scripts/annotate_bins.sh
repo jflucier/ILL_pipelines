@@ -138,7 +138,7 @@ singularity exec --writable-tmpfs -e \
 --env GTDBTK_DATA_PATH=$gtdb_db \
 -B /home:/home \
 -B /fast:/fast \
--e ${EXE_PATH}/../containers/gtdbtk.2.2.1.sif \
+-e ${EXE_PATH}/../containers/gtdbtk.2.2.5.sif \
 gtdbtk classify_wf --cpus $threads --genome_dir $tmp/drep --out_dir $tmp/gtdbtk_out --mash_db $gtdb_db --extension fa
 
 echo "copying results back to $out/"
