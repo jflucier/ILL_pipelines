@@ -1,6 +1,15 @@
 # build new image using this command:
 # singularity build --force --fakeroot microbeannotator.sif microbeannotator.2.0.5.def
 
+# build db
+# singularity exec --writable-tmpfs -e \
+# -B /fast:/fast \
+# /home/def-ilafores/programs/ILL_pipelines/containers/microbeannotator.2.0.5.sif \
+# microbeannotator_db_builder \
+# -d /fast/def-ilafores/MicrobeAnnotator_DB \
+# -m diamond \
+# -t 45 --step 13
+
 BootStrap: docker
 From: ubuntu:22.04
 
@@ -57,22 +66,21 @@ From: ubuntu:22.04
   pip3 install requests==2.25.1
   pip3 install seaborn==0.12.2
   pip3 install hmmer==0.1.0
+  pip3 install scipy
   #pip3 install microbeannotator==2.0.5
 
   # download Microbeannotator pull request to resolve issue refseq download
   cd /
   git clone https://github.com/silvtal/MicrobeAnnotator
   cd MicrobeAnnotator
+  git checkout ff5ee0c
   cp microbeannotator/database/conversion_database_creator.py microbeannotator/database/conversion_database_creator.py.bak
   sed -i 's/ftp\:\/\/ftp.ebi.ac.uk\/pub\/databases\/interpro\/interpro.xml.gz/ftp\:\/\/ftp.ebi.ac.uk\/pub\/databases\/interpro\/current_release\/interpro.xml.gz/g' microbeannotator/database/conversion_database_creator.py
   python3 setup.py install
 
-  cd /
-  rm -fr MicrobeAnnotator
+  # copy data
+  cp -r microbeannotator/data/01.KEGG_DB /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator-2.0.5-py3.7.egg/microbeannotator/data/
+  cp microbeannotator/data/*.pickle /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator-2.0.5-py3.7.egg/microbeannotator/data/
+
 
   conda deactivate
-
-  ### patch for microbeannotator_db_builder refseq download bug: https://github.com/cruizperez/MicrobeAnnotator/issues/15
-  #mv /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/refseq_data_downloader.py.bak
-  #cp /temp/refseq_data_downloader.py /miniconda3/envs/microbeannotator/lib/python3.7/site-packages/microbeannotator/database/
-

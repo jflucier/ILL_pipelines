@@ -41,8 +41,8 @@ log="false"
 
 drep="false"
 out="false"
-ma_db="/net/nfs-ip34/fast/def-ilafores/MicrobeAnnotator_DB"
-gtdb_db="/net/nfs-ip34/fast/def-ilafores/GTDB/release207_v2"
+ma_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/MicrobeAnnotator_DB"
+gtdb_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/GTDB/release207_v2"
 
 SHORT_OPTS="ht:drep:o:ma_db:gtdb_db:"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem'
@@ -134,7 +134,7 @@ then
   bash '${EXE_PATH}'/scripts/annotate_bins.sh \
   -t '${threads}' \
   -drep '$drep' \
-  -ma_db '$db' \
+  -ma_db '$ma_db' \
   -gtdb_db '$gtdb_db' \
   -o '${out}'
 else
@@ -142,7 +142,7 @@ else
   bash '${EXE_PATH}'/scripts/annotate_bins.sh \
   -t '${threads}' \
   -drep '$drep' \
-  -ma_db '$db' \
+  -ma_db '$ma_db' \
   -gtdb_db '$gtdb_db' \
   -o '${out}' \
   -tmp $SLURM_TMPDIR
