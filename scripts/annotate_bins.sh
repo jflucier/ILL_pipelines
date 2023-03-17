@@ -136,14 +136,15 @@ echo "Will run gtdbtk using $threads threads"
 mkdir $tmp/gtdbtk_out
 singularity exec --writable-tmpfs -e \
 --env GTDBTK_DATA_PATH=$gtdb_db \
--B /home:/home \
--B /fast:/fast \
+-B $tmp:$tmp \
+-B $gtdb_db:$gtdb_db \
 -e ${EXE_PATH}/../containers/gtdbtk.2.2.5.sif \
 gtdbtk classify_wf --cpus $threads --genome_dir $tmp/drep --out_dir $tmp/gtdbtk_out --mash_db $gtdb_db --extension fa
 
 echo "copying results back to $out/"
 mkdir -p $out/
-cp -r $tmp/metawrap_out/* $out
-cp -r $tmp/microbeannotator_out/* $out
+cp -r $tmp/metawrap_out $out
+cp -r $tmp/microbeannotator_out $out
+cp -r $tmp/gtdbtk_out $out
 
 echo "annotate pipeline done"
