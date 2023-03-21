@@ -109,7 +109,7 @@ cp -f $drep/*.fa $tmp/drep/
 
 bin_nbr=$(ls $tmp/drep/*.fa | wc -l)
 echo "running metawrap annotate_bins on $bin_nbr bins"
-mkdir $tmp/metawrap_out
+mkdir -p $tmp/metawrap_out
 singularity exec --writable-tmpfs \
 -B $tmp/metawrap_out:/out \
 -B $tmp/drep:/drep \
@@ -121,7 +121,7 @@ metaWRAP annotate_bins -t $threads \
 ma_process=$(($threads / 2))
 ma_threads=2
 echo "Will run microbeannotator using $ma_process precoesses and $ma_threads threads"
-mkdir $tmp/microbeannotator_out
+mkdir -p $tmp/microbeannotator_out
 singularity exec --writable-tmpfs -e \
 -B $tmp:$tmp \
 -B $ma_db:/ma_db \
@@ -133,7 +133,7 @@ microbeannotator --method diamond --processes $ma_process --threads $ma_threads 
 -o /out
 
 echo "Will run gtdbtk using $threads threads"
-mkdir $tmp/gtdbtk_out
+mkdir -p $tmp/gtdbtk_out
 singularity exec --writable-tmpfs -e \
 --env GTDBTK_DATA_PATH=$gtdb_db \
 -B $tmp:$tmp \
