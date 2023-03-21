@@ -104,7 +104,7 @@ echo "## Number of threads: $threads"
 echo "## Temp folder: $tmp"
 
 echo "upload drep bins to $tmp/drep"
-mkdir $tmp/drep
+mkdir -p $tmp/drep
 cp -f $drep/*.fa $tmp/drep/
 
 bin_nbr=$(ls $tmp/drep/*.fa | wc -l)
