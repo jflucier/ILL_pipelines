@@ -105,7 +105,7 @@ echo "## Temp folder: $tmp"
 
 echo "upload drep bins to $tmp/drep"
 mkdir $tmp/drep
-cp $drep/*.fa $tmp/drep/
+cp -f $drep/*.fa $tmp/drep/
 
 bin_nbr=$(ls $tmp/drep/*.fa | wc -l)
 echo "running metawrap annotate_bins on $bin_nbr bins"
