@@ -130,23 +130,31 @@ my @t = split("/",$s);
 print "/" . $t[1] . "\n";
 ')
 
-echo "tmp bind_path=$tmp_bind"
-echo "tmp ma_db_bind=$ma_db_bind"
+out_bind=$(perl -e '
+my $s = "'$out'";
+my @t = split("/",$s);
+print "/" . $t[1] . "\n";
+')
+
+
+echo "bind_path=$tmp_bind"
+echo "ma_db_bind=$ma_db_bind"
+echo "out_bind=$out_bind"
 
 ma_process=$(($threads / 2))
 ma_threads=2
 echo "Will run microbeannotator using $ma_process precoesses and $ma_threads threads"
-mkdir -p $tmp/microbeannotator_out
+mkdir -p $out/microbeannotator_out
 singularity exec --writable-tmpfs -e \
 --env MPLCONFIGDIR=$tmp \
 -B $tmp_bind:$tmp_bind \
 -B $ma_db_bind:/$ma_db_bind \
--B /home:/home \
+-B $out_bind:$out_bind \
 ${EXE_PATH}/../containers/microbeannotator.2.0.5.sif \
 microbeannotator --method diamond --processes $ma_process --threads $ma_threads --refine \
 -i $(ls $tmp/metawrap_out/bin_translated_genes/*.faa) \
 -d $ma_db \
--o $tmp/microbeannotator_out
+-o $out/microbeannotator_out
 
 echo "Will run gtdbtk using $threads threads"
 mkdir -p $tmp/gtdbtk_out
