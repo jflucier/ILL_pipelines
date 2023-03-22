@@ -118,19 +118,30 @@ metaWRAP annotate_bins -t $threads \
 -o /out \
 -b /drep
 
+tmp_bind=$(perl -e '
+my $s = "'$tmp'";
+my @t = split("/",$s);
+print "/" . $t[1] . "\n";
+')
+
+ma_db_bind=$(perl -e '
+my $s = "'$ma_db'";
+my @t = split("/",$s);
+print "/" . $t[1] . "\n";
+')
+
 ma_process=$(($threads / 2))
 ma_threads=2
 echo "Will run microbeannotator using $ma_process precoesses and $ma_threads threads"
 mkdir -p $tmp/microbeannotator_out
 singularity exec --writable-tmpfs -e \
--B $tmp:$tmp \
--B $ma_db:/ma_db \
--B $tmp/microbeannotator_out:/out \
+-B $tmp_bind:$tmp_bind \
+-B $ma_db_bind:/$ma_db_bind \
 ${EXE_PATH}/../containers/microbeannotator.2.0.5.sif \
 microbeannotator --method diamond --processes $ma_process --threads $ma_threads --refine \
 -i $(ls $tmp/metawrap_out/bin_translated_genes/*.faa) \
--d /ma_db \
--o /out
+-d $ma_db \
+-o $tmp/microbeannotator_out
 
 echo "Will run gtdbtk using $threads threads"
 mkdir -p $tmp/gtdbtk_out
