@@ -109,14 +109,14 @@ cp -f $drep/*.fa $tmp/drep/
 
 bin_nbr=$(ls $tmp/drep/*.fa | wc -l)
 echo "running metawrap annotate_bins on $bin_nbr bins"
-mkdir -p $tmp/metawrap_out
-singularity exec --writable-tmpfs \
--B $tmp/metawrap_out:/out \
--B $tmp/drep:/drep \
--e ${EXE_PATH}/../containers/metawrap.1.3.sif \
-metaWRAP annotate_bins -t $threads \
--o /out \
--b /drep
+#mkdir -p $tmp/metawrap_out
+#singularity exec --writable-tmpfs \
+#-B $tmp/metawrap_out:/out \
+#-B $tmp/drep:/drep \
+#-e ${EXE_PATH}/../containers/metawrap.1.3.sif \
+#metaWRAP annotate_bins -t $threads \
+#-o /out \
+#-b /drep
 
 tmp_bind=$(perl -e '
 my $s = "'$tmp'";
@@ -138,6 +138,7 @@ ma_threads=2
 echo "Will run microbeannotator using $ma_process precoesses and $ma_threads threads"
 mkdir -p $tmp/microbeannotator_out
 singularity exec --writable-tmpfs -e \
+--env MPLCONFIGDIR=$tmp \
 -B $tmp_bind:$tmp_bind \
 -B $ma_db_bind:/$ma_db_bind \
 -B /home:/home \
