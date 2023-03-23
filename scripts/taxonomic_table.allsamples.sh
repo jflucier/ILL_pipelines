@@ -12,10 +12,10 @@ help_message () {
 	echo "	--kreports STR	base path regex to retrieve kreports by taxonomic level. For example, /path/taxonomic_profile/*/*_bracken/*_bracken_P.kreport would retreive all phylums level reports "
 	echo "	--taxa_code STR	Taxonomy one letter code (D, P, C, O, F, G, S)"
 	echo "	--out STR	path to output dir"
-    echo "	--tmp STR	path to temp dir (default output_dir/temp)"
+  echo "	--tmp STR	path to temp dir (default output_dir/temp)"
 
-    echo ""
-    echo "  -h --help	Display help"
+  echo ""
+  echo "  -h --help	Display help"
 
 	echo "";
 }

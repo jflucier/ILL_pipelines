@@ -42,7 +42,7 @@ log="false"
 kreports='false'
 out="false";
 bowtie_idx_name="false";
-choco_db="/net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan"
+choco_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan"
 
 SHORT_OPTS="h"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,kreports,out,bowtie_index_name,chocophlan_db'
