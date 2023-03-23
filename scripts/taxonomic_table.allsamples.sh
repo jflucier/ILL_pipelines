@@ -123,6 +123,43 @@ fi
 
 grep -iE "(${taxa_oneletter_tmp:0:1}__)|(#Classification)" $tmp/temp_${taxa_oneletter}.tsv > $tmp/taxtable_${taxa_oneletter}.tsv
 
+# clean tmp dir
+#rm -fr $tmp/*
+
+__all_taxas=(
+    "D:domains"
+    "P:phylums"
+    "C:classes"
+    "O:orders"
+    "F:families"
+    "G:genuses"
+    "S:species"
+)
+
+basepath=$(echo "$kreports" | perl -ne '
+  my @t = split("/",$_);
+  pop @t;
+  print join("/",@t);
+')
+
+for taxa_str in "${__all_taxas[@]}"
+do
+  taxa_oneletter=${taxa_str%%:*}
+  taxa_name=${taxa_str#*:}
+
+  report_path="${basepath}/*_bracken_${taxa_oneletter}.kreport"
+
+  echo "running tax table for $taxa_oneletter using report regex $report_path"
+  bash ${EXE_PATH}/taxonomic_table.allsamples.sh \
+  --kreports "$report_path" \
+  --out ${out} \
+  --tmp $tmp \
+  --taxa_code $taxa_oneletter
+done
+
+echo "done analysis taxonomic profile on all samples"
+
+
 echo "copying results back to $out"
 cp -fr $tmp/* $out/
 
