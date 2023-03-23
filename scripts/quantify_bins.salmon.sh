@@ -95,8 +95,8 @@ singularity exec --writable-tmpfs \
 salmon index -p $threads -t $tmp/salmon_index/bin_assembly.fa -i $tmp/salmon_index
 
 echo "upload bins to $tmp/bins"
-mdkir -p $tmp/quant_bins/alignment_files
-mdkir $tmp/data
+mkdir -p $tmp/quant_bins/alignment_files
+mkdir $tmp/data
 cat $sample_tsv | while  IFS=$'\t' read  -r name f1 f2
 do
 
@@ -136,16 +136,15 @@ done
 
 n=$(ls $tmp/quant_bins/quant_files/ | grep counts | wc -l)
 echo "There were $n samples detected. Making abundance table"
-assembly=$index/bin_assembly.fa
+#assembly=$index/bin_assembly.fa
 singularity exec --writable-tmpfs \
 -B $tmp:$tmp \
 -B $drep:$drep \
--B $index:$index \
 -e ${EXE_PATH}/../containers/metawrap.1.3.sif \
 /miniconda3/envs/metawrap-env/bin/metawrap-scripts/split_salmon_out_into_bins.py \
 $tmp/quant_bins/quant_files/ \
 $drep \
-$index/bin_assembly.fa > $tmp/quant_bins/bin_abundance_table.tab
+$tmp/salmon_index/bin_assembly.fa > $tmp/quant_bins/bin_abundance_table.tab
 echo "Average bin abundance table stored in quant_bins/abundance_table.tab"
 
 singularity exec --writable-tmpfs \
@@ -158,5 +157,9 @@ $tmp/quant_bins/bin_abundance_heatmap.png
 echo "copying drep results back to $out/"
 mkdir -p $out/
 cp -r $tmp/quant_bins $out
+cp -r $tmp/salmon_index $out
+
+#echo "cleaning up"
+#rm -fr $tmp/*
 
 echo "quantification pipeline done"
