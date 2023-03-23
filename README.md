@@ -46,7 +46,14 @@ To install ILL pipelines you need to:
 
     ``export ILL_PIPELINES=/path/to/ILL_pipelines ``
 
-    Note: On ip29, ILL pipelines path is /home/def-ilafores/programs/ILL_pipelinesILL_pipelines
+    Note: On ip34, ILL pipelines path is /home/def-ilafores/programs/ILL_pipelines
+
+* Go to /home/def-ilafores/programs/ILL_pipelines/containers and run these commands:
+```
+module load StdEnv/2020 apptainer/1.1.5
+
+
+```
 
 
 ----
