@@ -104,8 +104,8 @@ echo "upload fastq1 to $tmp/$fq1_name"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
-#echo "copying singularity containers to $tmp"
-#cp ${EXE_PATH}/../containers/kraken.2.1.2.sif $tmp/
+echo "copying singularity containers to $tmp"
+cp ${EXE_PATH}/../containers/kraken.2.1.2.sif $tmp/
 
 echo "using kraken db to $kraken_db"
 #echo "upload kraken db to $tmp/$kraken_db_name"
@@ -119,7 +119,7 @@ echo "running kraken. Kraken ouptut: $tmp/${sample}/"
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 -B $kraken_db:/db \
-${EXE_PATH}/../containers/kraken.2.1.2.sif \
+$tmp/kraken.2.1.2.sif \
 kraken2 \
 --confidence ${confidence} \
 --paired \
@@ -159,7 +159,7 @@ do
     singularity exec --writable-tmpfs -e \
     -B $tmp:/temp \
     -B $kraken_db:/db \
-    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
+    $tmp/kraken.2.1.2.sif \
     bracken \
     -d /db \
     -i /temp/${sample}/${sample}.kreport \
@@ -171,7 +171,7 @@ do
     echo "creating mpa formatted file for ${taxa_oneletter}"
     singularity exec --writable-tmpfs -e \
     -B $tmp:/temp \
-    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
+    $tmp/kraken.2.1.2.sif \
     python3 /KrakenTools-1.2/kreport2mpa.py \
     -r /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
     -o /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.MPA.TXT \
@@ -180,7 +180,7 @@ do
     echo "creating kronagrams for ${taxa_oneletter}"
     singularity exec --writable-tmpfs -e \
     -B $tmp:/temp \
-    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
+    $tmp/kraken.2.1.2.sif \
     python3 /KrakenTools-1.2/kreport2krona.py \
     -r /temp/${sample}/${sample}_bracken/${sample}_bracken_${taxa_oneletter}.kreport \
     -o /temp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.krona
@@ -188,7 +188,7 @@ do
     echo "generate html from kronagram for ${taxa_oneletter}"
     singularity exec --writable-tmpfs -e \
     -B $tmp:/temp \
-    ${EXE_PATH}/../containers/kraken.2.1.2.sif \
+    $tmp/kraken.2.1.2.sif \
     ktImportText \
 		/temp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.krona \
 		-o /temp/${sample}/${sample}_kronagrams/${sample}_${taxa_oneletter}.html
@@ -197,7 +197,7 @@ done
 
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
-${EXE_PATH}/../containers/kraken.2.1.2.sif \
+$tmp/kraken.2.1.2.sif \
 python3 /KrakenTools-1.2/kreport2mpa.py \
 -r /temp/${sample}/${sample}_bracken/${sample}_bracken_S.kreport \
 -o /temp/${sample}/${sample}_bracken/${sample}_temp.MPA.TXT
