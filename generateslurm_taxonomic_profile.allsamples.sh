@@ -155,42 +155,6 @@ bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --bowtie_index_name '$bowtie_idx_name' \
 --chocophlan_db '$choco_db'
 
-# clean tmp dir
-rm -fr $tmp/*
-
-__all_taxas=(
-    "D:domains"
-    "P:phylums"
-    "C:classes"
-    "O:orders"
-    "F:families"
-    "G:genuses"
-    "S:species"
-)
-
-basepath=$(echo "'$kreports'" | perl -ne "
-  my @t = split('"'"'/'"'"',$_);
-  pop @t;
-  print join('"'"'/'"'"',@t);
-")
-
-for taxa_str in "${__all_taxas[@]}"
-do
-  taxa_oneletter=${taxa_str%%:*}
-  taxa_name=${taxa_str#*:}
-
-  report_path="${basepath}/*_bracken_${taxa_oneletter}.kreport"
-
-  echo "running tax table for $taxa_oneletter using report regex $report_path"
-  bash '${EXE_PATH}'/scripts/taxonomic_table.allsamples.sh \
-  --kreports "$report_path" \
-  --out '${out}' \
-  --tmp $tmp \
-  --taxa_code $taxa_oneletter
-done
-
-echo "done analysis taxonomic profile on all samples"
-
 ' >> ${out}/taxonomic_profile.allsamples.slurm.sh
 
 echo ""
@@ -202,3 +166,41 @@ echo "To submit to slurm, execute the following command:"
 echo "sbatch ${out}/taxonomic_profile.allsamples.slurm.sh"
 
 echo "done!"
+
+
+#### backup
+## clean tmp dir
+#rm -fr $tmp/*
+#
+#__all_taxas=(
+#    "D:domains"
+#    "P:phylums"
+#    "C:classes"
+#    "O:orders"
+#    "F:families"
+#    "G:genuses"
+#    "S:species"
+#)
+#
+#basepath=$(echo "'$kreports'" | perl -ne "
+#  my @t = split('"'"'/'"'"',$_);
+#  pop @t;
+#  print join('"'"'/'"'"',@t);
+#")
+#
+#for taxa_str in "${__all_taxas[@]}"
+#do
+#  taxa_oneletter=${taxa_str%%:*}
+#  taxa_name=${taxa_str#*:}
+#
+#  report_path="${basepath}/*_bracken_${taxa_oneletter}.kreport"
+#
+#  echo "running tax table for $taxa_oneletter using report regex $report_path"
+#  bash '${EXE_PATH}'/scripts/taxonomic_table.allsamples.sh \
+#  --kreports "$report_path" \
+#  --out '${out}' \
+#  --tmp $tmp \
+#  --taxa_code $taxa_oneletter
+#done
+#
+#echo "done analysis taxonomic profile on all samples"
