@@ -4,7 +4,7 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: annotate_bins.sh [-tmp /path/tmp] [-t threads] -bins_tsv all_genome_bins_path_regex -o /path/to/out -a algorithm -p_ani value -s_ani value -cov value -comp value -con value "
+	echo "Usage: annotate_bins.sh [-tmp /path/tmp] [-t threads] [-ma_db /path/to/microannotatordb] [-gtdb_db /path/to/GTDB] -drep /path/to/drep/dereplicated_genomes -o /path/to/out "
 	echo "Options:"
 
 	echo ""
@@ -12,8 +12,8 @@ help_message () {
   echo "	-o STR	path to output dir"
 	echo "	-t	# of threads (default 24)"
   echo "	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information."
-	echo "	-ma_db	MicrobeAnnotator DB path (default: /fast/def-ilafores/MicrobeAnnotator_DB)."
-	echo "	-gtdb_db	GTDB DB path (default: /fast/def-ilafores/GTDB/release207_v2)."
+	echo "	-ma_db	MicrobeAnnotator DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/MicrobeAnnotator_DB)."
+	echo "	-gtdb_db	GTDB DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/GTDB/release207_v2)."
 
   echo ""
   echo "  -h --help	Display help"
@@ -42,8 +42,8 @@ check_software_dependencies
 threads="24"
 out="false"
 drep="false"
-ma_db="/fast/def-ilafores/MicrobeAnnotator_DB"
-gtdb_db="/fast/def-ilafores/GTDB/release207_v2"
+ma_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/MicrobeAnnotator_DB"
+gtdb_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/GTDB/release207_v2"
 tmp="false"
 
 

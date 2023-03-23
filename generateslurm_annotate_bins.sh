@@ -10,8 +10,8 @@ help_message () {
 	echo ""
   echo "	-o STR	path to output dir"
   echo "	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information."
-	echo "	-ma_db	MicrobeAnnotator DB path (default: /net/nfs-ip34/fast/def-ilafores/MicrobeAnnotator_DB)."
-	echo "	-gtdb_db	GTDBTK DB path (default: /net/nfs-ip34/fast/def-ilafores/GTDB/release207_v2)."
+	echo "	-ma_db	MicrobeAnnotator DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/MicrobeAnnotator_DB)."
+	echo "	-gtdb_db	GTDBTK DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/GTDB/release207_v2)."
 
   echo ""
   echo "Slurm options:"

@@ -20,7 +20,7 @@
 
 All pipelines are self contained. The only requirements needed is [Apptainer](https://apptainer.org/). The apptainer executable "singularity" should be available in your path.
 
-Note: On interactive node include the ``module load StdEnv/2020 apptainer/1.1.5 `` in your ~/.bashrc file
+**Note**: On interactive node include the ``module load StdEnv/2020 apptainer/1.1.5 `` in your ~/.bashrc file
 
 ----
 
@@ -93,7 +93,7 @@ Slurm options:
 
 Most default values should be ok on ip34. Make sure you specify sample_tsv, output path.
 
-Here is how generate slurm script with default paramters:
+Here is how generate slurm script with default parameters:
 ```
 
 $> bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
@@ -105,16 +105,15 @@ $> bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
 > --slurm_walltime "6:00:00"
 ## Will use sample file: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/data/testset-projet_PROVID19/saliva_samples/sample_provid19.saliva.test.tsv
 ## Results wil be stored to this path: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess
-## Slurm output path not specified, will output logs in: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/logs
+## Will output logs in: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/logs
 outputting preprocess slurm script to /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocess.kneaddata.slurm.sh
 Generate preprocessed reads sample tsv: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocessed_reads.sample.tsv
-generating sbatch submittion script
 To submit to slurm, execute the following command:
-bash /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/submit.preprocess.slurm.sh
+sbatch --array=1-5 /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocess.kneaddata.slurm.sh
 
 ```
 
-Notice that preprocess script generates sample tsv file (i.e. precocess/preprocessed_reads.sample.tsv) that should be used
+**Notice** that preprocess script generates sample tsv file (i.e. precocess/preprocessed_reads.sample.tsv) that should be used
 for the taxonomic profile and the functionnal profile pipeline.
 
 Finally, the preprocess script can be executed on a single sample.
@@ -145,8 +144,6 @@ Options:
 
 
 ### Run Kraken2 taxonomic profile per sample ###
-
-Before running this pipeline, make sure [kraken2](https://github.com/DerrickWood/kraken2), [Bracken](https://github.com/jenniferlu717/Bracken) and [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools) and acessible in PATH variable.
 
 For full list of options:
 
