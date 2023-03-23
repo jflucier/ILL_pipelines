@@ -15,7 +15,7 @@ help_message () {
     echo "	-m	memory (default 40G)"
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
-    echo "	--kraken_db	kraken2 database path (default /net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
+    echo "	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
     echo "	--bracken_readlen	bracken read length option (default 150)"
     echo "	--confidence	kraken confidence level to reduce false-positive rate (default 0.05)"
 
@@ -35,7 +35,7 @@ out="false";
 tmp="false";
 fq1="false";
 fq2="false";
-kraken_db="/net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517"
+kraken_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517"
 bracken_readlen="150"
 confidence="0.05"
 
@@ -63,8 +63,8 @@ while true; do
         -o) out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
         -fq2) fq2=$2; shift 2;;
-		--db) kraken_db=$2; shift 2;;
-                --confidence) confidence=$2; shift 2;;
+		    --kraken_db) kraken_db=$2; shift 2;;
+        --confidence) confidence=$2; shift 2;;
         --bracken_readlen) bracken_readlen=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
