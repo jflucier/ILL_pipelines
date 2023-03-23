@@ -71,6 +71,8 @@ while true; do
 	esac
 done
 
+echo "## Quantify parameters:"
+
 if [ "$drep" = "false" ]; then
     echo "Please provide a drep output output bin path (/path/to/drep/out/dereplicated_genomes)"
     help_message; exit 1
@@ -102,7 +104,6 @@ fi
 
 mkdir -p $log
 
-echo "## Annotate parameters:"
 echo "## Number of threads: $threads"
 
 
