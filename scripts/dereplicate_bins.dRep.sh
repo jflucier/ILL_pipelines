@@ -155,12 +155,6 @@ do
     mv ${f}.newheader $f
 done
 
-cat $tmp/drep_out/dereplicated_genomes/*.fa > $tmp/drep_out/salmon_index/bin_assembly.fa
-assembly=$tmp/drep_out/salmon_index/bin_assembly.fa
-singularity exec --writable-tmpfs \
--B $tmp:/temp \
--e ${EXE_PATH}/../containers/salmon.1.9.0.sif \
-salmon index -p $threads -t /temp/drep_out/salmon_index/bin_assembly.fa -i /temp/drep_out/salmon_index
 
 
 echo "copying drep results back to $out/"

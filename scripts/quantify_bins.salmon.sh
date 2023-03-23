@@ -10,10 +10,9 @@ help_message () {
 	echo ""
 	echo "	-tmp STR	path to temp dir (default output_dir/temp)"
 	echo "	-t	# of threads (default 8)"
-	echo "	-sample_tsv	A 3 column tsv of samples. Columns should be sample_name<tab>/path/to/fastq1<tab>/path/to/fastq2. No headers!"
+	echo "	-sample_tsv	A 3 column tsv of samples. Columns should be sample_name<tab>/path/to/fastq1<tab>/path/to/fastq2. No headers! HINT: preprocess step generates this file"
     echo "	-drep STR	dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information."
     echo "	-o STR	path to output dir"
-    echo "	-i STR	salmon index path"
     echo ""
     echo "  -h --help	Display help"
 
@@ -27,11 +26,10 @@ threads="8"
 sample_tsv="false"
 out="false"
 tmp="false"
-index="false"
 drep="false"
 
 # load in params
-SHORT_OPTS="ht:i:sample_tsv:o:tmp:drep:"
+SHORT_OPTS="ht:sample_tsv:o:tmp:drep:"
 LONG_OPTS='help'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
@@ -50,8 +48,7 @@ while true; do
         -t) threads=$2; shift 2;;
         -tmp) tmp=$2; shift 2;;
         -o) out=$2; shift 2;;
-        -i) index=$2; shift 2;;
-		-sample_tsv) sample_tsv=$2; shift 2;;
+        -sample_tsv) sample_tsv=$2; shift 2;;
         -drep) drep=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
@@ -63,13 +60,6 @@ if [ "$sample_tsv" = "false" ]; then
     help_message; exit 1
 else
 	echo "## Samples tsv path: $sample_tsv"
-fi
-
-if [ "$index" = "false" ]; then
-    echo "Please provide a salmon index path"
-    help_message; exit 1
-else
-	echo "## Salmon index path: $index"
 fi
 
 if [ "$drep" = "false" ]; then
@@ -95,6 +85,15 @@ fi
 
 echo "## Number of threads: $threads"
 
+echo "Generate salmon index from $drep"
+mkdir -p $tmp/salmon_index
+cat $drep/*.fa > $tmp/salmon_index/bin_assembly.fa
+assembly=$tmp/salmon_index/bin_assembly.fa
+singularity exec --writable-tmpfs \
+-B $tmp:$tmp \
+-e ${EXE_PATH}/../containers/salmon.1.9.0.sif \
+salmon index -p $threads -t $tmp/salmon_index/bin_assembly.fa -i $tmp/salmon_index
+
 echo "upload bins to $tmp/bins"
 mdkir -p $tmp/quant_bins/alignment_files
 mdkir $tmp/data
@@ -110,14 +109,13 @@ do
 
     echo "running salmon on ${name}"
     singularity exec --writable-tmpfs \
-    -B $tmp:/temp \
-    -B $index:/index \
+    -B $tmp:$tmp \
     -e ${EXE_PATH}/../containers/salmon.1.9.0.sif \
     salmon quant \
-    -i /index \
+    -i $tmp/salmon_index \
     --libType IU \
-    -1 /temp/data/${nf1} -2 /temp/data/${nf2} \
-    -o /temp/quant_bins/alignment_files/${name}.quant \
+    -1 $tmp/data/${nf1} -2 $tmp/data/${nf2} \
+    -o $tmp/quant_bins/alignment_files/${name}.quant \
     --meta -p $threads
 done
 
@@ -140,22 +138,22 @@ n=$(ls $tmp/quant_bins/quant_files/ | grep counts | wc -l)
 echo "There were $n samples detected. Making abundance table"
 assembly=$index/bin_assembly.fa
 singularity exec --writable-tmpfs \
--B $tmp/quant_bins:/data \
--B $drep:/drep \
--B $index:/assembly \
+-B $tmp:$tmp \
+-B $drep:$drep \
+-B $index:$index \
 -e ${EXE_PATH}/../containers/metawrap.1.3.sif \
 /miniconda3/envs/metawrap-env/bin/metawrap-scripts/split_salmon_out_into_bins.py \
-/data/quant_files/ \
-/drep \
-/assembly/bin_assembly.fa > /data/bin_abundance_table.tab
+$tmp/quant_bins/quant_files/ \
+$drep \
+$index/bin_assembly.fa > $tmp/quant_bins/bin_abundance_table.tab
 echo "Average bin abundance table stored in quant_bins/abundance_table.tab"
 
 singularity exec --writable-tmpfs \
--B $tmp/quant_bins:/data \
+-B $tmp:$tmp \
 -e ${EXE_PATH}/../containers/metawrap.1.3.sif \
 /miniconda3/envs/metawrap-env/bin/metawrap-scripts/make_heatmap.py \
-/data/bin_abundance_table.tab \
-/data/bin_abundance_heatmap.png
+$tmp/quant_bins/bin_abundance_table.tab \
+$tmp/quant_bins/bin_abundance_heatmap.png
 
 echo "copying drep results back to $out/"
 mkdir -p $out/

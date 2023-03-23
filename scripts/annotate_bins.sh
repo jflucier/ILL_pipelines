@@ -145,6 +145,7 @@ ma_process=$(($threads / 2))
 ma_threads=2
 echo "Will run microbeannotator using $ma_process precoesses and $ma_threads threads"
 mkdir -p $out/microbeannotator_out
+##### need to output directly in output folder or else it fails when in localscratch
 singularity exec --writable-tmpfs -e \
 --env MPLCONFIGDIR=$tmp \
 -B $tmp_bind:$tmp_bind \
@@ -168,7 +169,7 @@ gtdbtk classify_wf --cpus $threads --genome_dir $tmp/drep --out_dir $tmp/gtdbtk_
 echo "copying results back to $out/"
 mkdir -p $out/
 cp -r $tmp/metawrap_out $out
-cp -r $tmp/microbeannotator_out $out
+#cp -r $tmp/microbeannotator_out $out
 cp -r $tmp/gtdbtk_out $out
 
 echo "annotate pipeline done"
