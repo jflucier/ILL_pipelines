@@ -104,7 +104,7 @@ echo "upload fastq1 to $tmp/$fq1_name"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
-echo "cpying singularity containers to $tmp"
+echo "copying singularity containers to $tmp"
 cp ${EXE_PATH}/../containers/kraken.2.1.2.sif $tmp/
 
 echo "using kraken db to $kraken_db"
