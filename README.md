@@ -18,17 +18,9 @@
 
 ## Requirements ##
 
-1. [BBMap](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbmap-guide/)
-2. [Singularity](https://docs.sylabs.io/guides/3.0/user-guide/index.html)
-3. [kneaddata](https://github.com/biobakery/kneaddata)
-4. [Kraken2](https://github.com/DerrickWood/kraken2)
-5. [Bracken](https://github.com/jenniferlu717/Bracken)
-6. [KronaTools](https://github.com/marbl/Krona/tree/master/KronaTools)
-7. [HUMAnN](https://huttenhower.sph.harvard.edu/humann/)
-8. [KrakenTools](https://github.com/jenniferlu717/KrakenTools)
-9. [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
+All pipelines are self contained. The only requirements needed is [Apptainer](https://apptainer.org/). The apptainer executable "singularity" should be available in your path.
 
-Please install the required software in a location of your choice and put in PATH variable.
+Note: On interactive node include the ``module load StdEnv/2020 apptainer/1.1.5 `` in your ~/.bashrc file
 
 ----
 
@@ -48,10 +40,11 @@ To install ILL pipelines you need to:
 
     Note: On ip34, ILL pipelines path is /home/def-ilafores/programs/ILL_pipelines
 
-* Go to /home/def-ilafores/programs/ILL_pipelines/containers and run these commands:
+* Go to $ILL_PIPELINES/containers and run these commands:
 ```
 module load StdEnv/2020 apptainer/1.1.5
-
+cd $ILL_PIPELINES/containers
+sh build_all.sh
 
 ```
 
@@ -71,8 +64,6 @@ To run pipelines you need to create a sample spread with 3 columns like this tab
 **Important note: TSV files must not have header line.**
 
 ### Run preprocess kneaddata ###
-
-Before running this pipeline, make sure [kneaddata](https://github.com/biobakery/kneaddata) is installed.
 
 For full list of options:
 
@@ -100,19 +91,26 @@ Slurm options:
 
 ```
 
-Most default values should be ok on ip29. Make sure you specify sample_tsv, ouput path.
+Most default values should be ok on ip34. Make sure you specify sample_tsv, output path.
 
 Here is how generate slurm script with default paramters:
 ```
 
-$ bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh --out precocess/ --sample_tsv samples.tsv
-## Will use sample file: samples.tsv
-## Results wil be stored to this path: precocess/
-## Slurm output path not specified, will output logs in: precocess//logs
-outputting preprocess slurm script to precocess//preprocess.kneaddata.slurm.sh
-Generate preprocessed reads sample tsv: precocess/preprocessed_reads.sample.tsv
+$> bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
+> --sample_tsv /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/data/testset-projet_PROVID19/saliva_samples/sample_provid19.saliva.test.tsv \
+> --out /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess \
+> --db /cvmfs/datahub.genap.ca/vhost34/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj \
+> --slurm_email "your_email@domain.ca" \
+> --bowtie2_options "--very-sensitive" \
+> --slurm_walltime "6:00:00"
+## Will use sample file: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/data/testset-projet_PROVID19/saliva_samples/sample_provid19.saliva.test.tsv
+## Results wil be stored to this path: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess
+## Slurm output path not specified, will output logs in: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/logs
+outputting preprocess slurm script to /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocess.kneaddata.slurm.sh
+Generate preprocessed reads sample tsv: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocessed_reads.sample.tsv
+generating sbatch submittion script
 To submit to slurm, execute the following command:
-sbatch --array=1-187 precocess//preprocess.kneaddata.slurm.sh
+bash /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/submit.preprocess.slurm.sh
 
 ```
 
