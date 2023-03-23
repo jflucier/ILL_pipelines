@@ -136,16 +136,27 @@ echo '
 echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
 
+if [ -z ${SLURM_TMPDIR+x} ]
+then
+  echo "SLURM_TMPDIR is unset. Not running on compute node"
+  tmp='${out}'/temp
+  mkdir -p $tmp
+else
+  echo "SLURM_TMPDIR is set to $SLURM_TMPDIR. Running on a compute node!"
+  tmp=$SLURM_TMPDIR
+fi
+
+
 bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --kreports "'$kreports'" \
 --out '${out}' \
---tmp $SLURM_TMPDIR \
+--tmp $tmp \
 --threads '${threads}' \
 --bowtie_index_name '$bowtie_idx_name' \
 --chocophlan_db '$choco_db'
 
 # clean tmp dir
-rm -fr $SLURM_TMPDIR/*
+rm -fr $tmp/*
 
 __all_taxas=(
     "D:domains"
@@ -174,7 +185,7 @@ do
   bash '${EXE_PATH}'/scripts/taxonomic_table.allsamples.sh \
   --kreports "$report_path" \
   --out '${out}' \
-  --tmp $SLURM_TMPDIR \
+  --tmp $tmp \
   --taxa_code $taxa_oneletter
 done
 
@@ -185,7 +196,6 @@ echo "done analysis taxonomic profile on all samples"
 echo ""
 echo ""
 echo "To run, execute the following commands:"
-echo "export SLURM_TMPDIR=/path/to/your/temp"
 echo "bash ${out}/taxonomic_profile.allsamples.slurm.sh"
 echo "--- OR ---"
 echo "To submit to slurm, execute the following command:"

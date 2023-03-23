@@ -155,7 +155,7 @@ Options:
 
 	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
 	--out STR	path to output dir
-	--kraken_db	kraken2 database path (default /net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
 	--bracken_readlen	bracken read length option (default 150)
 
 Slurm options:
@@ -170,7 +170,7 @@ Slurm options:
 
 ```
 
-The sample_tsv that can be used was created in the preprocess step (i.e. precocess/preprocessed_reads.sample.tsv).
+**Notice** that preprocess script generates sample tsv file needed here (i.e. precocess/preprocessed_reads.sample.tsv).
 
 The taxonomic profile script can also be executed on a single sample.
 Use -h option to view usage:
@@ -179,7 +179,7 @@ Use -h option to view usage:
 
 $ bash $ILL_PIPELINES/scripts/taxonomic_profile.sample.sh -h
 
-Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--kraken_db "kraken database"]
+Usage: taxonomic_profile.sample.sh [--kraken_db /path/to/krakendb] [--bracken_readlen int] [--confidence float] [-t thread_nbr] [-m mem_in_G] -fq1 /path/fastq1 -fq2 /path/fastq2 -o /path/to/out
 Options:
 
 	-s STR	sample name
@@ -189,16 +189,15 @@ Options:
 	-m	memory (default 40G)
 	-fq1	path to fastq1
 	-fq2	path to fastq2
-	--kraken_db	kraken2 database path (default /net/nfs-ip34/fast/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
 	--bracken_readlen	bracken read length option (default 150)
-
+    --confidence	kraken confidence level to reduce false-positive rate (default 0.05)
+    
   -h --help	Display help
 
 ```
 
 ### Generate taxonomy table on all samples for a specific taxonomic level ###
-
-Before running this pipeline, make sure [KrakenTools](https://github.com/jenniferlu717/KrakenTools) is acessible in PATH variable.
 
 For full list of options:
 
