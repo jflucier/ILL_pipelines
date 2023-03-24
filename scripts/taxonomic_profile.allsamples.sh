@@ -171,7 +171,7 @@ do
 
   report_path="${basepath}/*_bracken_${taxa_oneletter}.kreport"
 
-  echo "running tax table for $taxa_oneletter using report regex $report_path"
+  echo "## running tax table for $taxa_oneletter using report regex $report_path ##"
   bash ${EXE_PATH}/taxonomic_table.allsamples.sh \
   --kreports "$report_path" \
   --out $tmp/taxonomic_table \
@@ -181,7 +181,9 @@ done
 
 echo "done analysis taxonomic profile on all samples"
 
-echo "copying all files to $out"
-cp -fr $tmp/* $out/
+echo "copying bowtie index to $out"
+cp -fr $tmp/bowtie_index $out/
+echo "copying taxonomic table to $out"
+cp -fr $tmp/taxonomic_table $out/
 
 echo "humann custom buglist db analysis completed"
