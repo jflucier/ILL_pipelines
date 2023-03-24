@@ -146,7 +146,6 @@ else
   tmp=$SLURM_TMPDIR
 fi
 
-
 bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --kreports "'$kreports'" \
 --out '${out}' \
@@ -154,6 +153,12 @@ bash '${EXE_PATH}'/scripts/taxonomic_profile.allsamples.sh \
 --threads '${threads}' \
 --bowtie_index_name '$bowtie_idx_name' \
 --chocophlan_db '$choco_db'
+
+if [ -z ${SLURM_TMPDIR+x} ]
+then
+  echo "removing temp since not running on compute node"
+  rm -fr $tmp
+fi
 
 ' >> ${out}/taxonomic_profile.allsamples.slurm.sh
 
