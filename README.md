@@ -197,78 +197,40 @@ Options:
 
 ```
 
-### Generate taxonomy table on all samples for a specific taxonomic level ###
+### Generate taxonomy profile on all samples for all taxonomic level ###
 
 For full list of options:
 
 ```
-$ bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh -h
+$ bash $ILL_PIPELINES/generateslurm_taxonomic_profile.allsamples.sh -h
 
-Usage: taxonomic_profile.allsample.sh -i 'kraken_report_regex' -o /path/to/out --nt_dbname mydb
+Usage: generateslurm_taxonomic_profile.allsamples.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame
 Options:
 
-	--kreports STR	base path regex to retrieve kreports by taxonomic level. For example, /path/taxonomic_profile/*/*_bracken/*_bracken_P.kreport would retreive all phylums level reports
-	--taxa_code STR	Taxonomy one letter code (D, P, C, O, F, G, S)
-	--out STR	path to output dir
-	--tmp STR	path to temp dir (default output_dir/temp)
+        --kreports STR  base path regex to retrieve species level kraken reports (i.e.: /home/def-ilafores/programs/ILL_pipelines/taxonomic_profile/*/*_bracken/*_bracken_S.kreport).
+        --out STR       path to output dir
+        --bowtie_index_name  name of the bowtie index that will be generated
+        --chocophlan_db path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
 
-  -h --help	Display help
+Slurm options:
+        --slurm_alloc STR       slurm allocation (default def-ilafores)
+        --slurm_log STR slurm log file output directory (default to output_dir/logs)
+        --slurm_email "your@email.com"  Slurm email setting
+        --slurm_walltime STR    slurm requested walltime (default 24:00:00)
+        --slurm_threads INT     slurm requested number of threads (default 48)
+        --slurm_mem STR slurm requested memory (default 251G)
 
-```
-
-The kreports parameter is a regular expression that points to all kraken report files that will be used in analysis. An example call to process all kraken report at the taxonomic level = classes would look like:
-
-```
-kreports="/net/nfs-ip34/home/def-ilafores//projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_C.kreport"
-taxa_code=C
-out=test
-tmp=test/temp
-
-bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh \
---kreports "$kreports" \
---taxa_code $taxa_code \
---out ${out} \
---tmp $tmp
-
-```
-
-If you wish to generate a taxonomy table for all txonomic levels, create a bash script similar to the following:
-
-```
-export TAXONOMIC_ALL_LEVEL=(
-    "D:domains"
-    "P:phylums"
-    "C:classes"
-    "O:orders"
-    "F:families"
-    "G:genuses"
-    "S:species"
-)
-
-out=test
-tmp=test/temp
-
-for taxa_str in ${TAXONOMIC_ALL_LEVEL[@]}
-do
-    taxa_code=${taxa_str%%:*}
-    taxa_name=${taxa_str#*:}
-
-    echo "generating taxonomic table for taxonomic level $taxa_name --> $taxa_code"
-    kreports="/net/nfs-ip34/home/def-ilafores//projet_PROVID19/taxKB_conf01_jfl/*/*_bracken/*_"$taxa_code".kreport"
-    # echo $kreports
-    bash $ILL_PIPELINES/scripts/taxonomic_table.allsamples.sh \
-    --kreports "$kreports" \
-    --taxa_code $taxa_code \
-    --out $out \
-    --tmp $tmp
-done
+  -h --help     Display help
 
 
 ```
+
+The kreports parameter is a regular expression that points to all kraken report generated at specie level.
+The analysis begins and creates the buglist and then creates the bowtie index on the buglist. It finishes by 
+generating the taxonomic table for each taxonomic level.
 
 ### Generate HUMAnN bugs list ###
 
-Before running this pipeline, make sure [KrakenTools](https://github.com/jenniferlu717/KrakenTools) and [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) are acessible in PATH variable.
 
 For full list of options:
 

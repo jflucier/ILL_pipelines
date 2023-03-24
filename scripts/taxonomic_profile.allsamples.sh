@@ -13,7 +13,7 @@ help_message () {
     echo "	--tmp STR	path to temp dir (default output_dir/temp)"
     echo "	--threads	# of threads (default 8)"
     echo "	--bowtie_index_name  name of the bowtie index that will be generated"
-    echo "	--chocophlan_db	path to the full chocoplan db (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan)"
+    echo "	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -29,7 +29,7 @@ threads="8"
 bowtie_idx_name="false";
 out="false";
 tmp="false";
-choco_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan"
+choco_db="/net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan"
 
 # load in params
 SHORT_OPTS="h"
@@ -93,7 +93,9 @@ fi
 echo "BUGS-LIST CREATION (FOR HUMANN DB CREATION)"
 kreport_filelist=$(ls $kreports)
 basepath="/$(echo \"$kreports\" | cut -d/ -f2)"
-echo "combine all species kreports in one using these $kreport_files files: $kreport_filelist"
+echo "combine all species kreports in one using these $kreport_files files: "
+echo "$kreport_filelist"
+
 singularity exec --writable-tmpfs -e \
 -B $basepath:$basepath \
 -B $tmp:/temp \
@@ -124,7 +126,7 @@ choco_db_name=$(basename $choco_db)
 echo "upload chocophlan db to $tmp/$choco_db_name"
 cp -r $choco_db $tmp/$choco_db_name
 
-echo "runnin create prescreen db. This step might take long"
+echo "running create prescreen db. This step might take long"
 singularity exec --writable-tmpfs -e \
 -H $tmp \
 -B ${EXE_PATH}:/code \
@@ -133,12 +135,51 @@ ${EXE_PATH}/../containers/humann.3.6.sif \
 python3 -u /code/create_prescreen_db.py \
 $choco_db_name ${bowtie_idx_name}-bugs_list.MPA.TXT
 
+# delete copy of choco
+echo "deleting copy of chocophlan db: $tmp/$choco_db_name"
+rm -r $tmp/$choco_db_name
+
 ### gen bowtie index on db
-mv $tmp/_custom_chocophlan_database.ffn $tmp/${bowtie_idx_name}.ffn
+mkdir $tmp/bowtie_index
+mv $tmp/_custom_chocophlan_database.ffn $tmp/bowtie_index/${bowtie_idx_name}.ffn
 singularity exec --writable-tmpfs -e \
--B $tmp:/temp \
+-B $tmp:$tmp \
 ${EXE_PATH}/../containers/humann.3.6.sif \
-bowtie2-build --threads ${threads} /temp/${bowtie_idx_name}.ffn  /temp/${bowtie_idx_name}
+bowtie2-build --threads ${threads} $tmp/bowtie_index/${bowtie_idx_name}.ffn  $tmp/bowtie_index/${bowtie_idx_name}
+
+__all_taxas=(
+    "D:domains"
+    "P:phylums"
+    "C:classes"
+    "O:orders"
+    "F:families"
+    "G:genuses"
+    "S:species"
+)
+
+basepath=$(echo "$kreports" | perl -ne '
+  my @t = split("/",$_);
+  pop @t;
+  print join("/",@t);
+')
+
+mkdir $tmp/taxonomic_table
+for taxa_str in "${__all_taxas[@]}"
+do
+  taxa_oneletter=${taxa_str%%:*}
+  taxa_name=${taxa_str#*:}
+
+  report_path="${basepath}/*_bracken_${taxa_oneletter}.kreport"
+
+  echo "running tax table for $taxa_oneletter using report regex $report_path"
+  bash ${EXE_PATH}/taxonomic_table.allsamples.sh \
+  --kreports "$report_path" \
+  --out $tmp/taxonomic_table \
+  --tmp $tmp \
+  --taxa_code $taxa_oneletter
+done
+
+echo "done analysis taxonomic profile on all samples"
 
 echo "copying all files to $out"
 cp -fr $tmp/* $out/

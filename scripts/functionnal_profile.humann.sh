@@ -16,7 +16,7 @@ help_message () {
     echo "	-fq	path to fastq"
     echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)"
     echo "	--nt_db	the nucleotide database to use"
-    echo "	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref)"
+    echo "	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelines/humann3/lib/python3.7/site-packages/humann/data/uniref)"
     echo "	--log	logging file path (default /path/output/log.txt)"
 
     echo ""
@@ -141,9 +141,6 @@ echo "fastq2 path: $fq2"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
-
-source /home/def-ilafores/programs/ILL_pipelineshumann3/bin/activate
-export PATH=/net/nfs-ip34/home/def-ilafores//programs/diamond-2.0.14/bin:$PATH
 
 echo "concatenate fastq files for single-end HUMAnN run"
 cat $fq1 $fq2 > $tmp/${sample}_cat-paired.fastq
