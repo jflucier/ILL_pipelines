@@ -9,22 +9,22 @@ help_message () {
 
 	echo ""
 	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
-    echo "	--out STR	path to output dir"
-    echo "      --SM_db sourmash databases directory path (default /net/nfs-ip34/fast/def-ilafores/sourmash_db)"
-    echo "      --SM_db_prefix  sourmash database prefix, allowing wildcards (default gtdb-rs207)"
-    echo "  --kmer  choice of k-mer, dependent on database choices (default 21, make sure to have them available)"
+  echo "	--out STR	path to output dir"
+  echo "  --SM_db sourmash databases directory path (default /net/nfs-ip34/fast/def-ilafores/sourmash_db)"
+  echo "  --SM_db_prefix  sourmash database prefix, allowing wildcards (default gtdb-rs207)"
+  echo "  --kmer  choice of k-mer, dependent on database choices (default 21, make sure to have them available)"
 
-    echo ""
-    echo "Slurm options:"
-    echo "	--slurm_alloc STR	slurm allocation (default def-ilafores)"
-    echo "	--slurm_log STR	slurm log file output directory (default to output_dir/logs)"
-    echo "	--slurm_email \"your@email.com\"	Slurm email setting"
-    echo "	--slurm_walltime STR	slurm requested walltime (default 24:00:00)"
-    echo "	--slurm_threads INT	slurm requested number of threads (default 12)"
-    echo "	--slurm_mem STR	slurm requested memory (default 62G)"
+  echo ""
+  echo "Slurm options:"
+  echo "	--slurm_alloc STR	slurm allocation (default def-ilafores)"
+  echo "	--slurm_log STR	slurm log file output directory (default to output_dir/logs)"
+  echo "	--slurm_email \"your@email.com\"	Slurm email setting"
+  echo "	--slurm_walltime STR	slurm requested walltime (default 24:00:00)"
+  echo "	--slurm_threads INT	slurm requested number of threads (default 12)"
+  echo "	--slurm_mem STR	slurm requested memory (default 62G)"
 
-    echo ""
-    echo "  -h --help	Display help"
+  echo ""
+  echo "  -h --help	Display help"
 
 	echo "";
 }
@@ -67,11 +67,10 @@ while true; do
         --slurm_email) email=$2; shift 2;;
         --slurm_walltime) walltime=$2; shift 2;;
         --slurm_threads) threads=$2; shift 2;;
-        --confidence) confidence=$2; shift 2;;
         --slurm_mem) mem=$2; shift 2;;
         --sample_tsv) sample_tsv=$2; shift 2;;
         --out) out=$2; shift 2;;
-		--SM_db) SM_db=$2; shift 2;;
+		    --SM_db) SM_db=$2; shift 2;;
         --SM_db_prefix) SM_db_prefix=$2; shift 2;;
         --kmer) kmer=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
@@ -130,15 +129,15 @@ echo '
 fi
 
 echo '
-newgrp def-ilafores
 echo "loading env"
-export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
-module use $MUGQIC_INSTALL_HOME/modulefiles
+module load StdEnv/2020 apptainer/1.1.5
 
 export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
 export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
 export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
+
+sleep $[ ( $RANDOM % 90 ) + 1 ]s
 
 bash -l '${EXE_PATH}'/scripts/taxonomy_sourmash.sh \
 -o '${out}'/$__sample \

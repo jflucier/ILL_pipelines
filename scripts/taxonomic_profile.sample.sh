@@ -12,7 +12,7 @@ help_message () {
     echo "	-o STR	path to output dir"
     echo "	-tmp STR	path to temp dir (default output_dir/temp)"
     echo "	-t	# of threads (default 8)"
-    echo "	-m	memory (default 40G)"
+    echo "	-m	memory (default 20G)"
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
     echo "	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
@@ -29,7 +29,7 @@ export EXE_PATH=$(dirname "$0")
 
 # initialisation
 threads="8"
-mem="40G"
+mem="20G"
 sample="false";
 out="false";
 tmp="false";

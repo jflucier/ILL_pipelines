@@ -1,0 +1,26 @@
+# build new image using this command:
+# singularity build --force --fakeroot sourmash.4.7.0.sif sourmash.4.7.0.def
+
+BootStrap: docker
+From: ubuntu:22.04
+
+%environment
+
+%post
+    apt-get update && apt-get -y upgrade
+
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    build-essential \
+    wget \
+    bzip2 \
+    ca-certificates \
+    git \
+    less \
+    unzip \
+    python3 \
+    python3-pip
+
+    cd /
+    #install checkm
+    pip3 install sourmash==4.7.0
+

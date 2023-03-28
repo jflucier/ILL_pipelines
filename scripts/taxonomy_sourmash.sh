@@ -3,24 +3,24 @@
 set -e
 
 help_message () {
-	echo ""
-	echo "Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2"
-	echo "Options:"
+  echo ""
+  echo "Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2"
+  echo "Options:"
 
-	echo ""
-	echo "	-s STR	sample name"
-    echo "	-o STR	path to output dir"
-    echo "	-tmp STR	path to temp dir (default output_dir/temp)"
-    echo "	-t	# of threads (default 8)"
-    echo "	-m	memory (default 40G)"
-    echo "	-fq1	path to fastq1"
-    echo "	-fq2	path to fastq2"
-    echo "	--SM_db	sourmash databases directory path (default /net/nfs-ip34/fast/def-ilafores/SM_db)"
-    echo "	--SM_db_prefix	sourmash database prefix, allowing wildcards (default gtdb-rs207)"
-	echo "	--kmer	choice of k-mer size, dependent on available databases (default 21, make sure to have them available)"
+  echo ""
+  echo "	-s STR	sample name"
+  echo "	-o STR	path to output dir"
+  echo "	-tmp STR	path to temp dir (default output_dir/temp)"
+  echo "	-t	# of threads (default 8)"
+  echo "	-m	memory (default 40G)"
+  echo "	-fq1	path to fastq1"
+  echo "	-fq2	path to fastq2"
+  echo "	--SM_db	sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)"
+  echo "	--SM_db_prefix	sourmash database prefix, allowing wildcards (default gtdb-rs207)"
+  echo "	--kmer	choice of k-mer size, dependent on available databases (default 21, make sure to have them available)"
 
-    echo ""
-    echo "  -h --help	Display help"
+  echo ""
+  echo "  -h --help	Display help"
 
 	echo "";
 }
@@ -29,13 +29,13 @@ export EXE_PATH=$(dirname "$0")
 
 # initialisation
 threads="8"
-mem="40G"
+mem="30G"
 sample="false";
 out="false";
 tmp="false";
 fq1="false";
 fq2="false";
-SM_db="/net/nfs-ip34/fast/def-ilafores/sourmash_db"
+SM_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db"
 SM_db_prefix="gtdb-rs207"
 kmer="21"
 
@@ -63,7 +63,7 @@ while true; do
         -o) out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
         -fq2) fq2=$2; shift 2;;
-		--SM_db) SM_db=$2; shift 2;;
+		    --SM_db) SM_db=$2; shift 2;;
         --SM_db_prefix) SM_db_prefix=$2; shift 2;;
         --kmer) kmer=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
@@ -104,13 +104,17 @@ cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
 
-echo "upload Sourmash db to $tmp"
-for file in ${SM_db}/${SM_db_prefix}*.k${kmer}.zip; do \
-	cp -r "$file" $tmp; 
-done
-for file in ${SM_db}/${SM_db_prefix}*.sqldb; do \
-	cp -r "$file" $tmp; 
-done
+echo "copying singularity containers to $tmp"
+cp ${EXE_PATH}/../containers/sourmash.4.7.0.sif $tmp/
+
+
+#echo "upload Sourmash db to $tmp"
+#for file in ${SM_db}/${SM_db_prefix}*.k${kmer}.zip; do \
+#	cp -r "$file" $tmp;
+#done
+#for file in ${SM_db}/${SM_db_prefix}*.sqldb; do \
+#	cp -r "$file" $tmp;
+#done
 
 ### Sourmash
 echo "loading Sourmash env"
@@ -121,34 +125,50 @@ echo "analysing sample $sample containment using $(sourmash --version) against $
 
 mkdir -p $tmp/${sample}
 echo "...generate sample fracminhash sketch with sourmash sketch"
+singularity exec --writable-tmpfs -e \
+-B $tmp:$tmp \
+$tmp/sourmash.4.7.0.sif \
 sourmash sketch dna \
-	-p k=$kmer,scaled=1000,abund \
-	--merge $sample \
-	-o $tmp/${sample}/${sample}.k${kmer}.sig \
-	$tmp/${fq1_name} \
-	$tmp/${fq2_name}
+-p k=$kmer,scaled=1000,abund \
+--merge $sample \
+-o $tmp/${sample}/${sample}.k${kmer}.sig \
+$tmp/${fq1_name} \
+$tmp/${fq2_name}
 
 echo "...determine metagenome composition using sourmash gather"
+singularity exec --writable-tmpfs -e \
+-B $tmp:$tmp \
+-B $SM_db:$SM_db \
+$tmp/sourmash.4.7.0.sif \
 sourmash gather \
-	$tmp/${sample}/${sample}.k${kmer}.sig \
-	$tmp/${SM_db_prefix}*k${kmer}.zip \
-	-o $tmp/${sample}/${sample}.k${kmer}.csv
+$tmp/${sample}/${sample}.k${kmer}.sig \
+$SM_db/${SM_db_prefix}*k${kmer}.zip \
+-o $tmp/${sample}/${sample}.k${kmer}.csv
 
 echo "...assign taxonomy using sourmash taxonomy"
+singularity exec --writable-tmpfs -e \
+-B $tmp:$tmp \
+-B $SM_db:$SM_db \
+$tmp/sourmash.4.7.0.sif \
 sourmash tax annotate \
-	-g $tmp/${sample}/${sample}.k${kmer}.csv \
-	-t $tmp/${SM_db_prefix}*.sqldb \
-	-o $tmp/${sample}
+-g $tmp/${sample}/${sample}.k${kmer}.csv \
+-t $SM_db/${SM_db_prefix}*.sqldb \
+-o $tmp/${sample}
 
 echo "...summarise results to species level"
 mkdir -p $tmp/${sample}/
+singularity exec --writable-tmpfs -e \
+-B $tmp:$tmp \
+-B $SM_db:$SM_db \
+$tmp/sourmash.4.7.0.sif \
 sourmash tax metagenome \
 	-g $tmp/${sample}/${sample}.k${kmer}.with-lineages.csv \
 	--rank species \
-	-t $tmp/${SM_db_prefix}*.sqldb \
+	-t $SM_db/${SM_db_prefix}*.sqldb \
 	-o $tmp/${sample}
 				
 echo "copying all results to $out"
-mkdir -p ${out}/taxSM_${SM_db_prefxi}_k${kmer} && cp -fr $tmp/${sample}/* $_
+mkdir -p ${out}/taxSM_${SM_db_prefxi}_k${kmer}
+cp -fr $tmp/${sample}/* ${out}/taxSM_${SM_db_prefxi}_k${kmer}/
 
 echo "taxonomic profile of ${sample} completed!"

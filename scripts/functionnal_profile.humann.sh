@@ -62,9 +62,9 @@ while true; do
         -s) sample=$2; shift 2;;
         -o) out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
-	-fq2) fq2=$2; shift 2;;
+	      -fq2) fq2=$2; shift 2;;
         --search_mode) search_mode=$2; shift 2;;
-	--nt_db) nt_db=$2; shift 2;;
+	      --nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
         --log) log=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
