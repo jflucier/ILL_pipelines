@@ -28,7 +28,7 @@ help_message () {
 export EXE_PATH=$(dirname "$0")
 
 # initialisation
-threads="8"
+threads="24"
 mem="30G"
 sample="false";
 out="false";

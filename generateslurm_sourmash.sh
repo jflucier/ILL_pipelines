@@ -8,23 +8,23 @@ help_message () {
 	echo "Options:"
 
 	echo ""
-	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
-  echo "	--out STR	path to output dir"
-  echo "  --SM_db sourmash databases directory path (default /net/nfs-ip34/fast/def-ilafores/sourmash_db)"
-  echo "  --SM_db_prefix  sourmash database prefix, allowing wildcards (default gtdb-rs207)"
-  echo "  --kmer  choice of k-mer, dependent on database choices (default 21, make sure to have them available)"
+	echo "   --sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
+  echo "   --out STR	path to output dir"
+  echo "   --SM_db sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)"
+  echo "   --SM_db_prefix  sourmash database prefix, allowing wildcards (default gtdb-rs207)"
+  echo "   --kmer  choice of k-mer, dependent on database choices (default 21, make sure to have them available)"
 
   echo ""
   echo "Slurm options:"
-  echo "	--slurm_alloc STR	slurm allocation (default def-ilafores)"
-  echo "	--slurm_log STR	slurm log file output directory (default to output_dir/logs)"
-  echo "	--slurm_email \"your@email.com\"	Slurm email setting"
-  echo "	--slurm_walltime STR	slurm requested walltime (default 24:00:00)"
-  echo "	--slurm_threads INT	slurm requested number of threads (default 12)"
-  echo "	--slurm_mem STR	slurm requested memory (default 62G)"
+  echo "   --slurm_alloc STR	slurm allocation (default def-ilafores)"
+  echo "   --slurm_log STR	slurm log file output directory (default to output_dir/logs)"
+  echo "   --slurm_email \"your@email.com\"	Slurm email setting"
+  echo "   --slurm_walltime STR	slurm requested walltime (default 24:00:00)"
+  echo "   --slurm_threads INT	slurm requested number of threads (default 12)"
+  echo "   --slurm_mem STR	slurm requested memory (default 62G)"
 
   echo ""
-  echo "  -h --help	Display help"
+  echo "   -h --help	Display help"
 
 	echo "";
 }
@@ -35,13 +35,13 @@ export EXE_PATH=$(dirname "$0")
 alloc="def-ilafores"
 email="false"
 walltime="24:00:00"
-threads="12"
-mem="62G"
+threads="24"
+mem="31G"
 log="false"
 
 sample_tsv="false";
 out="false";
-SM_db="/net/nfs-ip34/fast/def-ilafores/sourmash_db"
+SM_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/"
 SM_db_prefix="gtdb-rs207"
 kmer="21"
 
