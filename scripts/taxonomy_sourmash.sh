@@ -36,8 +36,8 @@ tmp="false";
 fq1="false";
 fq2="false";
 SM_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db"
-SM_db_prefix="gtdb-rs207"
-kmer="21"
+SM_db_prefix="genbank-2022.03"
+kmer="51"
 
 # load in params
 SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
@@ -117,11 +117,7 @@ cp ${EXE_PATH}/../containers/sourmash.4.7.0.sif $tmp/
 #done
 
 ### Sourmash
-echo "loading Sourmash env"
-conda activate sourmash
-module load StdEnv/2020 mugqic/bowtie2/2.3.5
-
-echo "analysing sample $sample containment using $(sourmash --version) against ${SM_db_prefix}.k${kmer} index"
+echo "analysing sample $sample containment using sourmash against ${SM_db_prefix}.k${kmer} index"
 
 mkdir -p $tmp/${sample}
 echo "...generate sample fracminhash sketch with sourmash sketch"
@@ -155,17 +151,17 @@ sourmash tax annotate \
 -t $SM_db/${SM_db_prefix}*.sqldb \
 -o $tmp/${sample}
 
-echo "...summarise results to species level"
-mkdir -p $tmp/${sample}/
-singularity exec --writable-tmpfs -e \
--B $tmp:$tmp \
--B $SM_db:$SM_db \
-$tmp/sourmash.4.7.0.sif \
-sourmash tax metagenome \
-	-g $tmp/${sample}/${sample}.k${kmer}.with-lineages.csv \
-	--rank species \
-	-t $SM_db/${SM_db_prefix}*.sqldb \
-	-o $tmp/${sample}
+#echo "...summarise results to species level"
+#mkdir -p $tmp/${sample}/
+#singularity exec --writable-tmpfs -e \
+#-B $tmp:$tmp \
+#-B $SM_db:$SM_db \
+#$tmp/sourmash.4.7.0.sif \
+#sourmash tax metagenome \
+#-g $tmp/${sample}/${sample}.k${kmer}.with-lineages.csv \
+#--rank species \
+#-t $SM_db/${SM_db_prefix}*.sqldb \
+#-o $tmp/${sample}
 				
 echo "copying all results to $out"
 mkdir -p ${out}/taxSM_${SM_db_prefxi}_k${kmer}

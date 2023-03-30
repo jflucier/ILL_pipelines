@@ -42,8 +42,8 @@ log="false"
 sample_tsv="false";
 out="false";
 SM_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/"
-SM_db_prefix="gtdb-rs207"
-kmer="21"
+SM_db_prefix="genbank-2022.03"
+kmer="51"
 
 # load in params
 SHORT_OPTS="h"
