@@ -54,7 +54,7 @@ if [ "$profiles" = "false" ]; then
     echo "Please provide metaphlan profiles out path i.e. /path/to/metaphlan_out/*_profile.txt."
     help_message; exit 1
 else
-    echo "## profiles path: $sample"
+    echo "## profiles path: $profiles"
 fi
 
 if [ "$out" = "false" ]; then
