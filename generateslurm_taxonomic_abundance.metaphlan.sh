@@ -138,7 +138,7 @@ sleep $[ ( $RANDOM % 90 ) + 1 ]s
 bash -l '${EXE_PATH}'/scripts/taxonomic_abundance.metaphlan.sh \
 -o '${out}'/$__sample \
 -tmp $SLURM_TMPDIR \
--t '${threads}' -m '${mem}' \
+-t '${threads}' \
 -s $__sample \
 -fq1 $__fastq_file1 \
 -fq2 $__fastq_file2 \
