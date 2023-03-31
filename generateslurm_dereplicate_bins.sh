@@ -8,15 +8,14 @@ help_message () {
 	echo "Options:"
 
 	echo ""
-	#echo "	-bins_tsv	A 2 column tsv of fasta bins for all samples. Columns should be sample_name<tab>/path/to/fa. No headers!"
 		echo "	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa"
     echo "	-o STR	path to output dir"
 	echo "	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information."
     echo "	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)"
     echo "	-s_ani	ANI threshold to form secondary clusters (default: 0.99)"
     echo "	-cov	Minmum level of overlap between genomes when doing secondary comparisons (default: 0.1)"
-    echo "	-comp	Minimum genome completeness (default: 75)"
-	echo "	-con	Maximum genome contamination (default: 25)"
+    echo "	-comp	Minimum genome completeness (default: 50)"
+	echo "	-con	Maximum genome contamination (default: 5)"
 
     echo ""
     echo "Slurm options:"
@@ -50,8 +49,8 @@ algo="ANImf"
 p_ani="0.95"
 s_ani="0.99"
 cov="0.1"
-comp="75"
-con="25"
+comp="50"
+con="5"
 
 SHORT_OPTS="ht:bin_path_regex:o:a:p_ani:s_ani:cov:comp:con:"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem'

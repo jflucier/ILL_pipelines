@@ -17,8 +17,8 @@ help_message () {
   echo "	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)"
   echo "	-s_ani	ANI threshold to form secondary clusters (default: 0.99)"
   echo "	-cov	Minmum level of overlap between genomes when doing secondary comparisons (default: 0.1)"
-  echo "	-comp	Minimum genome completeness (default: 75)"
-	echo "	-con	Maximum genome contamination (default: 25)"
+  echo "	-comp	Minimum genome completeness (default: 50)"
+	echo "	-con	Maximum genome contamination (default: 5)"
   echo ""
   echo "  -h --help	Display help"
 
@@ -36,8 +36,8 @@ algo="ANImf"
 p_ani="0.95"
 s_ani="0.99"
 cov="0.1"
-comp="75"
-con="25"
+comp="50"
+con="5"
 
 # load in params
 SHORT_OPTS="ht:bin_path_regex:o:a:p_ani:s_ani:cov:comp:con:tmp:"
