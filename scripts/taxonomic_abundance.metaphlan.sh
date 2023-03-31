@@ -129,17 +129,21 @@ cat $tmp/fq1.fastq $tmp/fq2.fastq $tmp/fq1_single.fastq $tmp/fq2_single.fastq > 
 
 echo "analysing sample $sample using metaphlan against $db index"
 db_index=$(basename $db)
+db_path=$(dirname $db)
 singularity exec --writable-tmpfs -e \
 -B $tmp:$tmp \
--B $db:$db \
+-B $db_path:$db_path \
 $tmp/humann.3.6.sif \
 metaphlan \
---input_type fastq --add_viruses --unclassified_estimation \
---bowtie2db $db \
+-t rel_ab \
+--input_type fastq --add_viruses --unclassified_estimation --offline \
+--tmp_dir $tmp \
+--bowtie2db $db_path \
 -x $db_index \
 --bowtie2out $tmp/${sample}.bowtie2.txt \
 --nproc $threads \
--o $tmp/${sample}_profile.txt
+-o $tmp/${sample}_profile.txt \
+$tmp/all_reads.fastq
 
 echo "copying all results to $out"
 mkdir -p ${out}
