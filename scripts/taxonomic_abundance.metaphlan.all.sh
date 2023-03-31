@@ -26,7 +26,7 @@ out="false";
 tmp="false";
 
 # load in params
-SHORT_OPTS="h:o:profiles:tmp:"
+SHORT_OPTS="ho:profiles:tmp:"
 LONG_OPTS='help'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
