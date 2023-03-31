@@ -38,7 +38,7 @@ SM_db_prefix="genbank-2022.03"
 kmer="51"
 
 # load in params
-SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
+SHORT_OPTS="ht:o:s:fq1:fq2:tmp:"
 LONG_OPTS='help,SM_db,SM_db_prefix,kmer'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
@@ -104,15 +104,6 @@ cp $fq2 $tmp/$fq2_name
 echo "copying singularity containers to $tmp"
 cp ${EXE_PATH}/../containers/sourmash.4.7.0.sif $tmp/
 
-
-#echo "upload Sourmash db to $tmp"
-#for file in ${SM_db}/${SM_db_prefix}*.k${kmer}.zip; do \
-#	cp -r "$file" $tmp;
-#done
-#for file in ${SM_db}/${SM_db_prefix}*.sqldb; do \
-#	cp -r "$file" $tmp;
-#done
-
 ### Sourmash
 echo "analysing sample $sample containment using sourmash against ${SM_db_prefix}.k${kmer} index"
 
@@ -161,7 +152,7 @@ sourmash tax annotate \
 #-o $tmp/${sample}
 				
 echo "copying all results to $out"
-mkdir -p ${out}/taxSM_${SM_db_prefxi}_k${kmer}
-cp -fr $tmp/${sample}/* ${out}/taxSM_${SM_db_prefxi}_k${kmer}/
+mkdir -p ${out}/taxSM_${SM_db_prefix}_k${kmer}
+cp -fr $tmp/${sample}/* ${out}/taxSM_${SM_db_prefix}_k${kmer}/
 
 echo "taxonomic profile of ${sample} completed!"

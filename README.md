@@ -173,28 +173,29 @@ Slurm options:
 
 **Notice** that preprocess script generates sample tsv file needed here (i.e. precocess/preprocessed_reads.sample.tsv).
 
-The taxonomic profile script can also be executed on a single sample.
+The sorumash taxonomic abundance script can also be executed on a single sample.
 Use -h option to view usage:
 
 ```
 
-$ bash $ILL_PIPELINES/scripts/taxonomic_profile.sample.sh -h
+$ bash $ILL_PIPELINES/scripts/taxonomic_abundance.sourmash.sh -h
 
-Usage: taxonomic_profile.sample.sh [--kraken_db /path/to/krakendb] [--bracken_readlen int] [--confidence float] [-t thread_nbr] [-m mem_in_G] -fq1 /path/fastq1 -fq2 /path/fastq2 -o /path/to/out
+Usage: taxonomic_abundance.sourmash.sh -s sample_name -o /path/to/out [-t threads] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2 [--SM_db /path/to/sourmash/db] [--SM_db_prefix sourmash_db_prefix] [--kmer kmer_size]
 Options:
 
-	-s STR	sample name
-	-o STR	path to output dir
-	-tmp STR	path to temp dir (default output_dir/temp)
-	-t	# of threads (default 8)
-	-m	memory (default 40G)
-	-fq1	path to fastq1
-	-fq2	path to fastq2
-	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
-	--bracken_readlen	bracken read length option (default 150)
-    --confidence	kraken confidence level to reduce false-positive rate (default 0.05)
-    
-  -h --help	Display help
+        -s STR  sample name
+        -o STR  path to output dir
+        -tmp STR        path to temp dir (default output_dir/temp)
+        -t      # of threads (default 8)
+        -fq1    path to fastq1
+        -fq2    path to fastq2
+        --SM_db sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)
+        --SM_db_prefix  sourmash database prefix, allowing wildcards (default genbank-2022.03)
+        --kmer  choice of k-mer size, dependent on available databases (default 51, make sure database is available)
+
+  -h --help     Display help
+
+
 
 ```
 

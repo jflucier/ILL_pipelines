@@ -4,7 +4,7 @@ set -e
 
 help_message () {
   echo ""
-  echo "Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2"
+  echo "Usage: taxonomic_abundance.metaphlan.sh -s sample_name -o /path/to/out [-db /path/to/metaphlan/db] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2 [-fq1_single /path/to/single1.fastq] [-fq2_single /path/to/single2.fastq]"
   echo "Options:"
 
   echo ""
@@ -12,14 +12,11 @@ help_message () {
   echo "	-o STR	path to output dir"
   echo "	-tmp STR	path to temp dir (default output_dir/temp)"
   echo "	-t	# of threads (default 8)"
-  echo "	-m	memory (default 40G)"
   echo "	-fq1	path to fastq1"
   echo "	-fq1_single	path to fastq1 unpaired reads"
   echo "	-fq2	path to fastq2"
   echo "	-fq2_single	path to fastq2 unpaired reads"
-  echo "	--SM_db	sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)"
-  echo "	--SM_db_prefix	sourmash database prefix, allowing wildcards (default gtdb-rs207)"
-  echo "	--kmer	choice of k-mer size, dependent on available databases (default 21, make sure to have them available)"
+  echo "	-db	metaphlan db path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212)"
 
   echo ""
   echo "  -h --help	Display help"
@@ -30,20 +27,19 @@ help_message () {
 export EXE_PATH=$(dirname "$0")
 
 # initialisation
-threads="24"
-mem="30G"
+threads="8"
 sample="false";
 out="false";
 tmp="false";
 fq1="false";
+fq1_single="false";
 fq2="false";
-SM_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db"
-SM_db_prefix="genbank-2022.03"
-kmer="51"
+fq2_single="false";
+db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212"
 
 # load in params
-SHORT_OPTS="ht:m:o:s:fq1:fq2:tmp:"
-LONG_OPTS='help,SM_db,SM_db_prefix,kmer'
+SHORT_OPTS="ht:o:s:fq1:fq1_single:fq2:fq2_single:db:tmp:"
+LONG_OPTS='help'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -60,14 +56,13 @@ while true; do
         -h | --help) help_message; exit 1; shift 1;;
         -t) threads=$2; shift 2;;
         -tmp) tmp=$2; shift 2;;
-        -m) mem=$2; shift 2;;
         -s) sample=$2; shift 2;;
         -o) out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
+        -fq1_single) fq1_single=$2; shift 2;;
         -fq2) fq2=$2; shift 2;;
-		    --SM_db) SM_db=$2; shift 2;;
-        --SM_db_prefix) SM_db_prefix=$2; shift 2;;
-        --kmer) kmer=$2; shift 2;;
+        -fq2_single) fq2_single=$2; shift 2;;
+		    -db) db=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
 	esac
@@ -94,79 +89,61 @@ if [ "$tmp" = "false" ]; then
     echo "## No temp folder provided. Will use: $tmp"
 fi
 
-echo "fastq1 path: $fq1"
-echo "fastq2 path: $fq2"
+if [ "$fq1" = "false" ]; then
+    echo "Please provide a fastq1."
+    help_message; exit 1
+else
+    echo "upload $fq1 to $tmp/fq1.fastq"
+    cp $fq1 $tmp/fq1.fastq
+fi
 
-fq1_name=$(basename $fq1)
-fq2_name=$(basename $fq2)
+if [ "$fq1_single" = "false" ]; then
+    echo "Since fastq1 single path was not provided. Will not be considered in analysis. "
+    touch $tmp/fq1_single.fastq
+else
+    echo "upload $fq1_single to $tmp/fq1_single.fastq"
+    cp $fq1_single $tmp/fq1_single.fastq
+fi
 
-echo "upload fastq1 to $tmp/$fq1_name"
-cp $fq1 $tmp/$fq1_name
+if [ "$fq2" = "false" ]; then
+    echo "Please provide a fastq2."
+    help_message; exit 1
+else
+    echo "upload $fq2 to $tmp/fq2.fastq"
+    cp $fq2 $tmp/fq2.fastq
+fi
 
-echo "upload fastq2 to $tmp/$fq2_name"
-cp $fq2 $tmp/$fq2_name
+if [ "$fq2_single" = "false" ]; then
+    echo "Since fastq2 single path was not provided. Will not be considered in analysis. "
+    touch $tmp/fq2_single.fastq
+else
+    echo "upload $fq2_single to $tmp/fq2_single.fastq"
+    cp $fq2_single $tmp/fq2_single.fastq
+fi
 
 echo "copying singularity containers to $tmp"
-cp ${EXE_PATH}/../containers/sourmash.4.7.0.sif $tmp/
+cp ${EXE_PATH}/../containers/humann.3.6.sif $tmp/
 
+echo "Combining reads to a single fastq"
+cat $tmp/fq1.fastq $tmp/fq2.fastq $tmp/fq1_single.fastq $tmp/fq2_single.fastq > $tmp/all_reads.fastq
 
-#echo "upload Sourmash db to $tmp"
-#for file in ${SM_db}/${SM_db_prefix}*.k${kmer}.zip; do \
-#	cp -r "$file" $tmp;
-#done
-#for file in ${SM_db}/${SM_db_prefix}*.sqldb; do \
-#	cp -r "$file" $tmp;
-#done
-
-### Sourmash
-echo "analysing sample $sample containment using sourmash against ${SM_db_prefix}.k${kmer} index"
-
-mkdir -p $tmp/${sample}
-echo "...generate sample fracminhash sketch with sourmash sketch"
+echo "analysing sample $sample using metaphlan against $db index"
+db_index=$(basename $db)
 singularity exec --writable-tmpfs -e \
 -B $tmp:$tmp \
-$tmp/sourmash.4.7.0.sif \
-sourmash sketch dna \
--p k=$kmer,scaled=1000,abund \
---merge $sample \
--o $tmp/${sample}/${sample}.k${kmer}.sig \
-$tmp/${fq1_name} \
-$tmp/${fq2_name}
+-B $db:$db \
+$tmp/humann.3.6.sif \
+metaphlan \
+--input_type fastq --add_viruses --unclassified_estimation \
+--bowtie2db $db \
+-x $db_index \
+--bowtie2out $tmp/${sample}.bowtie2.txt \
+--nproc $threads \
+-o $tmp/${sample}_profile.txt
 
-echo "...determine metagenome composition using sourmash gather"
-singularity exec --writable-tmpfs -e \
--B $tmp:$tmp \
--B $SM_db:$SM_db \
-$tmp/sourmash.4.7.0.sif \
-sourmash gather \
-$tmp/${sample}/${sample}.k${kmer}.sig \
-$SM_db/${SM_db_prefix}*k${kmer}.zip \
--o $tmp/${sample}/${sample}.k${kmer}.csv
-
-echo "...assign taxonomy using sourmash taxonomy"
-singularity exec --writable-tmpfs -e \
--B $tmp:$tmp \
--B $SM_db:$SM_db \
-$tmp/sourmash.4.7.0.sif \
-sourmash tax annotate \
--g $tmp/${sample}/${sample}.k${kmer}.csv \
--t $SM_db/${SM_db_prefix}*.sqldb \
--o $tmp/${sample}
-
-#echo "...summarise results to species level"
-#mkdir -p $tmp/${sample}/
-#singularity exec --writable-tmpfs -e \
-#-B $tmp:$tmp \
-#-B $SM_db:$SM_db \
-#$tmp/sourmash.4.7.0.sif \
-#sourmash tax metagenome \
-#-g $tmp/${sample}/${sample}.k${kmer}.with-lineages.csv \
-#--rank species \
-#-t $SM_db/${SM_db_prefix}*.sqldb \
-#-o $tmp/${sample}
-				
 echo "copying all results to $out"
-mkdir -p ${out}/taxSM_${SM_db_prefxi}_k${kmer}
-cp -fr $tmp/${sample}/* ${out}/taxSM_${SM_db_prefxi}_k${kmer}/
+mkdir -p ${out}
+cp $tmp/${sample}.bowtie2.txt ${out}/
+cp $tmp/${sample}_profile.txt ${out}/
 
-echo "taxonomic profile of ${sample} completed!"
+echo "Metaphlan taxonomic abundance of ${sample} completed!"
