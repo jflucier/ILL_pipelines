@@ -8,11 +8,11 @@ help_message () {
     echo "Options:"
 
     echo ""
-    echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
+	  echo "  --sample_tsv STR	path to sample tsv (5 columns: sample name<tab>fastq1 path<tab>fastq2 path<tab>fastq1 single path<tab>fastq2 single path). Generated in preprocess step."
     echo "	--out STR	path to output dir"
-    echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)"
-    echo "	--nt_db	the nucleotide database to use"
-    echo "	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref)"
+    echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default prot)"
+    echo "	--nt_db	the nucleotide database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan)"
+    echo "	--prot_db	the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref)"
 
     echo ""
     echo "Slurm options:"
@@ -42,9 +42,9 @@ log="false"
 
 sample_tsv="false";
 out="false";
-search_mode="dual"
-nt_db="false"
-prot_db="/home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref"
+search_mode="prot"
+nt_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan"
+prot_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref"
 
 # load in params
 SHORT_OPTS="h"
@@ -72,7 +72,7 @@ while true; do
         --sample_tsv) sample_tsv=$2; shift 2;;
         --out) out=$2; shift 2;;
         --search_mode) search_mode=$2; shift 2;;
-		--nt_db) nt_db=$2; shift 2;;
+		    --nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
@@ -143,17 +143,16 @@ echo '
 fi
 
 echo '
-
-newgrp def-ilafores
 echo "loading env"
-export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
-module use $MUGQIC_INSTALL_HOME/modulefiles
+module load StdEnv/2020 apptainer/1.1.5
 
 module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
 export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
 export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
 export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
+export __fastq_file1_single=$(echo -e "$__sample_line" | cut -f4)
+export __fastq_file2_single=$(echo -e "$__sample_line" | cut -f5)
 
 bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 -o '${out}'/'$search_mode'/$__sample \
@@ -162,10 +161,11 @@ bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 -s $__sample \
 -fq1 $__fastq_file1 \
 -fq2 $__fastq_file2 \
+-fq1_single $__fastq_file1_single \
+-fq2_single $__fastq_file2_single \
 --search_mode '$search_mode' \
 --nt_db '$nt_db' \
---prot_db '$prot_db' \
---log '$log'/humann_${__sample}.log
+--prot_db '$prot_db'
 
 ' >> ${out}/functionnal_profile.$search_mode.slurm.sh
 

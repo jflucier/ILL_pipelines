@@ -8,7 +8,7 @@ help_message () {
 	echo "Options:"
 
 	echo ""
-	echo "	-sample_tsv	A 3 column tsv of samples. Columns should be sample_name<tab>/path/to/fastq1<tab>/path/to/fastq2. No headers! HINT: preprocess step generates this file"
+	echo "  -sample_tsv STR	path to sample tsv (5 columns: sample name<tab>fastq1 path<tab>fastq2 path<tab>fastq1 single path<tab>fastq2 single path). Generated in preprocess step."
   echo "	-drep STR	dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information."
   echo "	-o STR	path to output dir"
 

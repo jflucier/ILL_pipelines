@@ -8,7 +8,7 @@ help_message () {
 	echo "Options:"
 
 	echo ""
-	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path). Generated in preprocess step."
+	echo "   --sample_tsv STR	path to sample tsv (5 columns: sample name<tab>fastq1 path<tab>fastq2 path<tab>fastq1 single path<tab>fastq2 single path). Generated in preprocess step."
   echo "	--out STR	path to output dir"
   echo "	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
   echo "	--bracken_readlen	bracken read length option (default 150)"

@@ -55,7 +55,7 @@ help_message () {
 	echo "Options:"
 
 	echo ""
-	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
+	echo "   --sample_tsv STR	path to sample tsv (5 columns: sample name<tab>fastq1 path<tab>fastq2 path<tab>fastq1 single path<tab>fastq2 single path). Generated in preprocess step."
     echo "	--out STR	path to output dir"
     echo "	--assembly	perform assembly"
     echo "	--binning	perform binning step"
