@@ -150,23 +150,24 @@ For full list of options:
 ```
 $ bash $ILL_PIPELINES/generateslurm_taxonomic_abundance.sourmash.sh  -h
 
-Usage: generateslurm_taxonomic_profile.sample.sh --sample_tsv /path/to/tsv --out /path/to/out [--kraken_db "kraken database"]
+Usage: generateslurm_taxonomic_abundance.sourmash.sh --sample_tsv /path/to/tsv --out /path/to/out [--SM_db /path/to/sourmash/db] [--SM_db_prefix sourmash_db_prefix] [--kmer kmer_size]
 Options:
 
-	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
-	--out STR	path to output dir
-	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
-	--bracken_readlen	bracken read length option (default 150)
+   --sample_tsv STR     path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
+   --out STR    path to output dir
+   --SM_db sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)
+   --SM_db_prefix  sourmash database prefix, allowing wildcards (default genbank-2022.03)
+   --kmer  choice of k-mer, dependent on database choices (default 51, make sure to have them available)
 
 Slurm options:
-	--slurm_alloc STR	slurm allocation (default def-ilafores)
-	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
-	--slurm_email "your@email.com"	Slurm email setting
-	--slurm_walltime STR	slurm requested walltime (default 6:00:00)
-	--slurm_threads INT	slurm requested number of threads (default 24)
-	--slurm_mem STR	slurm requested memory (default 125)
+   --slurm_alloc STR    slurm allocation (default def-ilafores)
+   --slurm_log STR      slurm log file output directory (default to output_dir/logs)
+   --slurm_email "your@email.com"       Slurm email setting
+   --slurm_walltime STR slurm requested walltime (default 24:00:00)
+   --slurm_threads INT  slurm requested number of threads (default 12)
+   --slurm_mem STR      slurm requested memory (default 62G)
 
-  -h --help	Display help
+   -h --help    Display help
 
 ```
 

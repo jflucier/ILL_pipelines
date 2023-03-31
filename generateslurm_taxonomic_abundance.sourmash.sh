@@ -4,15 +4,15 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: generateslurm_sourmash.sh --sample_tsv /path/to/tsv --out /path/to/out"
+	echo "Usage: generateslurm_taxonomic_abundance.sourmash.sh --sample_tsv /path/to/tsv --out /path/to/out [--SM_db /path/to/sourmash/db] [--SM_db_prefix sourmash_db_prefix] [--kmer kmer_size]"
 	echo "Options:"
 
 	echo ""
 	echo "   --sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
   echo "   --out STR	path to output dir"
   echo "   --SM_db sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)"
-  echo "   --SM_db_prefix  sourmash database prefix, allowing wildcards (default gtdb-rs207)"
-  echo "   --kmer  choice of k-mer, dependent on database choices (default 21, make sure to have them available)"
+  echo "   --SM_db_prefix  sourmash database prefix, allowing wildcards (default genbank-2022.03)"
+  echo "   --kmer  choice of k-mer, dependent on database choices (default 51, make sure database is available)"
 
   echo ""
   echo "Slurm options:"
@@ -139,7 +139,7 @@ export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 
 sleep $[ ( $RANDOM % 90 ) + 1 ]s
 
-bash -l '${EXE_PATH}'/scripts/taxonomy_abundance.sourmash.sh \
+bash -l '${EXE_PATH}'/scripts/taxonomic_abundance.sourmash.sh \
 -o '${out}'/$__sample \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' -m '${mem}' \

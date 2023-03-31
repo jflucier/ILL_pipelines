@@ -4,7 +4,7 @@ set -e
 
 help_message () {
   echo ""
-  echo "Usage: taxonomic_profile.sample.sh -s sample_name -o /path/to/out [--db] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2"
+  echo "Usage: taxonomic_abundance.sourmash.sh -s sample_name -o /path/to/out [-t threads] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2 [--SM_db /path/to/sourmash/db] [--SM_db_prefix sourmash_db_prefix] [--kmer kmer_size]"
   echo "Options:"
 
   echo ""
@@ -12,12 +12,11 @@ help_message () {
   echo "	-o STR	path to output dir"
   echo "	-tmp STR	path to temp dir (default output_dir/temp)"
   echo "	-t	# of threads (default 8)"
-  echo "	-m	memory (default 40G)"
   echo "	-fq1	path to fastq1"
   echo "	-fq2	path to fastq2"
   echo "	--SM_db	sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)"
-  echo "	--SM_db_prefix	sourmash database prefix, allowing wildcards (default gtdb-rs207)"
-  echo "	--kmer	choice of k-mer size, dependent on available databases (default 21, make sure to have them available)"
+  echo "	--SM_db_prefix	sourmash database prefix, allowing wildcards (default genbank-2022.03)"
+  echo "	--kmer	choice of k-mer size, dependent on available databases (default 51, make sure database is available)"
 
   echo ""
   echo "  -h --help	Display help"
@@ -28,8 +27,7 @@ help_message () {
 export EXE_PATH=$(dirname "$0")
 
 # initialisation
-threads="24"
-mem="30G"
+threads="8"
 sample="false";
 out="false";
 tmp="false";
@@ -58,7 +56,6 @@ while true; do
         -h | --help) help_message; exit 1; shift 1;;
         -t) threads=$2; shift 2;;
         -tmp) tmp=$2; shift 2;;
-        -m) mem=$2; shift 2;;
         -s) sample=$2; shift 2;;
         -o) out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
