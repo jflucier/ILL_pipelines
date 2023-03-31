@@ -159,7 +159,7 @@ echo "Generate preprocessed reads sample tsv: ${out}/preprocessed_reads.sample.t
 rm -f ${out}/preprocessed_reads.sample.tsv
 while IFS=$'\t' read -r name f1 f2
 do
-    echo -e "${name}\t${out}/${name}/${name}_paired_1.fastq\t${out}/${name}/${name}_paired_2.fastq" >> ${out}/preprocessed_reads.sample.tsv
+    echo -e "${name}\t${out}/${name}/${name}_paired_1.fastq\t${out}/${name}/${name}_paired_2.fastq\t${out}/${name}/${name}_unmatched_1.fastq\t${out}/${name}/${name}_unmatched_2.fastq" >> ${out}/preprocessed_reads.sample.tsv
 done < ${sample_tsv}
 
 echo "To submit to slurm, execute the following command:"

@@ -97,7 +97,7 @@ salmon index -p $threads -t $tmp/salmon_index/bin_assembly.fa -i $tmp/salmon_ind
 echo "upload bins to $tmp/bins"
 mkdir -p $tmp/quant_bins/alignment_files
 mkdir $tmp/data
-cat $sample_tsv | while  IFS=$'\t' read  -r name f1 f2
+cat $sample_tsv | while  IFS=$'\t' read  -r name f1 f2 f1_un f2_un
 do
 
     echo "copying fastq $f1 on node"

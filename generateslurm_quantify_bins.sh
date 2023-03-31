@@ -134,14 +134,14 @@ module load StdEnv/2020 apptainer/1.1.5
 if [ -z ${SLURM_TMPDIR+x} ]
 then
   echo "SLURM_TMPDIR is unset. Not running on compute node"
-  bash '${EXE_PATH}'/scripts/qunatify_bins.salmon.sh \
+  bash '${EXE_PATH}'/scripts/quantify_bins.salmon.sh \
   -t '${threads}' \
   -drep '$drep' \
   -sample_tsv '$sample_tsv' \
   -o '${out}'
 else
   echo "SLURM_TMPDIR is set to $SLURM_TMPDIR. Running on a compute node!"
-  bash '${EXE_PATH}'/scripts/annotate_bins.sh \
+  bash '${EXE_PATH}'/scripts/quantify_bins.salmon.sh  \
   -t '${threads}' \
   -drep '${drep}' \
   -sample_tsv '${sample_tsv}' \

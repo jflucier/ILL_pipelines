@@ -8,6 +8,7 @@
 * [Installation](#installation)
 * [How to run](#how-to-run)
     * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
+    * [Run Sourmash taxonomic abundance per sample](#Run Sourmash taxonomic abundance per sample)
     * [Run Kraken2 taxonomic profile per sample](#Run-Kraken2-taxonomic-profile-per-sample)
     * [Generate taxonomy table on all samples for a specific taxonomic level](#Generate-taxonomy-table-on-all-samples-for-a-specific-taxonomic-level)
     * [Generate HUMAnN bugs list](#Generate-HUMAnN-bugs-list)
@@ -142,6 +143,59 @@ Options:
 
 ```
 
+### Run Sourmash taxonomic abundance per sample ###
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_taxonomic_abundance.sourmash.sh  -h
+
+Usage: generateslurm_taxonomic_profile.sample.sh --sample_tsv /path/to/tsv --out /path/to/out [--kraken_db "kraken database"]
+Options:
+
+	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
+	--out STR	path to output dir
+	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--bracken_readlen	bracken read length option (default 150)
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 6:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 24)
+	--slurm_mem STR	slurm requested memory (default 125)
+
+  -h --help	Display help
+
+```
+
+**Notice** that preprocess script generates sample tsv file needed here (i.e. precocess/preprocessed_reads.sample.tsv).
+
+The taxonomic profile script can also be executed on a single sample.
+Use -h option to view usage:
+
+```
+
+$ bash $ILL_PIPELINES/scripts/taxonomic_profile.sample.sh -h
+
+Usage: taxonomic_profile.sample.sh [--kraken_db /path/to/krakendb] [--bracken_readlen int] [--confidence float] [-t thread_nbr] [-m mem_in_G] -fq1 /path/fastq1 -fq2 /path/fastq2 -o /path/to/out
+Options:
+
+	-s STR	sample name
+	-o STR	path to output dir
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-m	memory (default 40G)
+	-fq1	path to fastq1
+	-fq2	path to fastq2
+	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)
+	--bracken_readlen	bracken read length option (default 150)
+    --confidence	kraken confidence level to reduce false-positive rate (default 0.05)
+    
+  -h --help	Display help
+
+```
 
 ### Run Kraken2 taxonomic profile per sample ###
 
