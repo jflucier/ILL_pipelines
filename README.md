@@ -9,8 +9,9 @@
 * [How to run](#how-to-run)
     * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
     * [Run Sourmash taxonomic abundance per sample](#Run Sourmash taxonomic abundance per sample)
+    * [Run MetaPhlan taxonomic abundance](#Run Metaphlan taxonomic abundance)
     * [Run Kraken2 taxonomic profile per sample](#Run-Kraken2-taxonomic-profile-per-sample)
-    * [Generate taxonomy table on all samples for a specific taxonomic level](#Generate-taxonomy-table-on-all-samples-for-a-specific-taxonomic-level)
+    * [Taxonomic table on all samples for a specific taxonomic level](#Taxonomy-table-on-all-samples-for-a-specific-taxonomic-level)
     * [Generate HUMAnN bugs list](#Generate-HUMAnN-bugs-list)
     * [Run HUMAnN functionnal profile](#Run-HUMAnN-functionnal-profile)
     * [Run MetaWRAP assembly, binning and bin refinement](#Run-MetaWRAP-assembly,-binning-and-bin-refinement)
@@ -173,7 +174,7 @@ Slurm options:
 
 **Notice** that preprocess script generates sample tsv file needed here (i.e. precocess/preprocessed_reads.sample.tsv).
 
-The sorumash taxonomic abundance script can also be executed on a single sample.
+The sourmash taxonomic abundance script can also be executed on a single sample.
 Use -h option to view usage:
 
 ```
@@ -196,6 +197,72 @@ Options:
   -h --help     Display help
 
 
+
+```
+
+### Run Metaphlan taxonomic abundance ###
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.sh -h
+
+Usage: generateslurm_taxonomic_abundance.metaphlan.sh --sample_tsv /path/to/tsv --out /path/to/out [--db /path/to/metaphlan/db]
+Options:
+
+   --sample_tsv STR     path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
+   --out STR    path to output dir
+   --db   metaphlan db path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212)
+
+Slurm options:
+   --slurm_alloc STR    slurm allocation (default def-ilafores)
+   --slurm_log STR      slurm log file output directory (default to output_dir/logs)
+   --slurm_email "your@email.com"       Slurm email setting
+   --slurm_walltime STR slurm requested walltime (default 24:00:00)
+   --slurm_threads INT  slurm requested number of threads (default 12)
+   --slurm_mem STR      slurm requested memory (default 25G)
+
+   -h --help    Display help
+```
+
+**Notice** that preprocess script generates sample tsv file needed here (i.e. precocess/preprocessed_reads.sample.tsv).
+
+The metaphlan taxonomic abundance script can also be executed on a single sample.
+Use -h option to view usage:
+
+```
+$ bash $ILL_PIPELINES/scripts/taxonomic_abundance.metaphlan.sh -h
+
+Usage: taxonomic_abundance.metaphlan.sh -s sample_name -o /path/to/out [-db /path/to/metaphlan/db] -fq1 /path/to/fastq1 -fq2 /path/to/fastq2 [-fq1_single /path/to/single1.fastq] [-fq2_single /path/to/single2.fastq]
+Options:
+
+        -s STR  sample name
+        -o STR  path to output dir
+        -tmp STR        path to temp dir (default output_dir/temp)
+        -t      # of threads (default 8)
+        -fq1    path to fastq1
+        -fq1_single     path to fastq1 unpaired reads
+        -fq2    path to fastq2
+        -fq2_single     path to fastq2 unpaired reads
+        -db     metaphlan db path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212)
+
+  -h --help     Display help
+
+```
+
+Once metaphlan as run on all samples, you can merge results table by runnint he following script:
+
+```
+$bash $ILL_PIPELINES/scripts/taxonomic_abundance.metaphlan.all.sh -h
+
+Usage: taxonomic_abundance.metaphlan.all.sh -profiles /path/to/metaphlan_out/*_profile.txt -o /path/to/out
+Options:
+
+        -profiles Path to metaphlan outputs (i.e. /path/to/metaphlan_out/*_profile.txt)
+        -o STR  path to output dir
+        -tmp STR        path to temp dir (default output_dir/temp)
+
+  -h --help     Display help
 
 ```
 
@@ -253,7 +320,7 @@ Options:
 
 ```
 
-### Generate taxonomy profile on all samples for all taxonomic level ###
+### Taxonomy profile on all samples for all taxonomic level ###
 
 For full list of options:
 
