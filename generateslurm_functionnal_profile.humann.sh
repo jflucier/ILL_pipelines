@@ -146,7 +146,6 @@ echo '
 echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
 
-module load StdEnv/2020 gcc/9 python/3.7.9 java/14.0.2 mugqic/bowtie2/2.3.5 mugqic/samtools/1.14 mugqic/usearch/10.0.240
 export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
 export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
@@ -157,7 +156,7 @@ export __fastq_file2_single=$(echo -e "$__sample_line" | cut -f5)
 bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 -o '${out}'/'$search_mode'/$__sample \
 -tmp $SLURM_TMPDIR \
--t '${threads}' -m '${mem}' \
+-t '${threads}' \
 -s $__sample \
 -fq1 $__fastq_file1 \
 -fq2 $__fastq_file2 \

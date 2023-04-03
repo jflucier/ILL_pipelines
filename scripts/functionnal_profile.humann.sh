@@ -118,7 +118,7 @@ else
     echo "## Temp folder: $tmp"
 fi
 
-log=${out}/logs/humann_${sample}.log
+log=${out}/humann_${sample}.log
 
 echo "## NT database: $nt_db"
 echo "## Protein database: $prot_db"
@@ -194,7 +194,7 @@ case $search_mode in
     -v --threads ${threads} --resume \
     --o-log ${log} \
     --input $tmp/all_reads.fastq \
-    --output --output $tmp/out --output-basename ${sample} \
+    --output $tmp/out --output-basename ${sample} \
     --nucleotide-database $nt_db \
     --bypass-prescreen --bypass-nucleotide-index --bypass-translated-search
     ;;
@@ -210,7 +210,7 @@ case $search_mode in
     -v --threads ${threads} \
     --o-log ${log} \
     --input $tmp/all_reads.fastq \
-    --output --output $tmp/out --output-basename ${sample} \
+    --output $tmp/out --output-basename ${sample} \
     --protein-database $prot_db \
     --bypass-prescreen --bypass-nucleotide-search
     ;;
