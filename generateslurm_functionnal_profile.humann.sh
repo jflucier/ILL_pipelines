@@ -21,7 +21,7 @@ help_message () {
     echo "	--slurm_email \"your@email.com\"	Slurm email setting"
     echo "	--slurm_walltime STR	slurm requested walltime (default 24:00:00)"
     echo "	--slurm_threads INT	slurm requested number of threads (default 24)"
-    echo "	--slurm_mem STR	slurm requested memory (default 125G)"
+    echo "	--slurm_mem STR	slurm requested memory (default 30G)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -37,7 +37,7 @@ alloc="def-ilafores"
 email="false"
 walltime="25:00:00"
 threads="24"
-mem="125G"
+mem="30G"
 log="false"
 
 sample_tsv="false";
