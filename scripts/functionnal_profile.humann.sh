@@ -172,7 +172,7 @@ case $search_mode in
     -B $tmp:$tmp \
     -B $nt_db:$nt_db \
     -B $prot_db:$prot_db \
-    -B ${log}:${log} \
+    -B ${out}:${out} \
     $tmp/humann.3.6.sif \
     humann \
     -v --threads ${threads} \
@@ -190,7 +190,7 @@ case $search_mode in
     singularity exec --writable-tmpfs -e \
     -B $tmp:$tmp \
     -B $nt_db:$nt_db \
-    -B ${log}:${log} \
+    -B ${out}:${out} \
     $tmp/humann.3.6.sif \
     humann \
     -v --threads ${threads} --resume \
@@ -207,7 +207,7 @@ case $search_mode in
     singularity exec --writable-tmpfs -e \
     -B $tmp:$tmp \
     -B $prot_db:$prot_db \
-    -B ${log}:${log} \
+    -B ${out}:${out} \
     $tmp/humann.3.6.sif \
     humann \
     -v --threads ${threads} \
