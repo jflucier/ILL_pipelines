@@ -41,3 +41,7 @@ From: ubuntu:22.04
   pip3 install MetaPhlAn==4.0.4
 
   pip3 install humann==3.6
+
+  humann_config --update database_folders nucleotide /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan
+  humann_config --update database_folders protein /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref
+  humann_config --update database_folders utility_mapping /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref/utility_mapping

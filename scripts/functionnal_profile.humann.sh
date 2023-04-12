@@ -223,39 +223,30 @@ case $search_mode in
 esac
 
 echo "running humann rename and regroup table on uniref dbs"
-for uniref_db in uniref90_rxn uniref90_go uniref90_ko uniref90_level4ec uniref90_pfam uniref90_eggnog;
+for uniref_db in metacyc-rxn_name go_uniref90 ko_uniref90 level4ec_uniref90 pfam_uniref90 eggnog_uniref90;
 do
-	if [[ $uniref_db == *"rxn"* ]]; then
-		__NAMES=metacyc-rxn
-    __MAP=mc-rxn
-	elif [[ $uniref_db == *"ko"* ]]; then
-		__NAMES=kegg-orthology
-    __MAP=kegg
-	elif [[ $uniref_db == *"level4ec"* ]]; then
-		__NAMES=ec
-    __MAP=level4ec
-	else
-		__NAMES=${uniref_db/uniref90_/}
-    __MAP=$__NAMES
-	fi
+  echo "#### running ${uniref_db} ####"
 
 	echo "...regrouping genes to $__NAMES reactions"
 	singularity exec --writable-tmpfs -e \
   -B $tmp:$tmp \
+  -B $prot_db:$prot_db \
   $tmp/humann.3.6.sif \
   humann_regroup_table \
   --input $tmp/out/${sample}_genefamilies.tsv \
-  --output $tmp/out/${sample}_genefamilies_${__MAP}.tsv \
-  --groups ${uniref_db}
+  --output $tmp/out/${sample}_genefamilies_${uniref_db}.tsv \
+  --custom $prot_db/utility_mapping/map_${uniref_db}.txt.gz
 
 	echo  "...attaching names to $__MAP codes" ## For convenience
 	singularity exec --writable-tmpfs -e \
   -B $tmp:$tmp \
+  -B $prot_db:$prot_db \
   $tmp/humann.3.6.sif \
   humann_rename_table \
-  --input $tmp/out/${sample}_genefamilies_${__MAP}.tsv \
-  --output $tmp/out/${sample}_genefamilies_${__MAP}_named.tsv \
-  --names $__NAMES
+  --input $tmp/out/${sample}_genefamilies_${uniref_db}.tsv \
+  --output $tmp/out/${sample}_genefamilies_${uniref_db}_named.tsv \
+  --custom $prot_db/utility_mapping/map_${uniref_db}.txt.gz
+
 done
 
 echo "...creating community-level profiles"
@@ -270,6 +261,7 @@ humann_split_stratified_table \
 --output $tmp/out/${sample}_community_tables/
 
 echo "copying results to ${out}"
-cp -r $tmp/out/* ${out}/
+cp -f $tmp/out/*.tsv ${out}/
+cp -fr $tmp/out/GQ1_community_tables ${out}/
 
 echo "done ${sample}"
