@@ -255,7 +255,7 @@ do
 	echo "...regrouping genes to ${uniref_db} reactions"
 	singularity exec --writable-tmpfs -e \
   -B $tmp:$tmp \
-  -B $prot_db:$prot_db \
+  -B ${utility_map_db}:${utility_map_db} \
   $tmp/humann.3.6.sif \
   humann_regroup_table \
   --input $tmp/out/${sample}_genefamilies.tsv \
@@ -265,7 +265,7 @@ do
 	echo  "...attaching names to ${uniref_db} codes" ## For convenience
 	singularity exec --writable-tmpfs -e \
   -B $tmp:$tmp \
-  -B $prot_db:$prot_db \
+  -B ${utility_map_db}:${utility_map_db} \
   $tmp/humann.3.6.sif \
   humann_rename_table \
   --input $tmp/out/${sample}_genefamilies_${uniref_db}.tsv \
