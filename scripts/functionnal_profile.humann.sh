@@ -19,6 +19,7 @@ help_message () {
     echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default prot)"
     echo "	--nt_db	the nucleotide database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan)"
     echo "	--prot_db	the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref)"
+    echo "	--utility_map_db	the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/utility_mapping)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -39,12 +40,13 @@ fq2_single="false";
 search_mode="prot"
 nt_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan"
 prot_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref"
+utility_map_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/utility_mapping"
 log='false'
 
 # load in params
 # load in params
 SHORT_OPTS="ht:m:o:s:fq1:fq1_single:fq2:fq2_single:tmp:"
-LONG_OPTS='help,search_mode,nt_db,prot_db'
+LONG_OPTS='help,search_mode,nt_db,prot_db,utility_map_db'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -69,6 +71,7 @@ while true; do
         --search_mode) search_mode=$2; shift 2;;
 	      --nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
+        --utility_map_db) utility_map_db=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
 	esac
@@ -122,6 +125,7 @@ log=${out}/humann_${sample}.log
 
 echo "## NT database: $nt_db"
 echo "## Protein database: $prot_db"
+echo "## Utility mapping database: $utility_map_db"
 
 if [ "$fq1" = "false" ]; then
     echo "Please provide a fastq1."
@@ -230,7 +234,7 @@ for uniref_db in metacyc-rxn_name go_uniref90 ko_uniref90 level4ec_uniref90 pfam
 do
   echo "#### running ${uniref_db} ####"
 
-	echo "...regrouping genes to $__NAMES reactions"
+	echo "...regrouping genes to ${uniref_db} reactions"
 	singularity exec --writable-tmpfs -e \
   -B $tmp:$tmp \
   -B $prot_db:$prot_db \
@@ -238,9 +242,9 @@ do
   humann_regroup_table \
   --input $tmp/out/${sample}_genefamilies.tsv \
   --output $tmp/out/${sample}_genefamilies_${uniref_db}.tsv \
-  --custom $prot_db/utility_mapping/map_${uniref_db}.txt.gz
+  --custom ${utility_map_db}/map_${uniref_db}.txt.gz
 
-	echo  "...attaching names to $__MAP codes" ## For convenience
+	echo  "...attaching names to ${uniref_db} codes" ## For convenience
 	singularity exec --writable-tmpfs -e \
   -B $tmp:$tmp \
   -B $prot_db:$prot_db \
@@ -248,7 +252,7 @@ do
   humann_rename_table \
   --input $tmp/out/${sample}_genefamilies_${uniref_db}.tsv \
   --output $tmp/out/${sample}_genefamilies_${uniref_db}_named.tsv \
-  --custom $prot_db/utility_mapping/map_${uniref_db}.txt.gz
+  --custom ${utility_map_db}/map_${uniref_db}.txt.gz
 
 done
 

@@ -13,6 +13,7 @@ help_message () {
     echo "	--search_mode	Search mode. Possible values are: dual, nt, prot (default prot)"
     echo "	--nt_db	the nucleotide database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan)"
     echo "	--prot_db	the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref)"
+    echo "	--utility_map_db	the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/utility_mapping)"
 
     echo ""
     echo "Slurm options:"
@@ -45,11 +46,12 @@ out="false";
 search_mode="prot"
 nt_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan"
 prot_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref"
+utility_map_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/utility_mapping"
 
 # load in params
 SHORT_OPTS="h"
 LONG_OPTS='help,slurm_alloc,slurm_log,slurm_email,slurm_walltime,slurm_threads,slurm_mem,\
-sample_tsv,out,search_mode,nt_db,prot_db'
+sample_tsv,out,search_mode,nt_db,prot_db,utility_map_db'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 # make sure the params are entered correctly
@@ -74,6 +76,7 @@ while true; do
         --search_mode) search_mode=$2; shift 2;;
 		    --nt_db) nt_db=$2; shift 2;;
         --prot_db) prot_db=$2; shift 2;;
+        --utility_map_db) utility_map_db=$2; shift 2;;
         --) help_message; exit 1; shift; break ;;
 		*) break;;
 	esac
@@ -105,12 +108,9 @@ fi
 
 mkdir -p $log
 
-if [ "$nt_db" = "false" ]; then
-    echo "Please provide an NT db path"
-    help_message; exit 1
-fi
 echo "## NT database: $nt_db"
 echo "## Protein database: $prot_db"
+echo "## Utility mapping database: $utility_map_db"
 
 if [ "$search_mode" != "dual" ] && [ "$search_mode" != "nt" ] && [ "$search_mode" != "prot" ]; then
     echo "Search mode provided is $search_mode. Value must be one of the following: dual, nt or prot"
@@ -164,7 +164,8 @@ bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
 -fq2_single $__fastq_file2_single \
 --search_mode '$search_mode' \
 --nt_db '$nt_db' \
---prot_db '$prot_db'
+--prot_db '$prot_db' \
+--utility_map_db '$utility_map_db'
 
 ' >> ${out}/functionnal_profile.$search_mode.slurm.sh
 
