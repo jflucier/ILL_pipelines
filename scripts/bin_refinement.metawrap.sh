@@ -114,6 +114,23 @@ fi
 echo "## Will use minimum completion percent: $refinement_min_compl/"
 echo "## Will use maximum contamination percent: $refinement_max_cont/"
 
+# throttling
+mkdir -p $out/.throttle
+
+# to prevent starting of multiple download because of simultanneneous ls
+sleep $[ ( $RANDOM % 30 ) + 1 ]s
+
+l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.start.${sample}.txt
+
 echo "copying metabat2 bins in temps dir"
 mkdir ${tmp}/metabat2_bins
 cp -r $metabat2_bins/* ${tmp}/metabat2_bins/
@@ -123,6 +140,11 @@ cp -r $maxbin2_bins/* ${tmp}/maxbin2_bins/
 echo "copying concoct bins in temps dir"
 mkdir ${tmp}/concoct_bins
 cp -r $concoct_bins/* ${tmp}/concoct_bins/
+echo "cp singularity container to $tmp"
+cp ${EXE_PATH}/../containers/metawrap.1.3.sif $tmp/
+
+# remove from throttle list
+rm ${out}/.throttle/throttle.start.${sample}.txt
 
 echo "Running metawrap bin refinement"
 mkdir ${tmp}/bin_refinement/
@@ -132,7 +154,7 @@ singularity exec --writable-tmpfs -e \
 -B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
 -B /net/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
 -B /net/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
-${EXE_PATH}/../containers/metawrap.1.3.sif \
+$tmp/metawrap.1.3.sif \
 metawrap bin_refinement -t $threads -m $BINNING_MEM --quick \
 -c $refinement_min_compl -x $refinement_max_cont \
 -o /out/bin_refinement/ \
@@ -150,8 +172,24 @@ do
 done
 
 echo "copying bin_refinement results back to $out"
-mkdir -p $out
+
+echo "copying results to $out with throttling"
+mkdir -p $out/
+
+l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.end.${sample}.txt
+
 cp -r ${tmp}/bin_refinement/* $out/
 
+# cp done remove from list
+rm ${out}/.throttle/throttle.end.${sample}.txt
 
 echo "metawrap binning refinement pipeline done"

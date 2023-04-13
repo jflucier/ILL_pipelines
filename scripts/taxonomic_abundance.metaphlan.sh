@@ -92,37 +92,55 @@ fi
 if [ "$fq1" = "false" ]; then
     echo "Please provide a fastq1."
     help_message; exit 1
-else
-    echo "upload $fq1 to $tmp/fq1.fastq"
-    cp $fq1 $tmp/fq1.fastq
 fi
 
 if [ "$fq1_single" = "false" ]; then
     echo "Since fastq1 single path was not provided. Will not be considered in analysis. "
     touch $tmp/fq1_single.fastq
-else
-    echo "upload $fq1_single to $tmp/fq1_single.fastq"
-    cp $fq1_single $tmp/fq1_single.fastq
+    fq1_single=$tmp/fq1_single.fastq
 fi
 
 if [ "$fq2" = "false" ]; then
     echo "Please provide a fastq2."
     help_message; exit 1
-else
-    echo "upload $fq2 to $tmp/fq2.fastq"
-    cp $fq2 $tmp/fq2.fastq
 fi
 
 if [ "$fq2_single" = "false" ]; then
     echo "Since fastq2 single path was not provided. Will not be considered in analysis. "
     touch $tmp/fq2_single.fastq
-else
-    echo "upload $fq2_single to $tmp/fq2_single.fastq"
-    cp $fq2_single $tmp/fq2_single.fastq
+    fq2_single=$tmp/fq2_single.fastq
 fi
 
+# throttling
+mkdir -p $out/.throttle
+
+# to prevent starting of multiple download because of simultanneneous ls
+sleep $[ ( $RANDOM % 30 ) + 1 ]s
+
+l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.start.${sample}.txt
+
+echo "upload $fq1 to $tmp/fq1.fastq"
+cp $fq1 $tmp/fq1.fastq
+echo "upload $fq2 to $tmp/fq2.fastq"
+cp $fq2 $tmp/fq2.fastq
+echo "upload $fq1_single to $tmp/fq1_single.fastq"
+cp $fq1_single $tmp/fq1_single.fastq
+echo "upload $fq2_single to $tmp/fq2_single.fastq"
+cp $fq2_single $tmp/fq2_single.fastq
 echo "copying singularity containers to $tmp"
 cp ${EXE_PATH}/../containers/humann.3.6.sif $tmp/
+
+# remove from throttle list
+rm ${out}/.throttle/throttle.start.${sample}.txt
 
 echo "Combining reads to a single fastq"
 cat $tmp/fq1.fastq $tmp/fq2.fastq $tmp/fq1_single.fastq $tmp/fq2_single.fastq > $tmp/all_reads.fastq
@@ -145,9 +163,24 @@ metaphlan \
 -o $tmp/${sample}_profile.txt \
 $tmp/all_reads.fastq
 
-echo "copying all results to $out"
-mkdir -p ${out}
+echo "copying results to $out with throttling"
+mkdir -p $out/
+
+l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.end.${sample}.txt
+
 cp $tmp/${sample}.bowtie2.txt ${out}/
 cp $tmp/${sample}_profile.txt ${out}/
+
+# cp done remove from list
+rm ${out}/.throttle/throttle.end.${sample}.txt
 
 echo "Metaphlan taxonomic abundance of ${sample} completed!"

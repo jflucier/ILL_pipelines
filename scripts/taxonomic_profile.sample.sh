@@ -95,10 +95,28 @@ fi
 echo "analysing sample $sample with kraken2 using $confidence confidence level"
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
+echo "kraken db: $kraken_db"
+echo "running kraken. Kraken ouptut: $tmp/${sample}/"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
 kraken_db_name=$(basename $kraken_db)
+
+mkdir -p $out/.throttle
+
+# to prevent starting of multiple download because of simultanneneous ls
+sleep $[ ( $RANDOM % 30 ) + 1 ]s
+
+l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.start.${sample}.txt
 
 echo "upload fastq1 to $tmp/$fq1_name"
 cp $fq1 $tmp/$fq1_name
@@ -107,15 +125,10 @@ cp $fq2 $tmp/$fq2_name
 echo "copying singularity containers to $tmp"
 cp ${EXE_PATH}/../containers/kraken.2.1.2.sif $tmp/
 
-echo "using kraken db to $kraken_db"
-#echo "upload kraken db to $tmp/$kraken_db_name"
-#cp -r $kraken_db $tmp/$kraken_db_name
-
-
-### Kraken
+# remove from throttle list
+rm ${out}/.throttle/throttle.start.${sample}.txt
 
 mkdir $tmp/${sample}
-echo "running kraken. Kraken ouptut: $tmp/${sample}/"
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 -B $kraken_db:/db \
@@ -132,13 +145,8 @@ kraken2 \
 --report /temp/${sample}/${sample}.kreport \
 /temp/${fq1_name} /temp/${fq2_name}
 
-# echo "copying all results to $out"
-# cp -fr $tmp/${sample}/* $out/
-
 ### Bracken reestimations
 mkdir -p $tmp/${sample}/${sample}_bracken
-# echo "running bracken. Bracken Output: $tmp/${sample}/${sample}_bracken/${sample}_S.bracken"
-
 mkdir $tmp/${sample}/${sample}_kronagrams
 
 __all_taxas=(
@@ -211,7 +219,23 @@ grep "|s" $tmp/${sample}/${sample}_bracken/${sample}_temp.MPA.TXT \
 | awk 'BEGIN{printf("#mpa_v30_CHOCOPhlAn_201901\n")}1' - \
 > $tmp/${sample}/${sample}-bugs_list.MPA.TXT
 
-echo "copying all results to $out"
+
+echo "copying results to $out with throttling"
+
+l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.end.${sample}.txt
+
 cp -fr $tmp/${sample}/* $out/
+
+# cp done remove from list
+rm ${out}/.throttle/throttle.end.${sample}.txt
 
 echo "taxonomic profile done for ${sample}"

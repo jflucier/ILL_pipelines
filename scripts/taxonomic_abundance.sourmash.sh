@@ -92,17 +92,34 @@ fi
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
 
+mkdir -p $out/.throttle
+
+# to prevent starting of multiple download because of simultanneneous ls
+sleep $[ ( $RANDOM % 30 ) + 1 ]s
+
+l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.start.${sample}.txt
+
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
 
 echo "upload fastq1 to $tmp/$fq1_name"
 cp $fq1 $tmp/$fq1_name
-
 echo "upload fastq2 to $tmp/$fq2_name"
 cp $fq2 $tmp/$fq2_name
-
 echo "copying singularity containers to $tmp"
 cp ${EXE_PATH}/../containers/sourmash.4.7.0.sif $tmp/
+
+# remove from throttle list
+rm ${out}/.throttle/throttle.start.${sample}.txt
 
 ### Sourmash
 echo "analysing sample $sample containment using sourmash against ${SM_db_prefix}.k${kmer} index"
@@ -138,21 +155,24 @@ sourmash tax annotate \
 -g $tmp/${sample}/${sample}.k${kmer}.csv \
 -t $SM_db/${SM_db_prefix}*.sqldb \
 -o $tmp/${sample}
-
-#echo "...summarise results to species level"
-#mkdir -p $tmp/${sample}/
-#singularity exec --writable-tmpfs -e \
-#-B $tmp:$tmp \
-#-B $SM_db:$SM_db \
-#$tmp/sourmash.4.7.0.sif \
-#sourmash tax metagenome \
-#-g $tmp/${sample}/${sample}.k${kmer}.with-lineages.csv \
-#--rank species \
-#-t $SM_db/${SM_db_prefix}*.sqldb \
-#-o $tmp/${sample}
 				
-echo "copying all results to $out"
+echo "copying results to ${out}/taxSM_${SM_db_prefix}_k${kmer} with throttling"
+
+l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.end.${sample}.txt
+
 mkdir -p ${out}/taxSM_${SM_db_prefix}_k${kmer}
 cp -fr $tmp/${sample}/* ${out}/taxSM_${SM_db_prefix}_k${kmer}/
+
+# cp done remove from list
+rm ${out}/.throttle/throttle.end.${sample}.txt
 
 echo "taxonomic profile of ${sample} completed!"

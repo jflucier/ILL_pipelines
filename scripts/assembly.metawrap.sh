@@ -118,17 +118,39 @@ echo "fastq2 path: $__fastq_file2"
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
 
+# throttling
+mkdir -p $out/.throttle
+
+# to prevent starting of multiple download because of simultanneneous ls
+sleep $[ ( $RANDOM % 30 ) + 1 ]s
+
+l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.start.${sample}.txt
+
 echo "upload fastq1 to $tmp/"
 cp $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp"
 cp $fq2 $tmp/$fq2_name
+echo "cp singularity container to $tmp"
+cp ${EXE_PATH}/../containers/metawrap.1.3.sif $tmp/
+
+# remove from throttle list
+rm ${out}/.throttle/throttle.start.${sample}.txt
 
 mkdir -p ${tmp}/assembly
 
 echo "running BBmap repair.sh using ${mem}"
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
-${EXE_PATH}/../containers/metawrap.1.3.sif \
+$tmp/metawrap.1.3.sif \
 repair.sh \
 in=/out/$fq1_name \
 in2=/out/$fq2_name \
@@ -143,15 +165,30 @@ singularity exec --writable-tmpfs -e \
 -B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
 -B /net/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
 -B /net/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
-${EXE_PATH}/../containers/metawrap.1.3.sif \
+$tmp/metawrap.1.3.sif \
 metaWRAP assembly ${assembly_programs} \
 -m $SPADES_MEM -t $threads \
 -1 /out/assembly/${sample}_paired_sorted_1.fastq \
 -2 /out/assembly/${sample}_paired_sorted_2.fastq \
 -o /out/assembly/
 
-echo "copying assembly results back to $out/${sample}/"
+echo "copying results to $out with throttling"
 mkdir -p $out/
+
+l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+while [ "$l_nbr" -ge 5 ]
+do
+  echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
+  sleep 15
+  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+done
+
+# add to throttle list
+touch ${out}/.throttle/throttle.end.${sample}.txt
+
 cp -r ${tmp}/assembly/* $out
+
+# cp done remove from list
+rm ${out}/.throttle/throttle.end.${sample}.txt
 
 echo "metawrap assembly pipeline done"
