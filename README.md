@@ -250,10 +250,10 @@ Options:
 
 ```
 
-Once metaphlan as run on all samples, you can merge results table by runnint he following script:
+Once metaphlan as run on all samples, you can merge results table by running the following script:
 
 ```
-$bash $ILL_PIPELINES/scripts/taxonomic_abundance.metaphlan.all.sh -h
+$ bash $ILL_PIPELINES/scripts/taxonomic_abundance.metaphlan.all.sh -h
 
 Usage: taxonomic_abundance.metaphlan.all.sh -profiles /path/to/metaphlan_out/*_profile.txt -o /path/to/out
 Options:
