@@ -414,21 +414,23 @@ $ bash $ILL_PIPELINES/generateslurm_functionnal_profile.humann.sh -h
 Usage: generateslurm_functionnal_profile.humann.sh --sample_tsv /path/to/tsv --out /path/to/out --nt_db "nt database path" [--search_mode "search mode"] [--prot_db "protein database path"]
 Options:
 
-	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
-	--out STR	path to output dir
-	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)
-	--nt_db	the nucleotide database to use
-	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref)
+  --sample_tsv STR      path to sample tsv (5 columns: sample name<tab>fastq1 path<tab>fastq2 path<tab>fastq1 single path<tab>fastq2 single path). Generated in preprocess step.
+        --out STR       path to output dir
+        --search_mode   Search mode. Possible values are: dual, nt, prot (default prot)
+        --nt_db the nucleotide database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan)
+        --prot_db       the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref)
+        --utility_map_db        the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/utility_mapping)
 
 Slurm options:
-	--slurm_alloc STR	slurm allocation (default def-ilafores)
-	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
-	--slurm_email "your@email.com"	Slurm email setting
-	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
-	--slurm_threads INT	slurm requested number of threads (default 24)
-	--slurm_mem STR	slurm requested memory (default 125G)
+        --slurm_alloc STR       slurm allocation (default def-ilafores)
+        --slurm_log STR slurm log file output directory (default to output_dir/logs)
+        --slurm_email "your@email.com"  Slurm email setting
+        --slurm_walltime STR    slurm requested walltime (default 24:00:00)
+        --slurm_threads INT     slurm requested number of threads (default 24)
+        --slurm_mem STR slurm requested memory (default 30G)
 
-  -h --help	Display help
+  -h --help     Display help
+
 
 
 ```
@@ -440,23 +442,25 @@ Use -h option to view usage:
 
 ```
 
-$ $ILL_PIPELINES/scripts/functionnal_profile.humann.sh -h
+$ bash $ILL_PIPELINES/scripts/functionnal_profile.humann.sh -h
 
-Usage: functionnal_profile.humann.sh -s /path/to/tsv --o /path/to/out --nt_db "nt database path" [--search_mode "search mode"] [--prot_db "protein database path"]
+Usage: functionnal_profile.humann.sh -s sample_name -o /path/to/out --nt_db "nt database path" [--search_mode "search mode"] [--prot_db "protein database path"]
 Options:
 
-	-s STR	sample name
-	-o STR	path to output dir
-	-tmp STR	path to temp dir (default output_dir/temp)
-	-t	# of threads (default 8)
-	-m	memory (default 30G)
-	-fq	path to fastq
-	--search_mode	Search mode. Possible values are: dual, nt, prot (default dual)
-	--nt_db	the nucleotide database to use
-	--prot_db	the protein database to use (default /home/def-ilafores/programs/ILL_pipelineshumann3/lib/python3.7/site-packages/humann/data/uniref)
-	--log	logging file path (default /path/output/log.txt)
+        -s STR  sample name
+        -o STR  path to output dir
+        -tmp STR        path to temp dir (default output_dir/temp)
+        -t      # of threads (default 8)
+        -fq1    path to fastq1
+        -fq1_single     path to fastq1 unpaired reads
+        -fq2    path to fastq2
+        -fq2_single     path to fastq2 unpaired reads
+        --search_mode   Search mode. Possible values are: dual, nt, prot (default prot)
+        --nt_db the nucleotide database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/chocophlan)
+        --prot_db       the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/uniref)
+        --utility_map_db        the protein database to use (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/humann_dbs/utility_mapping)
 
-  -h --help	Display help
+  -h --help     Display help
 
 
 ```
