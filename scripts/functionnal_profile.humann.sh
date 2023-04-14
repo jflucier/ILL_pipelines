@@ -151,7 +151,7 @@ if [ "$fq2_single" = "false" ]; then
 fi
 
 # throttling
-mkdir -p $out/.throttle
+mkdir -p $base_out/.throttle
 
 # to prevent starting of multiple download because of simultanneneous ls
 sleep $[ ( $RANDOM % 30 ) + 1 ]s
