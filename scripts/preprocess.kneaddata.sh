@@ -32,7 +32,7 @@ export EXE_PATH=$(dirname "$0")
 threads="8"
 mem="30G"
 sample="false";
-out="false";
+base_out="false";
 tmp="false";
 fq1="false";
 fq2="false";
@@ -50,7 +50,7 @@ while true; do
         -tmp) tmp=$2; shift 2;;
         -m) mem=$2; shift 2;;
         -s) sample=$2; shift 2;;
-        -o) out=$2; shift 2;;
+        -o) base_out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
         -fq2) fq2=$2; shift 2;;
 		--db) db=$2; shift 2;;
@@ -69,13 +69,13 @@ else
     echo "## Sample name: $sample"
 fi
 
-if [ "$out" = "false" ]; then
+if [ "$base_out" = "false" ]; then
     echo "Please provide an output path"
     help_message; exit 1
 else
     mkdir -p ${out}/${sample}
     out=${out}/${sample}
-    echo "## Results wil be stored to this path: $out/"
+    echo "## Results wil be stored to this path: ${out}"
 fi
 
 if [ "$tmp" = "false" ]; then
@@ -94,21 +94,21 @@ fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
 db_name=$(basename $db)
 
-mkdir -p $out/.throttle
+mkdir -p $base_out/.throttle
 
 # to prevent starting of multiple download because of simultanneneous ls
 sleep $[ ( $RANDOM % 30 ) + 1 ]s
 
-l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+l_nbr=$(ls ${base_out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
 while [ "$l_nbr" -ge 5 ]
 do
   echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
   sleep 15
-  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+  l_nbr=$(ls ${base_out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
 done
 
 # add to throttle list
-touch ${out}/.throttle/throttle.start.${sample}.txt
+touch ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "upload fastq1 to $tmp/"
 cp $fq1 $tmp/$fq1_name
@@ -118,7 +118,7 @@ echo "cp singularity container to $tmp"
 cp ${EXE_PATH}/../containers/kneaddata.0.12.0.sif $tmp/
 
 # remove from throttle list
-rm ${out}/.throttle/throttle.start.${sample}.txt
+rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 h_test=$(zcat $tmp/${fq1_name} | head -n 1 | perl -ne '
 if($_ =~ / 1\:.*$/){
@@ -175,22 +175,22 @@ mv $tmp/${sample}*contam*.fastq $tmp/${sample}_contaminants/
 
 echo "copying results to $out with throttling"
 
-l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+l_nbr=$(ls ${base_out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
 while [ "$l_nbr" -ge 5 ]
 do
   echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
   sleep 15
-  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+  l_nbr=$(ls ${base_out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
 done
 
 # add to throttle list
-touch ${out}/.throttle/throttle.end.${sample}.txt
+touch ${base_out}/.throttle/throttle.end.${sample}.txt
 
 echo "copying all kneaddata results to $out"
 cp -fr $tmp/${sample}* $out/
 cp $tmp/fastqc/*.html $out/
 
 # cp done remove from list
-rm ${out}/.throttle/throttle.end.${sample}.txt
+rm ${base_out}/.throttle/throttle.end.${sample}.txt
 
 echo "done ${sample}"
