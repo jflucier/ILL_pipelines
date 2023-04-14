@@ -154,7 +154,7 @@ export __fastq_file1_single=$(echo -e "$__sample_line" | cut -f4)
 export __fastq_file2_single=$(echo -e "$__sample_line" | cut -f5)
 
 bash '${EXE_PATH}'/scripts/functionnal_profile.humann.sh \
--o '${out}'/'$search_mode'/$__sample \
+-o '${out}'/'$search_mode'/ \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' \
 -s $__sample \
