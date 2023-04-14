@@ -142,8 +142,6 @@ export __sample=$(echo -e "$__sample_line" | cut -f1)
 export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
 export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 
-sleep $[ ( $RANDOM % 90 ) + 1 ]s
-
 bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 -o '${out}' \
 -tmp $SLURM_TMPDIR \
