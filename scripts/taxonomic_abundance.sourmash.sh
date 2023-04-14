@@ -29,7 +29,7 @@ export EXE_PATH=$(dirname "$0")
 # initialisation
 threads="8"
 sample="false";
-out="false";
+base_out="false";
 tmp="false";
 fq1="false";
 fq2="false";
@@ -57,7 +57,7 @@ while true; do
         -t) threads=$2; shift 2;;
         -tmp) tmp=$2; shift 2;;
         -s) sample=$2; shift 2;;
-        -o) out=$2; shift 2;;
+        -o) base_out=$2; shift 2;;
         -fq1) fq1=$2; shift 2;;
         -fq2) fq2=$2; shift 2;;
 		    --SM_db) SM_db=$2; shift 2;;
@@ -75,12 +75,13 @@ else
     echo "## Sample name: $sample"
 fi
 
-if [ "$out" = "false" ]; then
+if [ "$base_out" = "false" ]; then
     echo "Please provide an output path"
     help_message; exit 1
 else
-    mkdir -p $out
-    echo "## Results wil be stored to this path: $out/"
+    mkdir -p ${base_out}/${sample}
+    out=${base_out}/${sample}
+    echo "## Results wil be stored to this path: ${out}"
 fi
 
 if [ "$tmp" = "false" ]; then
@@ -92,21 +93,21 @@ fi
 echo "fastq1 path: $fq1"
 echo "fastq2 path: $fq2"
 
-mkdir -p $out/.throttle
+mkdir -p $base_out/.throttle
 
 # to prevent starting of multiple download because of simultanneneous ls
 sleep $[ ( $RANDOM % 30 ) + 1 ]s
 
-l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+l_nbr=$(ls ${base_out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
 while [ "$l_nbr" -ge 5 ]
 do
   echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
   sleep 15
-  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+  l_nbr=$(ls ${base_out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
 done
 
 # add to throttle list
-touch ${out}/.throttle/throttle.start.${sample}.txt
+touch ${base_out}/.throttle/throttle.start.${sample}.txt
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
@@ -119,7 +120,7 @@ echo "copying singularity containers to $tmp"
 cp ${EXE_PATH}/../containers/sourmash.4.7.0.sif $tmp/
 
 # remove from throttle list
-rm ${out}/.throttle/throttle.start.${sample}.txt
+rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 ### Sourmash
 echo "analysing sample $sample containment using sourmash against ${SM_db_prefix}.k${kmer} index"
@@ -158,21 +159,21 @@ sourmash tax annotate \
 				
 echo "copying results to ${out}/taxSM_${SM_db_prefix}_k${kmer} with throttling"
 
-l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+l_nbr=$(ls ${base_out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
 while [ "$l_nbr" -ge 5 ]
 do
   echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
   sleep 15
-  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+  l_nbr=$(ls ${base_out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
 done
 
 # add to throttle list
-touch ${out}/.throttle/throttle.end.${sample}.txt
+touch ${base_out}/.throttle/throttle.end.${sample}.txt
 
 mkdir -p ${out}/taxSM_${SM_db_prefix}_k${kmer}
 cp -fr $tmp/${sample}/* ${out}/taxSM_${SM_db_prefix}_k${kmer}/
 
 # cp done remove from list
-rm ${out}/.throttle/throttle.end.${sample}.txt
+rm ${base_out}/.throttle/throttle.end.${sample}.txt
 
 echo "taxonomic profile of ${sample} completed!"
