@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 help_message () {
 	echo ""
@@ -301,7 +301,7 @@ done
 touch ${base_out}/.throttle/throttle.end.${sample}.txt
 
 cp -f $tmp/out/*.tsv ${out}/
-cp -fr $tmp/out/GQ1_community_tables ${out}/
+cp -fr $tmp/out/${sample}_community_tables ${out}/
 
 # cp done remove from list
 rm ${base_out}/.throttle/throttle.end.${sample}.txt
