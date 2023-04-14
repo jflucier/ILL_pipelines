@@ -73,7 +73,8 @@ if [ "$out" = "false" ]; then
     echo "Please provide an output path"
     help_message; exit 1
 else
-    mkdir -p $out
+    mkdir -p ${out}/${sample}
+    out=${out}/${sample}
     echo "## Results wil be stored to this path: $out/"
 fi
 
