@@ -11,7 +11,7 @@ help_message () {
   echo "	-s STR	sample name"
   echo "	-o STR	path to output dir"
   echo "	-tmp STR	path to temp dir (default output_dir/temp)"
-  echo "	-t	# of threads (default 8)"
+  echo "	-t	# of threads (default 2)"
   echo "	-fq1	path to fastq1"
   echo "	-fq2	path to fastq2"
   echo "	--SM_db	sourmash databases directory path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/sourmash_db/)"
@@ -27,7 +27,7 @@ help_message () {
 export EXE_PATH=$(dirname "$0")
 
 # initialisation
-threads="8"
+threads="2"
 sample="false";
 base_out="false";
 tmp="false";
