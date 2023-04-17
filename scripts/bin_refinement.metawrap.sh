@@ -30,7 +30,7 @@ export EXE_PATH=$(dirname "$0")
 threads="8"
 mem="40G"
 sample="false";
-out="false";
+base_out="false";
 tmp="false";
 metabat2_bins="false";
 maxbin2_bins="false";
@@ -58,7 +58,7 @@ while true; do
         -tmp) tmp=$2; shift 2;;
         -m) mem=$2; shift 2;;
         -s) sample=$2; shift 2;;
-        -o) out=$2; shift 2;;
+        -o) base_out=$2; shift 2;;
         --metabat2_bins) metabat2_bins=$2; shift 2;;
 		--maxbin2_bins) maxbin2_bins=$2; shift 2;;
         --concoct_bins) concoct_bins=$2; shift 2;;
@@ -76,12 +76,13 @@ else
     echo "## Sample name: $sample"
 fi
 
-if [ "$out" = "false" ]; then
+if [ "$base_out" = "false" ]; then
     echo "Please provide an output path"
     help_message; exit 1
 else
-    mkdir -p $out
-    echo "## Results wil be stored to this path: $out/"
+    mkdir -p ${base_out}/${sample}
+    out=${base_out}/${sample}
+    echo "## Results wil be stored to this path: ${out}"
 fi
 
 if [ "$tmp" = "false" ]; then
@@ -115,21 +116,21 @@ echo "## Will use minimum completion percent: $refinement_min_compl/"
 echo "## Will use maximum contamination percent: $refinement_max_cont/"
 
 # throttling
-mkdir -p $out/.throttle
+mkdir -p $base_out/.throttle
 
 # to prevent starting of multiple download because of simultanneneous ls
 sleep $[ ( $RANDOM % 30 ) + 1 ]s
 
-l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+l_nbr=$(ls ${base_out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
 while [ "$l_nbr" -ge 5 ]
 do
   echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
   sleep 15
-  l_nbr=$(ls ${out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
+  l_nbr=$(ls ${base_out}/.throttle/throttle.start.*.txt 2> /dev/null | wc -l )
 done
 
 # add to throttle list
-touch ${out}/.throttle/throttle.start.${sample}.txt
+touch ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "copying metabat2 bins in temps dir"
 mkdir ${tmp}/metabat2_bins
@@ -144,7 +145,7 @@ echo "cp singularity container to $tmp"
 cp ${EXE_PATH}/../containers/metawrap.1.3.sif $tmp/
 
 # remove from throttle list
-rm ${out}/.throttle/throttle.start.${sample}.txt
+rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "Running metawrap bin refinement"
 mkdir ${tmp}/bin_refinement/
@@ -176,20 +177,20 @@ echo "copying bin_refinement results back to $out"
 echo "copying results to $out with throttling"
 mkdir -p $out/
 
-l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+l_nbr=$(ls ${base_out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
 while [ "$l_nbr" -ge 5 ]
 do
   echo "${sample}: compute node copy reached max of 5 parralel copy, will wait 15 sec..."
   sleep 15
-  l_nbr=$(ls ${out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
+  l_nbr=$(ls ${base_out}/.throttle/throttle.end.*.txt 2> /dev/null | wc -l )
 done
 
 # add to throttle list
-touch ${out}/.throttle/throttle.end.${sample}.txt
+touch ${base_out}/.throttle/throttle.end.${sample}.txt
 
 cp -r ${tmp}/bin_refinement/* $out/
 
 # cp done remove from list
-rm ${out}/.throttle/throttle.end.${sample}.txt
+rm ${base_out}/.throttle/throttle.end.${sample}.txt
 
 echo "metawrap binning refinement pipeline done"
