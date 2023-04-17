@@ -11,7 +11,7 @@ help_message () {
   echo "	-s STR	sample name"
   echo "	-o STR	path to output dir"
   echo "	-tmp STR	path to temp dir (default output_dir/temp)"
-  echo "	-t	# of threads (default 8)"
+  echo "	-t	# of threads (default 4)"
   echo "	-fq1	path to fastq1"
   echo "	-fq1_single	path to fastq1 unpaired reads"
   echo "	-fq2	path to fastq2"
@@ -27,7 +27,7 @@ help_message () {
 export EXE_PATH=$(dirname "$0")
 
 # initialisation
-threads="8"
+threads="4"
 sample="false";
 base_out="false";
 tmp="false";
