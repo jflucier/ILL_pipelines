@@ -57,7 +57,7 @@ export EXE_PATH=$(dirname "$0")
 
 # initialisation
 threads="8"
-mem="40G"
+mem="30G"
 sample="false";
 base_out="false";
 tmp="false";

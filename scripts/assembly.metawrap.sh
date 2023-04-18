@@ -46,7 +46,7 @@ export EXE_PATH=$(dirname "$0")
 
 # initialisation
 threads="8"
-mem="40G"
+mem="30G"
 sample="false";
 base_out="false";
 tmp="false";
@@ -149,7 +149,7 @@ rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 mkdir -p ${tmp}/assembly
 
-echo "running BBmap repair.sh using ${mem}"
+echo "running BBmap repair.sh"
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
 $tmp/metawrap.1.3.sif \

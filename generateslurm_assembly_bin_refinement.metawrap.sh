@@ -95,8 +95,10 @@ export EXE_PATH=$(dirname "$0")
 alloc="def-ilafores"
 email="false"
 walltime="24:00:00"
-threads="48"
-mem="251G"
+#threads="48"
+#mem="251G"
+threads="24"
+mem="30G"
 log="false"
 
 sample_tsv="false";
