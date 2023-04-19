@@ -187,7 +187,6 @@ set_assembly_options $assembly_metaspades $assembly_megahit
 binning_programs="--metabat2 --maxbin2 --concoct --run-checkm"
 set_binning_options $binning_metabat2 $binning_maxbin2 $binning_concoct $binning_run_checkm
 
-echo "## Bin refinement step is activated"
 echo "# Bin minimum % completion: ${refinement_min_compl}%"
 echo "# Bin maximum % contamination: ${refinement_max_cont}%"
 
