@@ -156,8 +156,8 @@ $tmp/metawrap.1.3.sif \
 repair.sh \
 in=/out/$fq1_name \
 in2=/out/$fq2_name \
-out=/out/assembly/${sample}_paired_sorted_1.fastq \
-out2=/out/assembly/${sample}_paired_sorted_2.fastq
+out=/out/${sample}_paired_sorted_1.fastq \
+out2=/out/${sample}_paired_sorted_2.fastq
 
 echo "metawrap assembly step using ${assembly_programs}"
 
@@ -170,8 +170,8 @@ singularity exec --writable-tmpfs -e \
 $tmp/metawrap.1.3.sif \
 metaWRAP assembly ${assembly_programs} \
 -m $SPADES_MEM -t $threads \
--1 /out/assembly/${sample}_paired_sorted_1.fastq \
--2 /out/assembly/${sample}_paired_sorted_2.fastq \
+-1 /out/${sample}_paired_sorted_1.fastq \
+-2 /out/${sample}_paired_sorted_2.fastq \
 -o /out/assembly/
 
 echo "copying results to $out with throttling"
