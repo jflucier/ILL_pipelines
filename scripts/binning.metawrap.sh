@@ -96,7 +96,7 @@ while true; do
         -fq1) fq1=$2; shift 2;;
         -fq2) fq2=$2; shift 2;;
         --metabat2) metabat2=true; shift 1;;
-		--maxbin2) maxbin2=true; shift 1;;
+		    --maxbin2) maxbin2=true; shift 1;;
         --concoct) concoct=true; shift 1;;
         --run-checkm) run_checkm=true; shift 1;;
         --) help_message; exit 1; shift; break ;;
