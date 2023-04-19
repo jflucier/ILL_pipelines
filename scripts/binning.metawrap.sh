@@ -122,8 +122,8 @@ if [ "$base_out" = "false" ]; then
     echo "Please provide an output path"
     help_message; exit 1
 else
-    mkdir -p ${base_out}/${sample}
-    out=${base_out}/${sample}
+    mkdir -p ${base_out}/binning/${sample}
+    out=${base_out}/binning/${sample}
     echo "## Results wil be stored to this path: ${out}"
 fi
 

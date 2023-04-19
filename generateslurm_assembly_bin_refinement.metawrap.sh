@@ -259,7 +259,7 @@ then
     echo '
     echo "running assembly on $__sample"
     bash '${EXE_PATH}'/scripts/assembly.metawrap.sh \
-    -o '${out}'/assembly/ \
+    -o '${out}'/ \
     -tmp $SLURM_TMPDIR \
     -t '${threads}' -m '${mem}' \
     -s $__sample -fq1 $__fastq_file1 -fq2 $__fastq_file2 \
@@ -274,7 +274,7 @@ then
     echo '
     echo "running binning on $__sample"
     bash '${EXE_PATH}'/scripts/binning.metawrap.sh \
-    -o '${out}'/binning/ \
+    -o '${out}'/ \
     -tmp $SLURM_TMPDIR \
     -t '${threads}' -m '${mem}' \
     -s $__sample \
@@ -292,7 +292,7 @@ then
     echo '
     echo "running bin refinement on $__sample"
     bash '${EXE_PATH}'/scripts/bin_refinement.metawrap.sh \
-    -o '${out}'/refinement/ \
+    -o '${out}'/ \
     -tmp $SLURM_TMPDIR \
     -t '${threads}' -m '${mem}' \
     -s $__sample \
