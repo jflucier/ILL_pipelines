@@ -191,7 +191,7 @@ echo "# Bin minimum % completion: ${refinement_min_compl}%"
 echo "# Bin maximum % contamination: ${refinement_max_cont}%"
 
 echo "Cleaning throtthling dir"
-rm ${out}/.throttle/*
+rm -f ${out}/.throttle/*
 
 echo "outputting slurm script to $out/assembly_bin_refinement.metawrap.slurm.sh"
 
