@@ -179,6 +179,7 @@ if [ "$out" = "false" ]; then
     help_message; exit 1
 elif [[ ! -d "$out" ]]; then
     echo "## Output path $out doesnt exist. Will create it!"
+    rm -fr $out
     mkdir -p $out
 fi
 
