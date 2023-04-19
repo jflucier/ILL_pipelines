@@ -190,6 +190,9 @@ set_binning_options $binning_metabat2 $binning_maxbin2 $binning_concoct $binning
 echo "# Bin minimum % completion: ${refinement_min_compl}%"
 echo "# Bin maximum % contamination: ${refinement_max_cont}%"
 
+echo "Cleaning throtthling dir"
+rm ${out}/.throttle/*
+
 echo "outputting slurm script to $out/assembly_bin_refinement.metawrap.slurm.sh"
 
 echo '#!/bin/bash' > $out/assembly_bin_refinement.metawrap.slurm.sh
