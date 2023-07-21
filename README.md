@@ -15,9 +15,9 @@
     * [Generate HUMAnN bugs list](#Generate-HUMAnN-bugs-list)
     * [Run HUMAnN functionnal profile](#Run-HUMAnN-functionnal-profile)
     * [Run MetaWRAP assembly, binning and bin refinement](#Run-MetaWRAP-assembly,-binning-and-bin-refinement)
-    * [Run bin dereplication step](#Run-bin-dereplication)
-    * [Run bin annotation](#Run-bin-annotation)
-    * [Run bin quantification](#Run-bin-quantification)
+    * [Bin dereplication step](#bin-dereplication)
+    * [Bin annotation](#bin-annotation)
+    * [Bin quantification](#bin-quantification)
 
 ----
 
@@ -653,7 +653,7 @@ Options:
   -h --help	Display help
 
 ```
-### Run bin dereplication
+### Bin dereplication
 
 For full list of options:
 
@@ -750,7 +750,7 @@ Options:
 
 ```
 
-### Run bin annotation
+### Bin annotation
 
 For full list of options:
 
@@ -804,7 +804,7 @@ Options:
 
 ```
 
-### Run bin quantification
+### Bin quantification
 
 For full list of options:
 
