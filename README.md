@@ -15,7 +15,9 @@
     * [Generate HUMAnN bugs list](#Generate-HUMAnN-bugs-list)
     * [Run HUMAnN functionnal profile](#Run-HUMAnN-functionnal-profile)
     * [Run MetaWRAP assembly, binning and bin refinement](#Run-MetaWRAP-assembly,-binning-and-bin-refinement)
-    * [Run bin dereplication step](#Run-bin-dereplication-step)
+    * [Run bin dereplication step](#Run-bin-dereplication)
+    * [Run bin annotation](#Run-bin-annotation)
+    * [Run bin quantification](#Run-bin-quantification)
 
 ----
 
@@ -361,6 +363,31 @@ The kreports parameter is a regular expression that points to all kraken report 
 The analysis begins and creates the buglist and then creates the bowtie index on the buglist. It finishes by 
 generating the taxonomic table for each taxonomic level.
 
+This generated script can also be runned locally on ip34 the following ways:
+
+```
+bash /path/to/out/taxonomic_profile.allsamples.slurm.sh
+```
+
+**Or** you can directly call the script the following way:
+
+```
+$ bash $ILL_PIPELINES/scripts/taxonomic_profile.allsamples.sh -h
+
+Usage: taxonomic_profile.allsample.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame 
+Options:
+
+	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: /home/def-ilafores/analysis/taxonomic_profile/*/*_bracken/*_bracken_S.kreport).
+	--out STR	path to output dir
+	--tmp STR	path to temp dir (default output_dir/temp)
+	--threads	# of threads (default 8)
+	--bowtie_index_name  name of the bowtie index that will be generated
+	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
+
+  -h --help	Display help
+
+```
+
 ### Generate HUMAnN bugs list
 
 
@@ -626,7 +653,7 @@ Options:
   -h --help	Display help
 
 ```
-### Run bin dereplication step
+### Run bin dereplication
 
 For full list of options:
 
@@ -693,7 +720,13 @@ $ ls /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-p
 /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ9/metawrap_30_25_bins/GQ9.bin.2.fa
 ```
 
-This script can also be runned locally on ip34 the following way
+This generated script can also be runned locally on ip34 the following ways:
+
+```
+bash /path/to/out/submit_dRep.slurm.sh
+```
+
+**Or** you can directly call the script the following way:
 
 ```
 
@@ -714,5 +747,113 @@ Options:
 	-con	Maximum genome contamination (default: 5)
 
   -h --help	Display help
+
+```
+
+### Run bin annotation
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_annotate_bins.sh -h
+
+Usage: generateslurm_annotate_bins.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame
+Options:
+
+	-o STR	path to output dir
+	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information.
+	-ma_db	MicrobeAnnotator DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/MicrobeAnnotator_DB).
+	-gtdb_db	GTDBTK DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/GTDB/release207_v2).
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 24)
+	--slurm_mem STR	slurm requested memory (default 31G)
+
+  -h --help	Display help
+
+```
+
+This generated script can also be runned locally on ip34 the following ways:
+
+```
+bash /path/to/out/submit_annotate.slurm.sh
+```
+
+**Or** you can directly call the script the following way:
+
+```
+
+$ bash $ILL_PIPELINES/scripts/annotate_bins.sh -h
+
+Usage: annotate_bins.sh [-tmp /path/tmp] [-t threads] [-ma_db /path/to/microannotatordb] [-gtdb_db /path/to/GTDB] -drep /path/to/drep/dereplicated_genomes -o /path/to/out 
+Options:
+
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-o STR	path to output dir
+	-t	# of threads (default 24)
+	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information.
+	-ma_db	MicrobeAnnotator DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/MicrobeAnnotator_DB).
+	-gtdb_db	GTDB DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/GTDB/release207_v2).
+
+  -h --help	Display help
+
+
+```
+
+### Run bin quantification
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_quantify_bins.sh -h
+
+Usage: generateslurm_quantify_bins.sh -sample_tsv /path/to/samplesheet -drep /path/to/drep/genome -o /path/to/out --bowtie_index_name idx_nbame
+Options:
+
+  -sample_tsv STR	path to sample tsv (5 columns: sample name<tab>fastq1 path<tab>fastq2 path<tab>fastq1 single path<tab>fastq2 single path). Generated in preprocess step.
+	-drep STR	dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information.
+	-o STR	path to output dir
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 24)
+	--slurm_mem STR	slurm requested memory (default 31G)
+
+  -h --help	Display help
+
+
+```
+
+This generated script can also be runned locally on ip34 the following ways:
+
+```
+bash /path/to/out/submit_quantify.slurm.sh
+```
+
+**Or** you can directly call the script the following way:
+
+```
+
+$ bash $ILL_PIPELINES/scripts/quantify_bins.salmon.sh -h
+
+Usage: quantify_bins.salmon.sh [-tmp /path/tmp] [-t threads] -bins_tsv all_genome_bins_path_regex -drep /path/to/drep_output -o /path/to/out -a algorithm -p_ani value -s_ani value -cov value -comp value -con value 
+Options:
+
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-sample_tsv	A 3 column tsv of samples. Columns should be sample_name<tab>/path/to/fastq1<tab>/path/to/fastq2. No headers! HINT: preprocess step generates this file
+	-drep STR	dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information.
+	-o STR	path to output dir
+
+  -h --help	Display help
+
+
 
 ```
