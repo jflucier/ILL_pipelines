@@ -15,12 +15,14 @@
     * [Generate HUMAnN bugs list](#Generate-HUMAnN-bugs-list)
     * [Run HUMAnN functionnal profile](#Run-HUMAnN-functionnal-profile)
     * [Run MetaWRAP assembly, binning and bin refinement](#Run-MetaWRAP-assembly,-binning-and-bin-refinement)
+    * [Run bin dereplication step](#Run-bin-dereplication-step)
 
 ----
 
 ## Requirements ##
 
-All pipelines are self contained. The only requirements needed is [Apptainer](https://apptainer.org/). The apptainer executable "singularity" should be available in your path.
+All pipelines are self contained. The only requirements needed is [Apptainer](https://apptainer.org/). The apptainer 
+executable "singularity" should be available in your path.
 
 **Note**: On interactive node include the ``module load StdEnv/2020 apptainer/1.1.5 `` in your ~/.bashrc file
 
@@ -28,8 +30,18 @@ All pipelines are self contained. The only requirements needed is [Apptainer](ht
 
 ## Installation ##
 
+ILL pipelines is already install on ip34. Please include the following commands in your ~/.bashrc. 
+
+```
+module load StdEnv/2020 apptainer
+export ILL_PIPELINES=/home/def-ilafores/programs/ILL_pipelines
+```
+
+To load your new bashrc definition you will need to logout and login again on server.
+
 To install ILL pipelines you need to:
 
+* Install [Apptainer](https://apptainer.org/) and make sure singularity executable is in your PATH
 * Create a clone of the repository:
 
     ``git clone https://github.com/jflucier/ILL_pipelines.git ``
@@ -40,11 +52,8 @@ To install ILL pipelines you need to:
 
     ``export ILL_PIPELINES=/path/to/ILL_pipelines ``
 
-    Note: On ip34, ILL pipelines path is /home/def-ilafores/programs/ILL_pipelines
-
 * Go to $ILL_PIPELINES/containers and run these commands:
 ```
-module load StdEnv/2020 apptainer/1.1.5
 cd $ILL_PIPELINES/containers
 sh build_all.sh
 
@@ -404,8 +413,6 @@ bash $ILL_PIPELINES//scripts/taxonomic_profile.allsamples.sh \
 
 ### Run HUMAnN functionnal profile ###
 
-Before running this pipeline, make sure [HUMAnN](https://huttenhower.sph.harvard.edu/humann/) environment is acessible.
-
 For full list of options:
 
 ```
@@ -615,6 +622,96 @@ Options:
 	--concoct_bins	path to concoct bin direcotry
 	--refinement_min_compl INT	refinement bin minimum completion percent (default 50)
 	--refinement_max_cont INT	refinement bin maximum contamination percent (default 10)
+
+  -h --help	Display help
+
+```
+### Run bin dereplication step ###
+
+For full list of options:
+
+```
+$ bash $ILL_PIPELINES/generateslurm_dereplicate_bins.sh -h 
+Usage: generateslurm_dereplicate_bins.sh [-a {fastANI,ANIn,gANI,ANImf,goANI}] [...] --bins_tsv /ath/to/tsv -o /path/to/out 
+Options:
+
+	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa
+	-o STR	path to output dir
+	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information.
+	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)
+	-s_ani	ANI threshold to form secondary clusters (default: 0.99)
+	-cov	Minmum level of overlap between genomes when doing secondary comparisons (default: 0.1)
+	-comp	Minimum genome completeness (default: 50)
+	-con	Maximum genome contamination (default: 5)
+
+Slurm options:
+	--slurm_alloc STR	slurm allocation (default def-ilafores)
+	--slurm_log STR	slurm log file output directory (default to output_dir/logs)
+	--slurm_email "your@email.com"	Slurm email setting
+	--slurm_walltime STR	slurm requested walltime (default 24:00:00)
+	--slurm_threads INT	slurm requested number of threads (default 48)
+	--slurm_mem STR	slurm requested memory (default 251G)
+
+  -h --help	Display help
+
+```
+
+The bin to be dereplicated must be specified using the bin_path_regex parameter. All fasta included in regex listing will be included in analysis. Make sure you use a full path regex.For example,
+a bin regex like "/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ*/metawrap_30_25_bins/*.fa" 
+will use the following fasta files:
+
+```
+$ ls /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ*/metawrap_30_25_bins/*.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ10/metawrap_30_25_bins/GQ10.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ10/metawrap_30_25_bins/GQ10.bin.2.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ13/metawrap_30_25_bins/GQ13.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ14/metawrap_30_25_bins/GQ14.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ14/metawrap_30_25_bins/GQ14.bin.2.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ15/metawrap_30_25_bins/GQ15.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ17b/metawrap_30_25_bins/GQ17b.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ17b/metawrap_30_25_bins/GQ17b.bin.2.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ18/metawrap_30_25_bins/GQ18.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ1/metawrap_30_25_bins/GQ1.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ20/metawrap_30_25_bins/GQ20.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ21/metawrap_30_25_bins/GQ21.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ22/metawrap_30_25_bins/GQ22.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ23/metawrap_30_25_bins/GQ23.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ24/metawrap_30_25_bins/GQ24.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ26/metawrap_30_25_bins/GQ26.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.2.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.3.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ2/metawrap_30_25_bins/GQ2.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ2/metawrap_30_25_bins/GQ2.bin.2.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ3/metawrap_30_25_bins/GQ3.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ5/metawrap_30_25_bins/GQ5.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ5/metawrap_30_25_bins/GQ5.bin.2.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ6/metawrap_30_25_bins/GQ6.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ7/metawrap_30_25_bins/GQ7.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ8/metawrap_30_25_bins/GQ8.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ9/metawrap_30_25_bins/GQ9.bin.1.fa
+/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ9/metawrap_30_25_bins/GQ9.bin.2.fa
+```
+
+This script can also be runned locally on ip34 the following way
+
+```
+
+$ bash $ILL_PIPELINES/scripts/dereplicate_bins.dRep.sh -h
+
+Usage: dereplicate_bins.dRep.sh [-tmp /path/tmp] [-t threads] -bins_tsv all_genome_bins_path_regex -o /path/to/out -a algorithm -p_ani value -s_ani value -cov value -comp value -con value 
+Options:
+
+	-tmp STR	path to temp dir (default output_dir/temp)
+	-t	# of threads (default 8)
+	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa
+	-o STR	path to output dir
+	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information.
+	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)
+	-s_ani	ANI threshold to form secondary clusters (default: 0.99)
+	-cov	Minmum level of overlap between genomes when doing secondary comparisons (default: 0.1)
+	-comp	Minimum genome completeness (default: 50)
+	-con	Maximum genome contamination (default: 5)
 
   -h --help	Display help
 
