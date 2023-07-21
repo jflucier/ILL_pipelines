@@ -19,7 +19,7 @@
 
 ----
 
-## Requirements ##
+## Requirements
 
 All pipelines are self contained. The only requirements needed is [Apptainer](https://apptainer.org/). The apptainer 
 executable "singularity" should be available in your path.
@@ -28,7 +28,7 @@ executable "singularity" should be available in your path.
 
 ----
 
-## Installation ##
+## Installation
 
 ILL pipelines is already install on ip34. Please include the following commands in your ~/.bashrc. 
 
@@ -62,7 +62,7 @@ sh build_all.sh
 
 ----
 
-## How to run ##
+## How to run
 
 To run pipelines you need to create a sample spread with 3 columns like this table:
 
@@ -74,7 +74,7 @@ To run pipelines you need to create a sample spread with 3 columns like this tab
 
 **Important note: TSV files must not have header line.**
 
-## Run preprocess kneaddata ##
+### Run preprocess kneaddata
 
 For full list of options:
 
@@ -153,7 +153,7 @@ Options:
 
 ```
 
-## Run Sourmash taxonomic abundance per sample ##
+### Run Sourmash taxonomic abundance per sample
 
 For full list of options:
 
@@ -209,7 +209,7 @@ Options:
 
 ```
 
-## Run Metaphlan taxonomic abundance ##
+### Run Metaphlan taxonomic abundance
 
 For full list of options:
 
@@ -275,7 +275,7 @@ Options:
 
 ```
 
-## Run Kraken2 taxonomic profile per sample ##
+### Run Kraken2 taxonomic profile per sample
 
 For full list of options:
 
@@ -329,7 +329,7 @@ Options:
 
 ```
 
-## Taxonomy profile on all samples for all taxonomic level ##
+### Taxonomy profile on all samples for all taxonomic level
 
 For full list of options:
 
@@ -361,7 +361,7 @@ The kreports parameter is a regular expression that points to all kraken report 
 The analysis begins and creates the buglist and then creates the bowtie index on the buglist. It finishes by 
 generating the taxonomic table for each taxonomic level.
 
-## Generate HUMAnN bugs list ##
+### Generate HUMAnN bugs list
 
 
 For full list of options:
@@ -411,7 +411,7 @@ bash $ILL_PIPELINES//scripts/taxonomic_profile.allsamples.sh \
 
 ```
 
-## Run HUMAnN functionnal profile ##
+### Run HUMAnN functionnal profile
 
 For full list of options:
 
@@ -472,7 +472,7 @@ Options:
 
 ```
 
-## Run MetaWRAP assembly, binning and bin refinement ##
+### Run MetaWRAP assembly, binning and bin refinement
 
 Before running this pipeline, make sure singularity and BBmap executables are in your path. On ip29, just do the following:
 
@@ -626,7 +626,7 @@ Options:
   -h --help	Display help
 
 ```
-## Run bin dereplication step ##
+### Run bin dereplication step
 
 For full list of options:
 
