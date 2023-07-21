@@ -14,7 +14,7 @@
     * [Taxonomic table on all samples for all taxonomic level](#taxonomic-table-on-all-samples-for-all-taxonomic-level)
     * [Generate HUMAnN bugs list](#generate-humann-bugs-list)
     * [HUMAnN functionnal profile](#humann-functionnal-profile)
-    * [MetaWRAP assembly, binning and bin refinement](#metawrap-assembly,-binning-and-bin-refinement)
+    * [MetaWRAP assembly binning and bin refinement](#metawrap-assembly-binning-and-bin-refinement)
     * [Bin dereplication](#bin-dereplication)
     * [Bin annotation](#bin-annotation)
     * [Bin quantification](#bin-quantification)
@@ -499,7 +499,7 @@ Options:
 
 ```
 
-### MetaWRAP assembly, binning and bin refinement
+### MetaWRAP assembly binning and bin refinement
 
 Before running this pipeline, make sure singularity and BBmap executables are in your path. On ip29, just do the following:
 
