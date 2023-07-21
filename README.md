@@ -7,15 +7,15 @@
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [How to run](#how-to-run)
-    * [Run preprocess kneaddata](#Run-preprocess-kneaddata)
-    * [Run Sourmash taxonomic abundance per sample](#Run-Sourmash-taxonomic-abundance-per-sample)
-    * [Run MetaPhlan taxonomic abundance](#Run-Metaphlan-taxonomic-abundance)
-    * [Run Kraken2 taxonomic profile per sample](#Run-Kraken2-taxonomic-profile-per-sample)
-    * [Taxonomic table on all samples for a specific taxonomic level](#Taxonomy-table-on-all-samples-for-a-specific-taxonomic-level)
-    * [Generate HUMAnN bugs list](#Generate-HUMAnN-bugs-list)
-    * [Run HUMAnN functionnal profile](#Run-HUMAnN-functionnal-profile)
-    * [Run MetaWRAP assembly, binning and bin refinement](#Run-MetaWRAP-assembly,-binning-and-bin-refinement)
-    * [Bin dereplication step](#bin-dereplication)
+    * [Preprocess kneaddata](#preprocess-kneaddata)
+    * [Sourmash taxonomic abundance per sample](#sourmash-taxonomic-abundance-per-sample)
+    * [MetaPhlan taxonomic abundance](#metaphlan-taxonomic-abundance)
+    * [Kraken2 taxonomic profile per sample](#kraken2-taxonomic-profile-per-sample)
+    * [Taxonomic table on all samples for all taxonomic level](#taxonomy-table-on-all-samples-for-all-taxonomic-level)
+    * [Generate HUMAnN bugs list](#generate-HUMAnN-bugs-list)
+    * [HUMAnN functionnal profile](#humann-functionnal-profile)
+    * [MetaWRAP assembly, binning and bin refinement](#metaWRAP-assembly,-binning-and-bin-refinement)
+    * [Bin dereplication](#bin-dereplication)
     * [Bin annotation](#bin-annotation)
     * [Bin quantification](#bin-quantification)
 
@@ -76,7 +76,7 @@ To run pipelines you need to create a sample spread with 3 columns like this tab
 
 **Important note: TSV files must not have header line.**
 
-### Run preprocess kneaddata
+### Preprocess kneaddata
 
 For full list of options:
 
@@ -155,7 +155,7 @@ Options:
 
 ```
 
-### Run Sourmash taxonomic abundance per sample
+### Sourmash taxonomic abundance per sample
 
 For full list of options:
 
@@ -211,7 +211,7 @@ Options:
 
 ```
 
-### Run Metaphlan taxonomic abundance
+### Metaphlan taxonomic abundance
 
 For full list of options:
 
@@ -277,7 +277,7 @@ Options:
 
 ```
 
-### Run Kraken2 taxonomic profile per sample
+### Kraken2 taxonomic profile per sample
 
 For full list of options:
 
@@ -331,7 +331,7 @@ Options:
 
 ```
 
-### Taxonomy profile on all samples for all taxonomic level
+### Taxonomic table on all samples for all taxonomic level
 
 For full list of options:
 
@@ -438,7 +438,7 @@ bash $ILL_PIPELINES//scripts/taxonomic_profile.allsamples.sh \
 
 ```
 
-### Run HUMAnN functionnal profile
+### HUMAnN functionnal profile
 
 For full list of options:
 
@@ -499,7 +499,7 @@ Options:
 
 ```
 
-### Run MetaWRAP assembly, binning and bin refinement
+### MetaWRAP assembly, binning and bin refinement
 
 Before running this pipeline, make sure singularity and BBmap executables are in your path. On ip29, just do the following:
 
