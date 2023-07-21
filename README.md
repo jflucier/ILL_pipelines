@@ -12,7 +12,7 @@
     * [MetaPhlan taxonomic abundance](#metaphlan-taxonomic-abundance)
     * [Kraken2 taxonomic profile per sample](#kraken2-taxonomic-profile-per-sample)
     * [Taxonomic table on all samples for all taxonomic level](#taxonomic-table-on-all-samples-for-all-taxonomic-level)
-    * [Generate HUMAnN bugs list](#generate-HUMAnN-bugs-list)
+    * [Generate HUMAnN bugs list](#generate-humann-bugs-list)
     * [HUMAnN functionnal profile](#humann-functionnal-profile)
     * [MetaWRAP assembly, binning and bin refinement](#metaWRAP-assembly,-binning-and-bin-refinement)
     * [Bin dereplication](#bin-dereplication)
