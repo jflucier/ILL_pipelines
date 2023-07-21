@@ -14,7 +14,7 @@
     * [Taxonomic table on all samples for all taxonomic level](#taxonomic-table-on-all-samples-for-all-taxonomic-level)
     * [Generate HUMAnN bugs list](#generate-humann-bugs-list)
     * [HUMAnN functionnal profile](#humann-functionnal-profile)
-    * [MetaWRAP assembly, binning and bin refinement](#metaWRAP-assembly,-binning-and-bin-refinement)
+    * [MetaWRAP assembly, binning and bin refinement](#metawrap-assembly,-binning-and-bin-refinement)
     * [Bin dereplication](#bin-dereplication)
     * [Bin annotation](#bin-annotation)
     * [Bin quantification](#bin-quantification)
