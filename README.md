@@ -74,7 +74,6 @@ To run pipelines you need to create a sample spread with 3 columns like this tab
 
 **Important note: TSV files must not have header line.**
 
-<a id="Run-preprocess-kneaddata"></a>
 ### Run preprocess kneaddata
 
 For full list of options:
