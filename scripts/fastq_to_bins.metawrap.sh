@@ -4,7 +4,7 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: assembly.metawrap.sh [-tmp /path/tmp] [-t threads] [-m memory] [--metaspades] [--megahit] -s sample_name -o /path/to/out -fq1 /path/to/fastq1 -fq2 /path/to/fastq2 "
+	echo "Usage: fastq_to_bins.metawrap.sh [-tmp /path/tmp] [-t threads] [-m memory] [--metaspades] [--megahit] -s sample_name -o /path/to/out -fq1 /path/to/fastq1 -fq2 /path/to/fastq2 "
 	echo "Options:"
 
 	echo ""
@@ -161,13 +161,14 @@ binning_programs="--metabat2 --maxbin2 --concoct --run-checkm"
 set_binning_options $metabat2 $maxbin2 $concoct $run_checkm
 
 echo "analysing sample $sample with metawrap"
-echo "fastq1 path: $__fastq_file1"
-echo "fastq2 path: $__fastq_file2"
+echo "fastq1 path: $fq1"
+echo "fastq2 path: $fq2"
 echo "Assembly options: ${assembly_programs}"
 echo "Binning options: ${binning_programs}"
-echo "Minimum completion percent: $refinement_min_compl/"
-echo "Maximum contamination percent: $refinement_max_cont/"
-
+echo "Minimum completion percent: $refinement_min_compl"
+echo "Maximum contamination percent: $refinement_max_cont"
+echo "Threads: $threads"
+echo "Memory: $mem"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
@@ -200,10 +201,11 @@ cp ${EXE_PATH}/../containers/metawrap.1.3.sif $tmp/
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "running BBmap repair.sh"
+export BBMAP_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
 $tmp/metawrap.1.3.sif \
-repair.sh \
+repair.sh -Xmx${BBMAP_MEM}g \
 in=/out/$fq1_name \
 in2=/out/$fq2_name \
 out=/out/${sample}_paired_sorted_1.fastq \
