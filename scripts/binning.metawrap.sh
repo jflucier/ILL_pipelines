@@ -182,9 +182,9 @@ echo "metawrap binning and checkm step using metabat2, maxbin2 and concoct"
 export BINNING_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
--B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 $tmp/metawrap.1.3.sif \
 metaWRAP binning $binning_programs \
 -m $BINNING_MEM -t $threads \

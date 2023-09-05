@@ -87,7 +87,7 @@ Options:
 
 	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
 	--out STR	path to output dir
-	--db	kneaddata database path (default /net/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--db	kneaddata database path (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
 	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
 	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
 
@@ -109,19 +109,19 @@ Here is how generate slurm script with default parameters:
 ```
 
 $> bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
-> --sample_tsv /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/data/testset-projet_PROVID19/saliva_samples/sample_provid19.saliva.test.tsv \
-> --out /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess \
+> --sample_tsv /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/data/testset-projet_PROVID19/saliva_samples/sample_provid19.saliva.test.tsv \
+> --out /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess \
 > --db /cvmfs/datahub.genap.ca/vhost34/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj \
 > --slurm_email "your_email@domain.ca" \
 > --bowtie2_options "--very-sensitive" \
 > --slurm_walltime "6:00:00"
-## Will use sample file: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/data/testset-projet_PROVID19/saliva_samples/sample_provid19.saliva.test.tsv
-## Results wil be stored to this path: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess
-## Will output logs in: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/logs
-outputting preprocess slurm script to /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocess.kneaddata.slurm.sh
-Generate preprocessed reads sample tsv: /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocessed_reads.sample.tsv
+## Will use sample file: /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/data/testset-projet_PROVID19/saliva_samples/sample_provid19.saliva.test.tsv
+## Results wil be stored to this path: /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess
+## Will output logs in: /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/logs
+outputting preprocess slurm script to /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocess.kneaddata.slurm.sh
+Generate preprocessed reads sample tsv: /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocessed_reads.sample.tsv
 To submit to slurm, execute the following command:
-sbatch --array=1-5 /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocess.kneaddata.slurm.sh
+sbatch --array=1-5 /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/preprocess/preprocess.kneaddata.slurm.sh
 
 ```
 
@@ -145,7 +145,7 @@ Options:
 	-m	memory (default 40G)
 	-fq1	path to fastq1
 	-fq2	path to fastq2
-	--db	kneaddata database path (default /net/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--db	kneaddata database path (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
 	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
 	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
 
@@ -343,7 +343,7 @@ Options:
         --kreports STR	base path regex to retrieve species level kraken reports (i.e.: '/path/to/taxonomic_profile/*/*_bracken/*_bracken_S.kreport'). Must be specified between single quotes. See usage example or github documentation.
         --out STR       path to output dir
         --bowtie_index_name  name of the bowtie index that will be generated
-        --chocophlan_db path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
+        --chocophlan_db path to the full chocoplan db (default: /nfs3_ib/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
 
 Slurm options:
         --slurm_alloc STR       slurm allocation (default def-ilafores)
@@ -381,7 +381,7 @@ Options:
 	--tmp STR	path to temp dir (default output_dir/temp)
 	--threads	# of threads (default 8)
 	--bowtie_index_name  name of the bowtie index that will be generated
-	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
+	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
 
   -h --help	Display help
 
@@ -633,40 +633,40 @@ Slurm options:
 ```
 
 The bin to be dereplicated must be specified using the bin_path_regex parameter. All fasta included in regex listing will be included in analysis. Make sure you use a full path regex.For example,
-a bin regex like "/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ*/metawrap_30_25_bins/*.fa" 
+a bin regex like "/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ*/metawrap_30_25_bins/*.fa" 
 will use the following fasta files:
 
 ```
-$ ls /net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ*/metawrap_30_25_bins/*.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ10/metawrap_30_25_bins/GQ10.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ10/metawrap_30_25_bins/GQ10.bin.2.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ13/metawrap_30_25_bins/GQ13.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ14/metawrap_30_25_bins/GQ14.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ14/metawrap_30_25_bins/GQ14.bin.2.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ15/metawrap_30_25_bins/GQ15.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ17b/metawrap_30_25_bins/GQ17b.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ17b/metawrap_30_25_bins/GQ17b.bin.2.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ18/metawrap_30_25_bins/GQ18.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ1/metawrap_30_25_bins/GQ1.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ20/metawrap_30_25_bins/GQ20.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ21/metawrap_30_25_bins/GQ21.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ22/metawrap_30_25_bins/GQ22.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ23/metawrap_30_25_bins/GQ23.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ24/metawrap_30_25_bins/GQ24.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ26/metawrap_30_25_bins/GQ26.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.2.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.3.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ2/metawrap_30_25_bins/GQ2.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ2/metawrap_30_25_bins/GQ2.bin.2.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ3/metawrap_30_25_bins/GQ3.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ5/metawrap_30_25_bins/GQ5.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ5/metawrap_30_25_bins/GQ5.bin.2.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ6/metawrap_30_25_bins/GQ6.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ7/metawrap_30_25_bins/GQ7.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ8/metawrap_30_25_bins/GQ8.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ9/metawrap_30_25_bins/GQ9.bin.1.fa
-/net/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ9/metawrap_30_25_bins/GQ9.bin.2.fa
+$ ls /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ*/metawrap_30_25_bins/*.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ10/metawrap_30_25_bins/GQ10.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ10/metawrap_30_25_bins/GQ10.bin.2.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ13/metawrap_30_25_bins/GQ13.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ14/metawrap_30_25_bins/GQ14.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ14/metawrap_30_25_bins/GQ14.bin.2.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ15/metawrap_30_25_bins/GQ15.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ17b/metawrap_30_25_bins/GQ17b.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ17b/metawrap_30_25_bins/GQ17b.bin.2.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ18/metawrap_30_25_bins/GQ18.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ1/metawrap_30_25_bins/GQ1.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ20/metawrap_30_25_bins/GQ20.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ21/metawrap_30_25_bins/GQ21.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ22/metawrap_30_25_bins/GQ22.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ23/metawrap_30_25_bins/GQ23.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ24/metawrap_30_25_bins/GQ24.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ26/metawrap_30_25_bins/GQ26.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.2.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ29/metawrap_30_25_bins/GQ29.bin.3.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ2/metawrap_30_25_bins/GQ2.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ2/metawrap_30_25_bins/GQ2.bin.2.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ3/metawrap_30_25_bins/GQ3.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ5/metawrap_30_25_bins/GQ5.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ5/metawrap_30_25_bins/GQ5.bin.2.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ6/metawrap_30_25_bins/GQ6.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ7/metawrap_30_25_bins/GQ7.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ8/metawrap_30_25_bins/GQ8.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ9/metawrap_30_25_bins/GQ9.bin.1.fa
+/nfs3_ib/nfs-ip34/home/def-ilafores/analysis/20230216_metagenome_test/testset-projet_PROVID19-saliva/bin_refinement/GQ9/metawrap_30_25_bins/GQ9.bin.2.fa
 ```
 
 This generated script can also be runned locally on ip34 the following ways:

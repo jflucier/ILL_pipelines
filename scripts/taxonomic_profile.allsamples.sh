@@ -13,7 +13,7 @@ help_message () {
     echo "	--tmp STR	path to temp dir (default output_dir/temp)"
     echo "	--threads	# of threads (default 8)"
     echo "	--bowtie_index_name  name of the bowtie index that will be generated"
-    echo "	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)"
+    echo "	--chocophlan_db	path to the full chocoplan db (default: /nfs3_ib/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)"
 
     echo ""
     echo "  -h --help	Display help"
@@ -29,7 +29,7 @@ threads="8"
 bowtie_idx_name="false";
 out="false";
 tmp="false";
-choco_db="/net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan"
+choco_db="/nfs3_ib/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan"
 
 # load in params
 SHORT_OPTS="h"

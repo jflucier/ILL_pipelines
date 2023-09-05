@@ -216,9 +216,9 @@ mkdir -p ${tmp}/assembly
 export SPADES_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
--B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 $tmp/metawrap.1.3.sif \
 metaWRAP assembly ${assembly_programs} \
 -m $SPADES_MEM -t $threads \
@@ -231,9 +231,9 @@ mkdir -p ${tmp}/binning
 export BINNING_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
--B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 $tmp/metawrap.1.3.sif \
 metaWRAP binning $binning_programs \
 -m $BINNING_MEM -t $threads \
@@ -246,9 +246,9 @@ mkdir -p ${tmp}/bin_refinement/
 export BINNING_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
--B /net/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
--B /net/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 $tmp/metawrap.1.3.sif \
 metawrap bin_refinement -t $threads -m $BINNING_MEM --quick \
 -c $refinement_min_compl -x $refinement_max_cont \
