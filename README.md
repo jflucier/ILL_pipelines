@@ -337,10 +337,10 @@ For full list of options:
 ```
 $ bash $ILL_PIPELINES/generateslurm_taxonomic_profile.allsamples.sh -h
 
-Usage: generateslurm_taxonomic_profile.allsamples.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame
+Usage: generateslurm_taxonomic_profile.allsamples.sh [--chocophlan_db /path/to/chocophlan_db ] --kreports '/path/to/*_kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame
 Options:
 
-        --kreports STR  base path regex to retrieve species level kraken reports (i.e.: /home/def-ilafores/programs/ILL_pipelines/taxonomic_profile/*/*_bracken/*_bracken_S.kreport).
+        --kreports STR	base path regex to retrieve species level kraken reports (i.e.: '/path/to/taxonomic_profile/*/*_bracken/*_bracken_S.kreport'). Must be specified between single quotes. See usage example or github documentation.
         --out STR       path to output dir
         --bowtie_index_name  name of the bowtie index that will be generated
         --chocophlan_db path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)
@@ -373,10 +373,10 @@ bash /path/to/out/taxonomic_profile.allsamples.slurm.sh
 ```
 $ bash $ILL_PIPELINES/scripts/taxonomic_profile.allsamples.sh -h
 
-Usage: taxonomic_profile.allsample.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame 
+Usage: taxonomic_profile.allsample.sh --kreports '/path/to/*_kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame 
 Options:
 
-	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: /home/def-ilafores/analysis/taxonomic_profile/*/*_bracken/*_bracken_S.kreport).
+	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport). Must be specified between single quotes. See usage example or github documentation.
 	--out STR	path to output dir
 	--tmp STR	path to temp dir (default output_dir/temp)
 	--threads	# of threads (default 8)
@@ -608,10 +608,10 @@ For full list of options:
 
 ```
 $ bash $ILL_PIPELINES/generateslurm_dereplicate_bins.sh -h 
-Usage: generateslurm_dereplicate_bins.sh [-a {fastANI,ANIn,gANI,ANImf,goANI}] [...] --bins_tsv /ath/to/tsv -o /path/to/out 
+Usage: generateslurm_dereplicate_bins.sh [slurm options] [-a {fastANI,ANIn,gANI,ANImf,goANI}] [-p_ani value] [-s_ani value] [-cov value] [-comp value] [-con value] -bin_path_regex '/path/regex/to/*_genome_bins_path_regex' -o /path/to/out 
 Options:
 
-	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa
+	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa. Must be specified between single quotes. See usage example or github documentation.
 	-o STR	path to output dir
 	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information.
 	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)
@@ -681,12 +681,12 @@ bash /path/to/out/submit_dRep.slurm.sh
 
 $ bash $ILL_PIPELINES/scripts/dereplicate_bins.dRep.sh -h
 
-Usage: dereplicate_bins.dRep.sh [-tmp /path/tmp] [-t threads] -bins_tsv all_genome_bins_path_regex -o /path/to/out -a algorithm -p_ani value -s_ani value -cov value -comp value -con value 
+Usage: dereplicate_bins.dRep.sh [-tmp /path/tmp] [-t threads] -bin_path_regex '/path/regex/to/*_genome_bins_path_regex' -o /path/to/out [-a algorithm] [-p_ani value] [-s_ani value] [-cov value] [-comp value] [-con value]  
 Options:
 
 	-tmp STR	path to temp dir (default output_dir/temp)
 	-t	# of threads (default 8)
-	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa
+	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa. Must be specified between single quotes. See usage example or github documentation.
 	-o STR	path to output dir
 	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information.
 	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)
@@ -706,11 +706,11 @@ For full list of options:
 ```
 $ bash $ILL_PIPELINES/generateslurm_annotate_bins.sh -h
 
-Usage: generateslurm_annotate_bins.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame
+Usage: generateslurm_annotate_bins.sh -drep /path/to/drep/genome --out /path/to/out --bowtie_index_name idx_nbame
 Options:
 
 	-o STR	path to output dir
-	-drep dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information.
+	-drep STR	dereplicated genome path (drep output directory). See dereplicate_bins.dRep.sh for more information.
 	-ma_db	MicrobeAnnotator DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/MicrobeAnnotator_DB).
 	-gtdb_db	GTDBTK DB path (default: /cvmfs/datahub.genap.ca/vhost34/def-ilafores/GTDB/release207_v2).
 

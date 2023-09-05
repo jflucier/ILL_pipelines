@@ -4,14 +4,13 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: dereplicate_bins.dRep.sh [-tmp /path/tmp] [-t threads] -bins_tsv all_genome_bins_path_regex -o /path/to/out -a algorithm -p_ani value -s_ani value -cov value -comp value -con value "
+	echo "Usage: dereplicate_bins.dRep.sh [-tmp /path/tmp] [-t threads] -bin_path_regex '/path/regex/to/*_genome_bins_path_regex' -o /path/to/out [-a algorithm] [-p_ani value] [-s_ani value] [-cov value] [-comp value] [-con value] "
 	echo "Options:"
 
 	echo ""
 	echo "	-tmp STR	path to temp dir (default output_dir/temp)"
 	echo "	-t	# of threads (default 8)"
-	#echo "	-bins_tsv	A 2 column tsv of fasta bins for all samples. Columns should be sample_name<tab>/path/to/fa. No headers!"
-	echo "	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa"
+	echo "	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa. Must be specified between single quotes. See usage example or github documentation."
   echo "	-o STR	path to output dir"
 	echo "	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information."
   echo "	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)"

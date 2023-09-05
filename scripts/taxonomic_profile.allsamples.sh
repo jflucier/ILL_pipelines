@@ -4,11 +4,11 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: taxonomic_profile.allsample.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame "
+	echo "Usage: taxonomic_profile.allsample.sh [--chocophlan_db /path/to/chocophlan_db ] [--threads nbr_cpu] --kreports '/path/to/*_kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame"
 	echo "Options:"
 
 	echo ""
-	echo "	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport)."
+	echo "	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport). Must be specified between single quotes. See usage example or github documentation."
     echo "	--out STR	path to output dir"
     echo "	--tmp STR	path to temp dir (default output_dir/temp)"
     echo "	--threads	# of threads (default 8)"

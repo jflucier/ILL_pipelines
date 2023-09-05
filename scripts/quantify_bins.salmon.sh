@@ -4,7 +4,7 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: quantify_bins.salmon.sh [-tmp /path/tmp] [-t threads] -bins_tsv all_genome_bins_path_regex -drep /path/to/drep_output -o /path/to/out -a algorithm -p_ani value -s_ani value -cov value -comp value -con value "
+	echo "Usage: quantify_bins.salmon.sh [-tmp /path/tmp] [-t threads] -sample_tsv /path/to/sample.tsv -drep /path/to/drep_output -o /path/to/out "
 	echo "Options:"
 
 	echo ""

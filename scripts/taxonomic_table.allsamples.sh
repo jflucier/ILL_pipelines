@@ -5,11 +5,11 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: taxonomic_profile.allsample.sh -i 'kraken_report_regex' -o /path/to/out --nt_dbname mydb "
+	echo "Usage: taxonomic_profile.allsample.sh --kreports '/path/to/*_kraken_report_regex' --out /path/to/out  --taxa_code taxo_letter [--tmp temp_path]"
 	echo "Options:"
 
 	echo ""
-	echo "	--kreports STR	base path regex to retrieve kreports by taxonomic level. For example, /path/taxonomic_profile/*/*_bracken/*_bracken_P.kreport would retreive all phylums level reports "
+	echo "	--kreports STR	base path regex to retrieve kreports by taxonomic level. For example, /path/taxonomic_profile/*/*_bracken/*_bracken_P.kreport would retrieve all phylums level reports. Must be specified between single quotes. See usage example or github documentation. "
 	echo "	--taxa_code STR	Taxonomy one letter code (D, P, C, O, F, G, S)"
 	echo "	--out STR	path to output dir"
   echo "	--tmp STR	path to temp dir (default output_dir/temp)"

@@ -4,11 +4,11 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: generateslurm_dereplicate_bins.sh [-a {fastANI,ANIn,gANI,ANImf,goANI}] [...] --bins_tsv /ath/to/tsv -o /path/to/out "
+	echo "Usage: generateslurm_dereplicate_bins.sh [slurm options] [-a {fastANI,ANIn,gANI,ANImf,goANI}] [-p_ani value] [-s_ani value] [-cov value] [-comp value] [-con value] -bin_path_regex '/path/regex/to/*_genome_bins_path_regex' -o /path/to/out "
 	echo "Options:"
 
 	echo ""
-		echo "	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa"
+		echo "	-bin_path_regex	A regex path to bins, i.e. /path/to/bin/*/*.fa. Must be specified between single quotes. See usage example or github documentation."
     echo "	-o STR	path to output dir"
 	echo "	-a	algorithm {fastANI,ANIn,gANI,ANImf,goANI} (default: ANImf). See dRep documentation for more information."
     echo "	-p_ani	ANI threshold to form primary (MASH) clusters (default: 0.95)"

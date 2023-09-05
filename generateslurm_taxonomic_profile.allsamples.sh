@@ -4,11 +4,11 @@ set -e
 
 help_message () {
 	echo ""
-	echo "Usage: generateslurm_taxonomic_profile.allsamples.sh --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame"
+	echo "Usage: generateslurm_taxonomic_profile.allsamples.sh [--chocophlan_db /path/to/chocophlan_db ] --kreports 'kraken_report_regex' --out /path/to/out --bowtie_index_name idx_nbame"
 	echo "Options:"
 
 	echo ""
-    echo "	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport)."
+    echo "	--kreports STR	base path regex to retrieve species level kraken reports (i.e.: "$PWD"/taxonomic_profile/*/*_bracken/*_bracken_S.kreport). Must be specified between single quotes. See usage example or github documentation."
     echo "	--out STR	path to output dir"
     echo "	--bowtie_index_name  name of the bowtie index that will be generated"
     echo "	--chocophlan_db	path to the full chocoplan db (default: /net/nfs-ip34/fast/def-ilafores/humann_dbs/chocophlan)"
