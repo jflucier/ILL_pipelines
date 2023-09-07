@@ -206,6 +206,7 @@ singularity exec --writable-tmpfs -e \
 -B ${tmp}:/out \
 $tmp/metawrap.1.3.sif \
 repair.sh -Xmx${BBMAP_MEM}g \
+overwrite=t \
 in=/out/$fq1_name \
 in2=/out/$fq2_name \
 out=/out/${sample}_paired_sorted_1.fastq \
