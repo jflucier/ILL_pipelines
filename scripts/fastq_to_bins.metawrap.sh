@@ -191,11 +191,11 @@ done
 touch ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "upload fastq1 to $tmp/"
-cp $fq1 $tmp/$fq1_name
+rsync -ah --progress $fq1 $tmp/$fq1_name
 echo "upload fastq2 to $tmp"
-cp $fq2 $tmp/$fq2_name
+rsync -ah --progress $fq2 $tmp/$fq2_name
 echo "cp singularity container to $tmp"
-cp ${EXE_PATH}/../containers/metawrap.1.3.sif $tmp/
+rsync -ah --progress ${EXE_PATH}/../containers/metawrap.1.3.sif $tmp/
 
 # remove from throttle list
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
