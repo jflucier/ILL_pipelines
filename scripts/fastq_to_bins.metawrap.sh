@@ -230,6 +230,7 @@ echo "metawrap binning step for sample $sample using $binning_programs"
 mkdir -p ${tmp}/binning
 export BINNING_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
+-W $tmp \
 -B ${tmp}:/out \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
