@@ -153,6 +153,8 @@ if [ "$tmp" = "false" ]; then
     echo "## No temp folder provided. Will use: $tmp"
 fi
 
+mkdir -p ${tmp}
+
 # set assembly options
 assembly_programs="--metaspades --megahit"
 set_assembly_options $assembly_metaspades $assembly_megahit
