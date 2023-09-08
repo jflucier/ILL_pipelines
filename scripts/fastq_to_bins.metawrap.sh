@@ -216,6 +216,7 @@ echo "metawrap assembly step using ${assembly_programs}"
 mkdir -p ${tmp}/assembly
 export SPADES_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
+-W $tmp \
 -B ${tmp}:/out \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
@@ -247,6 +248,7 @@ echo "metawrap bin refinement for sample $sample using min completion ${refineme
 mkdir -p ${tmp}/bin_refinement/
 export BINNING_MEM=$(echo $mem | perl -ne 'chomp($_); chop($_); print $_ . "\n";')
 singularity exec --writable-tmpfs -e \
+-W $tmp \
 -B ${tmp}:/out \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
