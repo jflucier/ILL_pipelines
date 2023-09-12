@@ -140,7 +140,7 @@ export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 sleep $[ ( $RANDOM % 90 ) + 1 ]s
 
 bash '${EXE_PATH}'/scripts/taxonomic_profile.sample.sh \
--o '${out}'/$__sample \
+-o '${out}' \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' -m '${mem}' \
 -s $__sample \

@@ -1,6 +1,15 @@
 #!/bin/bash -l
 
-set -e
+set -eEx
+trap '__error_handing__ $?' ERR
+
+function __error_handing__(){
+    local last_status_code=$1;
+    # ${base_out}/.throttle/throttle.start.${sample}.txt
+    rm -f ${base_out}/.throttle/throttle.start.${sample}.txt
+    rm -f ${base_out}/.throttle/throttle.end.${sample}.txt
+    exit $1
+}
 
 help_message () {
   echo ""
