@@ -163,6 +163,7 @@ if [ "$tmp" = "false" ]; then
 fi
 
 mkdir -p ${tmp}
+cd ${tmp}
 
 # set assembly options
 assembly_programs="--metaspades --megahit"
