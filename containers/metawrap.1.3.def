@@ -28,6 +28,7 @@ From: ubuntu:20.04
     wget \
     bzip2 \
     ca-certificates \
+    libarchive13 \
     libglib2.0-0 \
     libxext6 \
     libsm6 \
@@ -54,10 +55,10 @@ From: ubuntu:20.04
     /bin/bash Miniconda3-py39_4.11.0-Linux-x86_64.sh -bfp /miniconda3
     export PATH=/miniconda3/bin:$PATH
 
-    conda config --file /miniconda3/.condarc --add channels defaults
-    conda config --file /miniconda3/.condarc --add channels conda-forge
-    conda config --file /miniconda3/.condarc --add channels bioconda
     conda config --file /miniconda3/.condarc --add channels ursky
+    conda config --file /miniconda3/.condarc --add channels bioconda
+    conda config --file /miniconda3/.condarc --add channels conda-forge
+    conda config --file /miniconda3/.condarc --add channels defaults
 
     echo ". /miniconda3/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
     echo "conda activate metawrap-env" >> $SINGULARITY_ENVIRONMENT
@@ -66,7 +67,7 @@ From: ubuntu:20.04
 
     conda install -n base -c conda-forge -y mamba=0.15.3
 
-    mamba create -y --name metawrap-env python=2.7
+    conda create -y --name metawrap-env python=2.7
     conda activate metawrap-env
 
     cd /
@@ -77,8 +78,9 @@ From: ubuntu:20.04
     sed -i 's/metaspades.py/metaspades.py --only-assembler/g' /metaWRAP/bin/metawrap-modules/assembly.sh
 
     PREFIX=/miniconda3/envs/metawrap-env/
-    cp /metaWRAP/bin/metaWRAP $PREFIX/bin/
+    #cp /metaWRAP/bin/metaWRAP $PREFIX/bin/
     cp /metaWRAP/bin/metawrap $PREFIX/bin/
+    ln -s $PREFIX/bin/metawrap $PREFIX/bin/metaWRAP
     cp /metaWRAP/bin/config-metawrap $PREFIX/bin/
     cp -r /metaWRAP/bin/metawrap-modules $PREFIX/bin/
     cp -r /metaWRAP/bin/metawrap-scripts $PREFIX/bin/
@@ -139,5 +141,15 @@ From: ubuntu:20.04
     cd /
     wget https://github.com/BioInfoTools/BBMap/releases/download/v35.85/BBMap_35.85.tar.gz
     tar -xvzf BBMap_35.85.tar.gz
+
+    # create maxbin setting file issue #60
+    sed -i 's,checkProgram()\;,\# checkProgram()\;,g' /miniconda3/envs/metawrap-env/bin/run_MaxBin.pl
+#    sed -i 's,BOWTIE2 \= "bowtie2"\;,BOWTIE2 \= "/miniconda3/envs/metawrap-env/bin/bowtie2"\;,g' /miniconda3/envs/metawrap-env/bin/run_MaxBin.pl
+#    sed -i 's,RUNFRAG \= "run_FragGeneScan.pl"\;,RUNFRAG \= "/miniconda3/envs/metawrap-env/bin/run_FragGeneScan.pl"\;,g' /miniconda3/envs/metawrap-env/bin/run_MaxBin.pl
+#    echo "[FragGeneScan] /miniconda3/envs/metawrap-env/bin/FragGeneScan" > /miniconda3/envs/metawrap-env/bin/setting
+#    echo "[Bowtie2] /miniconda3/envs/metawrap-env/bin/bowtie2" >> /miniconda3/envs/metawrap-env/bin/setting
+#    echo "[HMMER3] /miniconda3/envs/metawrap-env/bin" >> /miniconda3/envs/metawrap-env/bin/setting
+
+    mamba install -y pysam=0.19.1
 
     conda deactivate
