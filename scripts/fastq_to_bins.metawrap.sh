@@ -231,7 +231,7 @@ singularity exec --writable-tmpfs -e \
 -W $tmp \
 -B ${tmp}:/out \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
--B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B  /cvmfs/bio.data.computecanada.ca/content/databases/Core/blast_dbs/2022_03_23:/NCBI_nt \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 $tmp/metawrap.1.3.sif \
 metaWRAP assembly ${assembly_programs} \
@@ -247,7 +247,7 @@ singularity exec --writable-tmpfs -e \
 -W $tmp \
 -B ${tmp}:/out \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
--B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B  /cvmfs/bio.data.computecanada.ca/content/databases/Core/blast_dbs/2022_03_23:/NCBI_nt \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 $tmp/metawrap.1.3.sif \
 metaWRAP binning $binning_programs \
@@ -263,7 +263,7 @@ singularity exec --writable-tmpfs -e \
 -W $tmp \
 -B ${tmp}:/out \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/checkm_db:/checkm \
--B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_nt:/NCBI_nt \
+-B  /cvmfs/bio.data.computecanada.ca/content/databases/Core/blast_dbs/2022_03_23:/NCBI_nt \
 -B /nfs3_ib/nfs-ip34/fast/def-ilafores/NCBI_tax:/NCBI_tax \
 $tmp/metawrap.1.3.sif \
 metawrap bin_refinement -t $threads -m $BINNING_MEM --quick \
