@@ -19,8 +19,8 @@ From: ubuntu:22.04
 %setup
 
 %environment
-  export PATH=/miniconda3/bin:$PATH
-  export PATH=/miniconda3/envs/checkm2/bin/:$PATH
+  export PATH=/miniconda3/bin:/CheckM2-1.0.2/bin:$PATH
+  export PATH=/miniconda3/envs/checkm2/bin:$PATH
 
 %post
   apt-get update && apt-get -y upgrade
