@@ -5,6 +5,7 @@ trap '__error_handing__ $?' ERR
 
 function __error_handing__(){
     local last_status_code=$1;
+    cp -fr $tmp/${sample}/* $out/
     # ${base_out}/.throttle/throttle.start.${sample}.txt
     rm -f ${base_out}/.throttle/throttle.start.${sample}.txt
     rm -f ${base_out}/.throttle/throttle.end.${sample}.txt
