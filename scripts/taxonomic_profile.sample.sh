@@ -140,7 +140,7 @@ cp ${EXE_PATH}/../containers/kraken.2.1.2.sif $tmp/
 # remove from throttle list
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
-mkdir $tmp/${sample}
+mkdir -p $tmp/${sample}
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 -B $kraken_db:/db \
