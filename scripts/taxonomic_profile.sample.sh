@@ -159,7 +159,7 @@ kraken2 \
 
 ### Bracken reestimations
 mkdir -p $tmp/${sample}/${sample}_bracken
-mkdir $tmp/${sample}/${sample}_kronagrams
+mkdir -p $tmp/${sample}/${sample}_kronagrams
 
 __all_taxas=(
     "D:domains"
