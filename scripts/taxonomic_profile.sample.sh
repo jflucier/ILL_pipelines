@@ -145,7 +145,7 @@ singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 -B $kraken_db:/db \
 $tmp/kraken.2.1.2.sif \
-kraken2 \
+kraken2 --memory-mapping \
 --confidence ${confidence} \
 --paired \
 --threads ${threads} \
