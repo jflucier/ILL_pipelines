@@ -1,185 +1,180 @@
-# install.packages("pacman")
-# library("pacman")
-# # p_load(data.table, kableExtra, mgsub, phyloseq, tidyverse,
-# #               trust, lubridate, vegan, magrittr)
-# 
-# ################################################################################
-# ### Import, Tidy, Subset & Export Data #########################################
-# #######################################################O########O###############
-# ### Author: Jonathan Rondeau-Leclaire #####################..###################
-# ########################################################\######/################
-# ### Last Modifications: March 19th, 2023  ###############\____/#################
-# ################################################################################
-# 
-# # This script was designed to IMPORT all data from a clinical study in which
-# # two types of samples were collected at two points in time from each participant,
-# # the samples sequenced and the various abundance tables created. It was written
-# # and optimized for use with the output of the reference-based (i.-e not assembly)
-# # methods from this pipeline : https://github.com/jflucier/ILL_pipelines.
-# 
-# # This script EXPORTS phyloseq objects and the tables used in their fabrication.
-# # It is designed to subset the data by sample type (here, saliva and fecal) and
-# # create a separate object for sequenced Mock communities, which are not
-# # longitudinal, have no associated Participants Data, and are treated separately.
-# 
-# # This script uses 4 types of RAW DATA, namely Participants and Samples data, and
-# # both functional and taxonomic abundance tables. It allows independently using
-# # merged abundance tables from 3 different taxonomic classifiers, namely Sourmash,
-# # MetaPhlAn, and the Kraken/Bracken combo; and the HUMAnN functional profiler,
-# # here optimized for pathway abundance but easily adapted to gene families.
-# 
-# # The script also OUTPUTS several interpretable sanity checks and summary stats
-# # in the console. It makes extensive use of dplyr/tidyverse syntax and runs a
-# # ~50 samples study with ~1000 species in a few minutes using 2 cores.
-# 
-# # The script layout is as follows:
-# 
-# # 01. Samples & Participants Data
-# # 02. MPA-style Taxonomy tables
-# # 03. MetaPhlAn & Kraken/Bracken Abundance Tables
-# # 04. SourMash Taxonomy Table
-# # 05. SourMash Abundance Table
-# # 06. Pathway Abundance Table
-# # 07. Taxonomy Metadata
-# # 08. Data Subsetting
-# # 09. Summary Statistics
-# # 10. Sanity Checks
-# # 11. Phyloseq Objects & Data Export
-# # 12. Participants & Samples Data Summary Tables
-# 
-# ####################################···
-# #### Samples & Participants Data ####···
-# ####################################···
-# 
-# samplesPath = "data/provid19_sample_metadata.csv"
-# partPath = "data/provid19_participants_data.csv"
-# # Factor levels desired (will help with plotting later on), by study group :
-# partLvls = c("02","06","10","15","17","18","20","31","11","13","19","22","25","LD")
-# fluProPath = "data/flupro_provid19_local.csv"
-# treatLvls = c("start","end")
-# 
-# ### We compute the flu-pro score for each participant entry
-# fluPro <- read_csv2(fluProPath) %>%
-#   dplyr::filter(event_name!="Questionnaire santé") %>%
-#   mutate(JDB = str_replace_all(event_name, "JDB ",""),
-#          .keep = "unused") %>%
-#   mutate(partID = as.factor(str_pad(ID,2,"left","0")), # format the partID with leading 0
-#          .keep="unused") %>%
-#   mutate(entryDate = as.Date(entry_date,"%d.%m.%y"),  # format entry date
-#          .keep="unused") %>%
-#   mutate(fluPro = rowSums(across(where(is.numeric)), # compute score
-#                           na.rm=TRUE),.keep="unused")
-# 
-# fluPro$JDB %<>% as.numeric # for some reason, causes problem if integrated in mutate()
-# 
-# ### We tidy the table containing samples data
-# sampDataProv <- read_csv2(samplesPath) %>%
-#   filter(sampID!= "MSA-3001") %>% # remove mock community, but keep LD samples
-#   mutate_if(is.character, as.factor) %>%
-#   mutate(sampDate = as.Date(sampDate,"%d.%m.%y")) %>%
-#   mutate(storageTime = as.numeric(as.Date("2022-05-24")-sampDate)) %>% # compute storage time
-#       # on 2022-05-26 we were informed the librairies were ready, precise date might differ
-#   group_by(partID,compart) %>%          # operate at a subgroup level
-#   mutate(treatDay = max(sampDate)) %>%  # highest date per subgroup printed in new variable
-#   mutate(treatDay = case_when(     # change variable depending wether:
-#     treatDay == sampDate & partID!="LD"~'end',   # max date is same as sampDate, or
-#     treatDay > sampDate & partID!="LD"~'start'     # it's not
-#   )) %>% mutate(treatDay = factor(treatDay,levels = treatLvls)) %>%
-#   mutate(partID = str_pad(partID,2,"left","0")) %>%
-#   mutate(partID = factor(partID, levels = partLvls)) %>%
-#   arrange(partID, compart) %>% # always nice when samples are ordered (:
-#   ungroup
-# 
-# #   # !!!! flupro score are only with matching dates... weighed average required for "end"?
-# #   # +++++++ Prov-LD will require having 4 time points!
-# #!!! LD samples will only be kept in the master (xProvX) datasets. The subsetting will remove them.
-# 
-# metaMock <- read_csv2(samplesPath) %>%
-#   filter(sampID == "MSA-3001") %>% # do you have ANY IDEA the havoc a hyphenated name can wreak?!
-#   mutate(sampID = replace(sampID,sampID == "MSA-3001","MSA_3001")) %>%
-#   tibble::column_to_rownames("sampID")
-# 
-# ### We compute the mean fluPro score for each participant, defined as the
-# ### mean of fluPro scores up to the day before next sampling date (or last sampling date)
-# 
-# # List will be populated by looping through partIDs and sampling compartments.
-# # Not very elegant, but it works.
-# 
-# myList <- list()
-# count = 1 # for list indexation
-# 
-# for (i in partLvls){
-#   if(i=="LD"){next} # no fluPro scores for PROVID-LD samples
-# 
-#   FP <- dplyr::filter(fluPro, partID==i) %>% as.data.frame
-# 
-#   for (j in unique(sampDataProv$compart)) {
-# 
-#     sampDates <- sampDataProv %>%               # extract all sampling dates
-#       dplyr::filter(partID==i & compart==j) %>% # for current partID & compart
-#       arrange(sampDate) %$% sampDate            # "expose" colnames to call values
-# 
-#       int1 <- interval(sampDates[1], sampDates[2]-1) # up to one day before next sampDate
-# 
-#       myList[[count]] <- data.frame(          # add a small df to list
-#         FP %>% mutate(treatDay = case_when(   # recreate treatDay variable
-#           entryDate %within% int1 ~ "start",  # first interval
-#           TRUE ~ "end")) %>%                  # outside (beyond) interval
-#         group_by(treatDay) %>%                # to use summarise
-#         summarise(meanFP = mean(fluPro)),     # compute mean fluPro score
-#         compart=j, partID = i)                # add partID and compart to df
-# 
-#       count = count+1   # update count
-#   }
-# }
-# 
-# ### Generalization: here's a place to start when many intervals are required :
-# #      for (k in 1:length(sampDates)-1) {
-# #      assign(paste0("int",k), interval(sampDates[k],sampDates[k+1]))
-# #      }
-# 
-# sampDataProv %<>% # update the samples data table
-#   left_join(rbindlist(myList) %>% tibble,  # create DF from list of DFs
-#             by = c('partID', 'compart', 'treatDay')) # unique matches
-# 
-# ### We tidy the table containing the participants demographic and clinical data
-# partDataProv <- read_csv2(partPath) %>%
-#   mutate_if(is.character, as.factor) %>%
-#   mutate(BMI_group = as.factor(case_when( # create BMI group variable :
-#     BMI<18.5~'UW',
-#     BMI>= 18.5 & BMI<25 ~'HW',
-#     BMI>= 25 & BMI<30 ~'OW',
-#     BMI>= 30~'OB'))) %>%
-#   mutate(partID = str_pad(partID,2,"left","0")) %>% # format the partID with leading 0
-#   mutate(partID = factor(partID, levels = partLvls)) %>% # order some factor levels
-#   mutate(lostSmell = factor(lostSmell, levels = c("Y","N"))) %>%
-#   arrange(partID)
-# 
-# str(sampDataProv)
-# str(partDataProv)
+library("pacman")
+p_load(data.table, kableExtra, mgsub, phyloseq, tidyverse,
+              trust, lubridate, vegan, magrittr)
+
+################################################################################
+### Import, Tidy, Subset & Export Data #########################################
+#######################################################O########O###############
+### Author: Jonathan Rondeau-Leclaire #####################..###################
+########################################################\######/################
+### Last Modifications: March 19th, 2023  ###############\____/#################
+################################################################################
+
+# This script was designed to IMPORT all data from a clinical study in which
+# two types of samples were collected at two points in time from each participant,
+# the samples sequenced and the various abundance tables created. It was written
+# and optimized for use with the output of the reference-based (i.-e not assembly)
+# methods from this pipeline : https://github.com/jflucier/ILL_pipelines.
+
+# This script EXPORTS phyloseq objects and the tables used in their fabrication.
+# It is designed to subset the data by sample type (here, saliva and fecal) and
+# create a separate object for sequenced Mock communities, which are not
+# longitudinal, have no associated Participants Data, and are treated separately.
+
+# This script uses 4 types of RAW DATA, namely Participants and Samples data, and
+# both functional and taxonomic abundance tables. It allows independently using
+# merged abundance tables from 3 different taxonomic classifiers, namely Sourmash,
+# MetaPhlAn, and the Kraken/Bracken combo; and the HUMAnN functional profiler,
+# here optimized for pathway abundance but easily adapted to gene families.
+
+# The script also OUTPUTS several interpretable sanity checks and summary stats
+# in the console. It makes extensive use of dplyr/tidyverse syntax and runs a
+# ~50 samples study with ~1000 species in a few minutes using 2 cores.
+
+# The script layout is as follows:
+
+# 01. Samples & Participants Data
+# 02. MPA-style Taxonomy tables
+# 03. MetaPhlAn & Kraken/Bracken Abundance Tables
+# 04. SourMash Taxonomy Table
+# 05. SourMash Abundance Table
+# 06. Pathway Abundance Table
+# 07. Taxonomy Metadata
+# 08. Data Subsetting
+# 09. Summary Statistics
+# 10. Sanity Checks
+# 11. Phyloseq Objects & Data Export
+# 12. Participants & Samples Data Summary Tables
+
+####################################···
+#### Samples & Participants Data ####···
+####################################···
+
+samplesPath = "data/provid19_sample_metadata.csv"
+partPath = "data/provid19_participants_data.csv"
+# Factor levels desired (will help with plotting later on), by study group :
+partLvls = c("02","06","10","15","17","18","20","31","11","13","19","22","25","LD")
+fluProPath = "data/flupro_provid19_local.csv"
+treatLvls = c("start","end")
+
+### We compute the flu-pro score for each participant entry
+fluPro <- read_csv2(fluProPath) %>%
+  dplyr::filter(event_name!="Questionnaire santé") %>%
+  mutate(JDB = str_replace_all(event_name, "JDB ",""),
+         .keep = "unused") %>%
+  mutate(partID = as.factor(str_pad(ID,2,"left","0")), # format the partID with leading 0
+         .keep="unused") %>%
+  mutate(entryDate = as.Date(entry_date,"%d.%m.%y"),  # format entry date
+         .keep="unused") %>%
+  mutate(fluPro = rowSums(across(where(is.numeric)), # compute score
+                          na.rm=TRUE),.keep="unused")
+
+fluPro$JDB %<>% as.numeric # for some reason, causes problem if integrated in mutate()
+
+### We tidy the table containing samples data
+sampDataProv <- read_csv2(samplesPath) %>%
+  filter(sampID!= "MSA-3001") %>% # remove mock community, but keep LD samples
+  mutate_if(is.character, as.factor) %>%
+  mutate(sampDate = as.Date(sampDate,"%d.%m.%y")) %>%
+  mutate(storageTime = as.numeric(as.Date("2022-05-24")-sampDate)) %>% # compute storage time
+      # on 2022-05-26 we were informed the librairies were ready, precise date might differ
+  group_by(partID,compart) %>%          # operate at a subgroup level
+  mutate(treatDay = max(sampDate)) %>%  # highest date per subgroup printed in new variable
+  mutate(treatDay = case_when(     # change variable depending wether:
+    treatDay == sampDate & partID!="LD"~'end',   # max date is same as sampDate, or
+    treatDay > sampDate & partID!="LD"~'start'     # it's not
+  )) %>% mutate(treatDay = factor(treatDay,levels = treatLvls)) %>%
+  mutate(partID = str_pad(partID,2,"left","0")) %>%
+  mutate(partID = factor(partID, levels = partLvls)) %>%
+  arrange(partID, compart) %>% # always nice when samples are ordered (:
+  ungroup
+
+#   # !!!! flupro score are only with matching dates... weighed average required for "end"?
+#   # +++++++ Prov-LD will require having 4 time points!
+#!!! LD samples will only be kept in the master (xProvX) datasets. The subsetting will remove them.
+
+metaMock <- read_csv2(samplesPath) %>%
+  filter(sampID == "MSA-3001") %>% # do you have ANY IDEA the havoc a hyphenated name can wreak?!
+  mutate(sampID = replace(sampID,sampID == "MSA-3001","MSA_3001")) %>%
+  tibble::column_to_rownames("sampID")
+
+### We compute the mean fluPro score for each participant, defined as the
+### mean of fluPro scores up to the day before next sampling date (or last sampling date)
+
+# List will be populated by looping through partIDs and sampling compartments.
+# Not very elegant, but it works.
+
+myList <- list()
+count = 1 # for list indexation
+
+for (i in partLvls){
+  if(i=="LD"){next} # no fluPro scores for PROVID-LD samples
+
+  FP <- dplyr::filter(fluPro, partID==i) %>% as.data.frame
+
+  for (j in unique(sampDataProv$compart)) {
+
+    sampDates <- sampDataProv %>%               # extract all sampling dates
+      dplyr::filter(partID==i & compart==j) %>% # for current partID & compart
+      arrange(sampDate) %$% sampDate            # "expose" colnames to call values
+
+      int1 <- interval(sampDates[1], sampDates[2]-1) # up to one day before next sampDate
+
+      myList[[count]] <- data.frame(          # add a small df to list
+        FP %>% mutate(treatDay = case_when(   # recreate treatDay variable
+          entryDate %within% int1 ~ "start",  # first interval
+          TRUE ~ "end")) %>%                  # outside (beyond) interval
+        group_by(treatDay) %>%                # to use summarise
+        summarise(meanFP = mean(fluPro)),     # compute mean fluPro score
+        compart=j, partID = i)                # add partID and compart to df
+
+      count = count+1   # update count
+  }
+}
+
+### Generalization: here's a place to start when many intervals are required :
+#      for (k in 1:length(sampDates)-1) {
+#      assign(paste0("int",k), interval(sampDates[k],sampDates[k+1]))
+#      }
+
+sampDataProv %<>% # update the samples data table
+  left_join(rbindlist(myList) %>% tibble,  # create DF from list of DFs
+            by = c('partID', 'compart', 'treatDay')) # unique matches
+
+### We tidy the table containing the participants demographic and clinical data
+partDataProv <- read_csv2(partPath) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(BMI_group = as.factor(case_when( # create BMI group variable :
+    BMI<18.5~'UW',
+    BMI>= 18.5 & BMI<25 ~'HW',
+    BMI>= 25 & BMI<30 ~'OW',
+    BMI>= 30~'OB'))) %>%
+  mutate(partID = str_pad(partID,2,"left","0")) %>% # format the partID with leading 0
+  mutate(partID = factor(partID, levels = partLvls)) %>% # order some factor levels
+  mutate(lostSmell = factor(lostSmell, levels = c("Y","N"))) %>%
+  arrange(partID)
+
+str(sampDataProv)
+str(partDataProv)
 
 ##################################···
 #### MPA-style Taxonomy tables ####···
 ##################################···
-# install.packages("tidyverse")
-library(tidyverse)
-library(readr)
-library(stringr)
-# library(dplyr)
-library(magrittr)
-
 # Works for MetaPhlAn (MPA) output, and Kraken-Bracken (KB) output that's been
 # converted to MPA-style table. The latter can be generated using KrakenTools.
 
-### We break apart MPA-like taxonomy to create one column per level
-### We'll make this a function to re-use it for the MetaPhlAn table
-
 ### DEFINE required taxonomic levels according to your input table (see Bracken)
 taxNames <- c("Kingdom","Phylum","Class","Order","Family","Genus","Species"
-)  # comment before the comma following the lowest level available
+              )  # comment before the comma following the lowest level available
 
 taxCodes <- c("\\|p__", "\\|c__", # selects relevant codes (metaphlan-formatting)
               "\\|o__", "\\|f__", "\\|g__", "s__")[1:length(taxNames)-1]
+
+inKB = "data/species_PROVID19_conf0_1.tsv"
+inMPA = "data/provid19_MPA_abundance.tsv"
+
+### We break apart MPA-like taxonomy to create one column per level
+### We'll make this a function to re-use it for the MetaPhlAn table
 
 tax.breaker <- function(infile) {
   tmp <- read_tsv(infile, col_select = 1)
@@ -187,7 +182,7 @@ tax.breaker <- function(infile) {
   for (i in 1:dim(tmp)[1]) {
     if (length(str_split(tmp[i,1],"k__")[[1]])>2) { # if row has >1 kingdom it will create >2 strings
       tmp[i,2] = paste0(str_split(tmp[i,1], "k__")[[1]][2],
-                        str_split(str_split(tmp[i,1],"k__")[[1]][3], "\\|[a-z]__")[[1]][1])}
+                       str_split(str_split(tmp[i,1],"k__")[[1]][3], "\\|[a-z]__")[[1]][1])}
     else {str_split(str_split(tmp[i,1],"k__")[[1]][2],"\\|[a-z]__")[[1]][1] -> tmp[i,2]}
     colnum = 3; for (j in taxCodes) {
       if (j == "s__") {str_split(tmp[i,1],"s__")[[1]][2] -> tmp[i,8]}
@@ -197,45 +192,14 @@ tax.breaker <- function(infile) {
       }
     }; remove(colnum,x,i,j)
   }; tmp[,1:length(tmp)] %<>% lapply(as.factor)
-  
-  
-  tmp1 <- tmp %>% mutate(dummy = Species)
-  
-  tmp2 <- tmp1 %>% dplyr::select(-1)
-  
-  tmp3 <- tmp2 %>% column_to_rownames("dummy")
-  
-  
+
   tmp %>% mutate(dummy = Species) %>%
     dplyr::select(-1) %>%
     column_to_rownames("dummy") %>%
     as.matrix
 }
-
-abund.fun <- function(infile,mock) {
-  tmp <- read_tsv(infile) %>%
-    separate(col = "#Classification", into = c("#Classification","Species"),sep = "\\|s__") %>%
-    as.data.frame %>%
-    column_to_rownames("Species") %>% # lowest tax level as rownames
-    dplyr::select(-c("#Classification"))
-  
-  colnames(tmp) %<>% gsub(x = .,pattern = "-",replacement = "_") # replace hyphen in sample names
-  
-  tmp %>% ###! purrr requires explicit "." to pipe!
-    purrr::when(mock == T ~ dplyr::select(.,"MSA_3001"), # LHS=condition, RHS=function to perform
-                ~ dplyr::select(.,sampDataProv$sampID)) %>%
-    filter(rowSums(across(where(is.numeric)))!= 0) %>%
-    as.data.frame # Taxa classification is used as row name (otu_mat in tuto)
-}###! add list of mock communities
-
-inKB = "/home/jflucier/tmp/all_reports.MPA"
-#inMPA = "/home/jflucier/tmp/all_reports.MPA"
-
 taxProvKB <- tax.breaker(inKB) # Kraken-Bracken MPA-style output
-#taxProvMPA <- tax.breaker(inMPA)
-
-column_to_rownames("dummy") %>%
-  as.matrix
+taxProvMPA <- tax.breaker(inMPA)
 
 ######################################################···
 #### MetaPhlAn & Kraken/Bracken Abundance Tables ####···
@@ -244,16 +208,32 @@ column_to_rownames("dummy") %>%
 #!!!!! We need to use the bowtie2 out to estimate the sequence count from
 #!!!!! this relative abundance table
 
-# countsProvMPA <- abund.fun(inMPA, mock = F)
-# countsMockMPA <- abund.fun(inMPA, mock = T)
+abund.fun <- function(infile,mock) {
+  tmp <- read_tsv(infile) %>%
+    separate(col = "#Classification", into = c("#Classification","Species"),sep = "\\|s__") %>%
+    as.data.frame %>%
+    column_to_rownames("Species") %>% # lowest tax level as rownames
+    dplyr::select(-c("#Classification"))
+
+  colnames(tmp) %<>% gsub(x = .,pattern = "-",replacement = "_") # replace hyphen in sample names
+
+  tmp %>% ###! purrr requires explicit "." to pipe!
+    purrr::when(mock == T ~ dplyr::select(.,"MSA_3001"), # LHS=condition, RHS=function to perform
+                ~ dplyr::select(.,sampDataProv$sampID)) %>%
+    filter(rowSums(across(where(is.numeric)))!= 0) %>%
+    as.data.frame # Taxa classification is used as row name (otu_mat in tuto)
+}###! add list of mock communities
+
+countsProvMPA <- abund.fun(inMPA, mock = F)
+countsMockMPA <- abund.fun(inMPA, mock = T)
 countsProvKB <- abund.fun(inKB, mock = F)
 countsMockKB <- abund.fun(inKB, mock = T)
 
 ### We remove taxa not in abundance table. Warning, do Mock first !
 taxMockKB <- taxProvKB[rownames(countsMockKB),]
-# taxMockMPA <- taxProvMPA[rownames(countsMockMPA),]
+taxMockMPA <- taxProvMPA[rownames(countsMockMPA),]
 taxProvKB <- taxProvKB[rownames(countsProvKB),]
-# taxProvMPA <- taxProvMPA[rownames(countsProvMPA),]
+taxProvMPA <- taxProvMPA[rownames(countsProvMPA),]
 
 ################################···
 #### SourMash Taxonomy Table ####···
