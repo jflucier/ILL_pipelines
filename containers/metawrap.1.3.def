@@ -13,6 +13,7 @@ From: ubuntu:20.04
     export PATH=/miniconda3/envs/gtdbtk-env/bin/:$PATH
     export GTDBTK_DATA_PATH=/GTDB
     export PATH=/bbmap:$PATH
+    export MAMBA_ROOT_PREFIX=/micromamba
 
 %post
     apt-get update && apt-get -y upgrade
@@ -51,6 +52,15 @@ From: ubuntu:20.04
 
     #Installing Anaconda 3 https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
     cd /
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+    export MAMBA_ROOT_PREFIX=/micromamba
+    eval "$micromamba shell hook -s posix)"
+
+    echo 'eval "$(/bin/micromamba shell hook -s posix)"' >> $SINGULARITY_ENVIRONMENT
+    echo "micromamba activate metawrap-env" >> $SINGULARITY_ENVIRONMENT
+
+    micromamba activate metawrap-env
+
     wget -c https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
     /bin/bash Miniconda3-py39_4.11.0-Linux-x86_64.sh -bfp /miniconda3
     export PATH=/miniconda3/bin:$PATH

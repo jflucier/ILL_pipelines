@@ -1,0 +1,26 @@
+# build new image using this command:
+# singularity build --force --fakeroot busco_v5.8.2_cv1.sif busco_v5.8.2_cv1.def
+
+#test
+#singularity exec --writable-tmpfs -e \
+#-B /net/nfs-ip34/home/def-ilafores:/net/nfs-ip34/home/def-ilafores \
+#busco_v5.8.2_cv1.img \
+#busco
+
+BootStrap: docker
+From: ezlabgva/busco:v5.8.2_cv1
+
+#%files
+#  /home/jflucier/localhost/projet/ILL_pipelines/containers/microbeannotator.2.0.5.refseq_data_downloader.patch /temp/refseq_data_downloader.py
+
+%setup
+
+%environment
+
+%post
+
+  cd /
+  git clone https://gitlab.com/ezlab/busco.git
+  cd /busco/
+  python -m pip install .
+
