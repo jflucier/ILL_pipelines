@@ -8,7 +8,7 @@
 #busco
 
 BootStrap: docker
-From: ezlabgva/busco:v5.8.2_cv1
+From: ubuntu:22.04
 
 #%files
 #  /home/jflucier/localhost/projet/ILL_pipelines/containers/microbeannotator.2.0.5.refseq_data_downloader.patch /temp/refseq_data_downloader.py
