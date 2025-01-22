@@ -1,0 +1,60 @@
+# build new image using this command:
+# singularity build --force --fakeroot busco_v5.8.0.sif busco_v5.8.0.def
+# singularity exec --writable-tmpfs -e busco_v5.8.2_cv1.sif busco
+
+BootStrap: docker
+From: ubuntu:22.04
+
+#%files
+#  /home/jflucier/localhost/projet/ILL_pipelines/containers/microbeannotator.2.0.5.refseq_data_downloader.patch /temp/refseq_data_downloader.py
+
+%setup
+
+%environment
+  export PATH=/miniconda3/bin:/CheckM2-1.0.2/bin:$PATH
+  export PATH=/miniconda3/envs/checkm2/bin:$PATH
+
+%post
+  apt-get update && apt-get -y upgrade
+
+  ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+
+  # # needed for concoct
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get -y install \
+  build-essential \
+  wget \
+  git \
+  less
+
+  rm -rf /var/lib/apt/lists/*
+  apt-get clean
+
+  #Installing Anaconda 3 https://repo.anaconda.com/miniconda/Miniconda3-py39_4.11.0-Linux-x86_64.sh
+  cd /
+  mkdir -p /miniconda3
+  wget https://repo.anaconda.com/miniconda/Miniconda3-py311_23.11.0-2-Linux-x86_64.sh -O /miniconda3/miniconda.sh
+  /bin/bash /miniconda3/miniconda.sh -b -u -p /miniconda3
+  rm -rf /miniconda3/miniconda.sh
+  export PATH=/miniconda3/bin:$PATH
+
+  echo ". /miniconda3/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+  echo "conda activate busco" >> $SINGULARITY_ENVIRONMENT
+
+  . /miniconda3/etc/profile.d/conda.sh
+
+  cd /
+#  wget -O CheckM2-1.0.2.tar.gz https://github.com/chklovski/CheckM2/archive/refs/tags/1.0.2.tar.gz
+#  tar -xvzf CheckM2-1.0.2.tar.gz
+#  cd /CheckM2-1.0.2
+  conda create -n busco python=3.7
+  conda activate busco
+  conda install -c conda-forge mamba
+  mamba install -c conda-forge -c bioconda busco=5.8.0
+  conda activate busco
+
+#  echo "loding checkm2 help for test purpose"
+#  bin/checkm2 -h
+#  echo "done testing checkm2"
+
+  conda deactivate

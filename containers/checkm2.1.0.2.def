@@ -1,18 +1,18 @@
 # build new image using this command:
 # singularity build --force --fakeroot checkm2.1.0.2.sif checkm2.1.0.2.def
 
-# build db
- singularity exec --writable-tmpfs -e \
- -B /home/def-ilafores/ref_dbs/checkm2_db:/home/def-ilafores/ref_dbs/checkm2_db \
- checkm2.1.0.2.sif \
- checkm2 database --download --path /home/def-ilafores/ref_dbs/checkm2_db
-
-# test run:
-singularity exec --writable-tmpfs -e \
--B /home/def-ilafores/ref_dbs/checkm2_db:/home/def-ilafores/ref_dbs/checkm2_db \
-/home/def-ilafores/programs/ILL_pipelines/containers/checkm2.1.0.2.sif \
-checkm2 testrun --threads 8 \
---database_path /home/def-ilafores/ref_dbs/checkm2_db/CheckM2_database/uniref100.KO.1.dmnd
+## build db
+# singularity exec --writable-tmpfs -e \
+# -B /home/def-ilafores/ref_dbs/checkm2_db:/home/def-ilafores/ref_dbs/checkm2_db \
+# checkm2.1.0.2.sif \
+# checkm2 database --download --path /home/def-ilafores/ref_dbs/checkm2_db
+#
+## test run:
+#singularity exec --writable-tmpfs -e \
+#-B /home/def-ilafores/ref_dbs/checkm2_db:/home/def-ilafores/ref_dbs/checkm2_db \
+#/home/def-ilafores/programs/ILL_pipelines/containers/checkm2.1.0.2.sif \
+#checkm2 testrun --threads 8 \
+#--database_path /home/def-ilafores/ref_dbs/checkm2_db/CheckM2_database/uniref100.KO.1.dmnd
 
 
 
