@@ -1,5 +1,5 @@
 # build new image using this command:
-# singularity build --force --fakeroot phylophlan.3.0.3.sif phylophlan.3.0.3.def
+# singularity build --force --fakeroot phylophlan.3.1.1.sif phylophlan.3.1.1.def
 
 BootStrap: docker
 From: ubuntu:22.04
@@ -38,10 +38,9 @@ From: ubuntu:22.04
     pip install matplotlib
     pip install requests
     cd /
-    wget -O phylophlan.v3.0.3.tar.gz https://github.com/biobakery/phylophlan/archive/refs/tags/3.0.3.tar.gz
-    tar -xvzf phylophlan.v3.0.3.tar.gz
-    cd /phylophlan-3.0.3
-
+    wget -O phylophlan.v3.1.1.tar.gz https://github.com/biobakery/phylophlan/archive/refs/tags/3.1.1.tar.gz
+    tar -xvzf phylophlan.v3.1.1.tar.gz
+    cd /phylophlan-3.1.1
     python3 setup.py install
 
 
