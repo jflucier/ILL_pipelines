@@ -4,61 +4,7 @@ import numpy as np
 import argparse
 import os
 
-# Define the target strains. These are the assemblies we care about.
-TARGET_ASSEMBLIES_LIST = [
-    'GCF_001421155.1_Leaf5_genomic',
-    'GCF_001421275.1_Leaf203_genomic',
-    'GCF_001421325.1_Leaf2_genomic',
-    'GCF_001421565.1_Leaf222_genomic',
-    'GCF_001421705.1_Leaf220_genomic',
-    'GCF_001421785.1_Leaf33_genomic',
-    'GCF_001421905.1_Leaf61_genomic',
-    'GCF_001421985.1_Leaf68_genomic',
-    'GCF_001421995.1_Leaf231_genomic',
-    'GCF_001422025.1_Leaf70_genomic',
-    'GCF_001422045.1_Leaf242_genomic',
-    'GCF_001422245.1_Leaf262_genomic',
-    'GCF_001422265.1_Leaf90_genomic',
-    'GCF_001422285.1_Leaf263_genomic',
-    'GCF_001422665.1_Leaf234_genomic',
-    'GCF_001422795.1_Leaf88_genomic',
-    'GCF_001422925.1_Leaf288_genomic',
-    'GCF_001423085.1_Leaf125_genomic',
-    'GCF_001423125.1_Leaf126_genomic',
-    'GCF_001423245.1_Leaf324_genomic',
-    'GCF_001423335.1_Leaf289_genomic',
-    'GCF_001423565.1_Leaf145_genomic',
-    'GCF_001423695.1_Leaf336_genomic',
-    'GCF_001423745.1_Leaf337_genomic',
-    'GCF_001423825.1_Leaf351_genomic',
-    'GCF_001423845.1_Leaf357_genomic',
-    'GCF_001423925.1_Leaf187_genomic',
-    'GCF_001424025.1_Leaf363_genomic',
-    'GCF_001424045.1_Leaf371_genomic',
-    'GCF_001424165.1_Leaf139_genomic',
-    'GCF_001424195.1_Leaf334_genomic',
-    'GCF_001424265.1_Leaf160_genomic',
-    'GCF_001424345.1_Leaf1773_genomic',
-    'GCF_001424365.1_Leaf354_genomic',
-    'GCF_001424385.1_Leaf183_genomic',
-    'GCF_001424405.1_Leaf189_genomic',
-    'GCF_001424485.1_Leaf380_genomic',
-    'GCF_001424505.1_Leaf391_genomic',
-    'GCF_001424565.1_Leaf141_genomic',
-    'GCF_001424605.1_Leaf396_genomic',
-    'GCF_001424665.1_Leaf416_genomic',
-    'GCF_001424755.1_Leaf446_genomic',
-    'GCF_001425445.1_Leaf420_genomic',
-    'GCF_001425485.1_Leaf427_genomic',
-    'GCF_001425575.1_Leaf443_genomic',
-    'GCF_001425965.1_Leaf3_genomic',
-    'GCF_001426125.1_Leaf49_genomic',
-    'GCF_001426145.1_Leaf225_genomic',
-    'GCF_001426165.1_Leaf233_genomic',
-    'GCF_001426225.1_Leaf344_genomic'
-]
-TARGET_ASSEMBLIES = set(TARGET_ASSEMBLIES_LIST)
-
+# NOTE: TARGET_ASSEMBLIES is now dynamically determined from the input file
 # Global cache for FASTA sequences: {assembly.contig_key: sequence_string}
 FASTA_CACHE = {}
 
@@ -111,13 +57,30 @@ def load_fasta_sequence(assembly, contig, fasta_dir):
         return None
 
 
+def get_all_assemblies_from_file(input_file):
+    """
+    Reads the input TSV file and returns a set of all unique assembly IDs
+    found in the 'assembly' column.
+    """
+    print(f"Reading {input_file} to dynamically determine target assemblies...")
+    try:
+        # Load only the 'assembly' column
+        df = pd.read_csv(input_file, sep='\t', usecols=['assembly'])
+        unique_assemblies = set(df['assembly'].unique())
+        print(f"Dynamically identified {len(unique_assemblies)} unique assemblies to target.")
+        return unique_assemblies
+    except Exception as e:
+        print(f"Error reading file to determine target assemblies: {e}")
+        return set()
+
+
 def generate_homology_map_from_file(input_file, target_assemblies):
     """
     Computes a dictionary mapping assembly IDs to a list of all unique contig IDs
     present in that assembly within the input file, restricted to the target_assemblies.
     This dynamically creates the TARGET_HOMOLOGY_MAP.
     """
-    print(f"Dynamically generating homology map from {input_file}...")
+    print(f"Generating homology map from {input_file}...")
     try:
         # Load only necessary columns for map generation
         df = pd.read_csv(input_file, sep='\t', usecols=['assembly', 'contig'])
@@ -125,16 +88,11 @@ def generate_homology_map_from_file(input_file, target_assemblies):
         print(f"Error loading file for map generation: {e}")
         return {}
 
-    # Filter to only include the assemblies we care about
+    # Filter to only include the assemblies we care about (which is all of them now)
     df_filtered = df[df['assembly'].isin(target_assemblies)].copy()
 
     # Group by assembly and collect all unique contigs into a list
     contig_map = df_filtered.groupby('assembly')['contig'].unique().apply(list).to_dict()
-
-    # Check if all target assemblies were found
-    if len(contig_map) < len(target_assemblies):
-        missing = target_assemblies - set(contig_map.keys())
-        print(f"Warning: The following target assemblies were not found in the input file: {', '.join(missing)}")
 
     print(f"Map generated for {len(contig_map)} assemblies.")
     return contig_map
@@ -165,6 +123,7 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
 
     print(f"Found {len(unique_kmers)} unique k-mers to check.")
     print(f"Filtering for product size between {min_product_size} and {max_product_size} bp.")
+    print(f"Searching for universal pairs across {len(target_homology_map)} assemblies...")
 
     # Iterate through all possible pairs of k-mers (Kmer_F, Kmer_R)
     for i in range(len(unique_kmers)):
@@ -193,7 +152,7 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
             is_universal_pair = True
             all_valid_universal_matches = []  # List to store ALL valid match dicts (one for each valid product)
 
-            # Check all three strains for the conditions
+            # Check all target strains for the conditions
             for assembly, homologous_contigs in target_homology_map.items():
 
                 # Get the relevant data points for this specific assembly/contig group
@@ -323,7 +282,7 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
     else:
         print("\n--- Analysis Complete ---")
         print(
-            f"No universal primer pairs found that consistently maintain the Fwd(+) < Rev(-) position AND yield a product size between {min_product_size} and {max_product_size} bp in all three strains on the homologous contigs.")
+            f"No universal primer pairs found that consistently maintain the Fwd(+) < Rev(-) position AND yield a product size between {min_product_size} and {max_product_size} bp in all {len(target_homology_map)} target strains on the homologous contigs.")
         return None
 
 
@@ -376,7 +335,14 @@ def main():
         print(f"Error: Input file '{args.input_file}' not found. Please ensure it is uploaded.")
         sys.exit(1)
 
-    # Dynamically generate TARGET_HOMOLOGY_MAP
+    # 1. Dynamically get all target assemblies from the input file
+    TARGET_ASSEMBLIES = get_all_assemblies_from_file(args.input_file)
+
+    if not TARGET_ASSEMBLIES:
+        print("Error: Could not determine target assemblies from input file. Exiting.")
+        sys.exit(1)
+
+    # 2. Dynamically generate TARGET_HOMOLOGY_MAP based on the newly defined TARGET_ASSEMBLIES
     TARGET_HOMOLOGY_MAP = generate_homology_map_from_file(args.input_file, TARGET_ASSEMBLIES)
 
     # Check if the generated map is usable
