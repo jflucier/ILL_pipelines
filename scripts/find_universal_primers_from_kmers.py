@@ -58,6 +58,35 @@ def load_fasta_sequence(assembly, contig, fasta_dir):
         return None
 
 
+def generate_homology_map_from_file(input_file, target_assemblies):
+    """
+    Computes a dictionary mapping assembly IDs to a list of all unique contig IDs
+    present in that assembly within the input file, restricted to the target_assemblies.
+    This dynamically creates the TARGET_HOMOLOGY_MAP.
+    """
+    print(f"Dynamically generating homology map from {input_file}...")
+    try:
+        # Load only necessary columns for map generation
+        df = pd.read_csv(input_file, sep='\t', usecols=['assembly', 'contig'])
+    except Exception as e:
+        print(f"Error loading file for map generation: {e}")
+        return {}
+
+    # Filter to only include the assemblies we care about
+    df_filtered = df[df['assembly'].isin(target_assemblies)].copy()
+
+    # Group by assembly and collect all unique contigs into a list
+    contig_map = df_filtered.groupby('assembly')['contig'].unique().apply(list).to_dict()
+
+    # Check if all target assemblies were found
+    if len(contig_map) < len(target_assemblies):
+        missing = target_assemblies - set(contig_map.keys())
+        print(f"Warning: The following target assemblies were not found in the input file: {', '.join(missing)}")
+
+    print(f"Map generated for {len(contig_map)} assemblies.")
+    return contig_map
+
+
 # --- Main Analysis Function ---
 
 def find_universal_primers(input_file, output_file, min_product_size, max_product_size, fasta_dir, target_homology_map):
