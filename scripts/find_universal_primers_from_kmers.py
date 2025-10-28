@@ -144,8 +144,9 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
             for assembly, homologous_contigs in target_homology_map.items():
 
                 # Get the relevant data points for this specific assembly/contig group
-                fwd_match = fwd_df[(fwd_df['assembly'] == assembly) & (df_filtered['contig'].isin(homologous_contigs))]
-                rev_match = rev_df[(rev_df['assembly'] == assembly) & (df_filtered['contig'].isin(homologous_contigs))]
+                # FIX: Ensure boolean masks are generated only from the DataFrame being filtered (fwd_df/rev_df)
+                fwd_match = fwd_df[(fwd_df['assembly'] == assembly) & (fwd_df['contig'].isin(homologous_contigs))]
+                rev_match = rev_df[(rev_df['assembly'] == assembly) & (rev_df['contig'].isin(homologous_contigs))]
 
                 # Condition 1 & 2: Kmer F must be + and Kmer R must be - in this assembly/contig
                 if fwd_match.empty or rev_match.empty:
