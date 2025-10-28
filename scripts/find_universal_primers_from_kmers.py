@@ -21,7 +21,7 @@ FASTA_CACHE = {}
 def load_fasta_sequence(assembly, contig, fasta_dir):
     """
     Loads a sequence from a FASTA file into the global cache.
-    Assumes simple FASTA format (one header, one sequence line, no wrapping).
+    Handles wrapped (multi-line) FASTA format by concatenating all lines after the header.
     File name convention: <assembly>.<contig>.fasta
     """
     key = f"{assembly}.{contig}"
@@ -33,14 +33,21 @@ def load_fasta_sequence(assembly, contig, fasta_dir):
 
     try:
         with open(file_path, 'r') as f:
-            # Skip the header line (first line)
-            f.readline()
-            # Read the sequence (second line), remove whitespace, and convert to uppercase
-            # Assumes the sequence is on a single line after the header
-            sequence = f.readline().strip().upper()
+            lines = f.readlines()
+
+            if not lines:
+                print(f"Warning: FASTA file is empty: {file_path}")
+                FASTA_CACHE[key] = None
+                return None
+
+            # Skip the header line (index 0) and read all subsequent lines
+            sequence_lines = lines[1:]
+
+            # Concatenate all sequence lines, strip whitespace (newlines), and convert to uppercase
+            sequence = "".join(line.strip() for line in sequence_lines).upper()
 
             if not sequence:
-                print(f"Warning: FASTA file appears empty or malformed: {file_path}")
+                print(f"Warning: FASTA file sequence is empty after parsing: {file_path}")
                 FASTA_CACHE[key] = None
                 return None
 
@@ -48,7 +55,6 @@ def load_fasta_sequence(assembly, contig, fasta_dir):
             return sequence
 
     except FileNotFoundError:
-        # Cannot use sys.exit(1) here as it's called inside the main loop
         print(f"Error: FASTA file not found for {key} at {file_path}. Cannot extract sequence.")
         FASTA_CACHE[key] = None
         return None
@@ -144,7 +150,6 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
             for assembly, homologous_contigs in target_homology_map.items():
 
                 # Get the relevant data points for this specific assembly/contig group
-                # FIX: Ensure boolean masks are generated only from the DataFrame being filtered (fwd_df/rev_df)
                 fwd_match = fwd_df[(fwd_df['assembly'] == assembly) & (fwd_df['contig'].isin(homologous_contigs))]
                 rev_match = rev_df[(rev_df['assembly'] == assembly) & (rev_df['contig'].isin(homologous_contigs))]
 
@@ -193,7 +198,8 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
                                     if end_idx <= len(sequence):
                                         amplicon_sequence = sequence[start_idx:end_idx]
                                     else:
-                                        amplicon_sequence = "ERROR_SEQUENCE_INDEX_OUT_OF_BOUNDS"
+                                        # Sequence is loaded, but indices are wrong
+                                        amplicon_sequence = f"ERROR_INDEX_OUT_OF_BOUNDS (Contig Len: {len(sequence)}, End Index: {end_idx})"
                                 else:
                                     amplicon_sequence = "FASTA_LOAD_FAILED"
 
