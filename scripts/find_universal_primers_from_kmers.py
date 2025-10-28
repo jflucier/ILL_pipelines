@@ -2,6 +2,7 @@ import pandas as pd
 import sys
 import numpy as np
 import argparse
+import os
 
 # Define the target strains. These are the assemblies we care about.
 TARGET_ASSEMBLIES_LIST = [
@@ -11,53 +12,57 @@ TARGET_ASSEMBLIES_LIST = [
 ]
 TARGET_ASSEMBLIES = set(TARGET_ASSEMBLIES_LIST)
 
+# Global cache for FASTA sequences: {assembly.contig_key: sequence_string}
+FASTA_CACHE = {}
 
-# Original static map (commented out for reference):
-# TARGET_HOMOLOGY_MAP = {
-#     'GCF_001423335.1_Leaf289_genomic': ['nz_lmnk01000001.1', 'nz_lmnk01000006.1', 'nz_lmnk01000002.1',
-#                                         'nz_lmnk01000003.1'],
-#     'GCF_001423465.1_Leaf129_genomic': ['nz_lmoc01000006.1', 'nz_lmoc01000001.1', 'nz_lmoc01000007.1',
-#                                         'nz_lmoc01000008.1'],
-#     'GCF_001423565.1_Leaf145_genomic': ['nz_lmon01000001.1', 'nz_lmon01000002.1', 'nz_lmon01000003.1',
-#                                         'nz_lmon01000012.1']
-# }
 
-# --- End Configuration ---
+# --- Helper Functions for Sequence Loading ---
 
-def generate_homology_map_from_file(input_file, target_assemblies):
+def load_fasta_sequence(assembly, contig, fasta_dir):
     """
-    Computes a dictionary mapping assembly IDs to a list of all unique contig IDs
-    present in that assembly within the input file, restricted to the target_assemblies.
-    This dynamically creates the TARGET_HOMOLOGY_MAP.
+    Loads a sequence from a FASTA file into the global cache.
+    Assumes simple FASTA format (one header, one sequence line, no wrapping).
+    File name convention: <assembly>.<contig>.fasta
     """
-    print(f"Dynamically generating homology map from {input_file}...")
+    key = f"{assembly}.{contig}"
+    if key in FASTA_CACHE:
+        return FASTA_CACHE[key]
+
+    # Construct the file path using the assembly and contig names
+    file_path = os.path.join(fasta_dir, f"{assembly}.{contig}.fasta")
+
     try:
-        # Load only necessary columns for map generation
-        df = pd.read_csv(input_file, sep='\t', usecols=['assembly', 'contig'])
+        with open(file_path, 'r') as f:
+            # Skip the header line (first line)
+            f.readline()
+            # Read the sequence (second line), remove whitespace, and convert to uppercase
+            # Assumes the sequence is on a single line after the header
+            sequence = f.readline().strip().upper()
+
+            if not sequence:
+                print(f"Warning: FASTA file appears empty or malformed: {file_path}")
+                FASTA_CACHE[key] = None
+                return None
+
+            FASTA_CACHE[key] = sequence
+            return sequence
+
+    except FileNotFoundError:
+        # Cannot use sys.exit(1) here as it's called inside the main loop
+        print(f"Error: FASTA file not found for {key} at {file_path}. Cannot extract sequence.")
+        FASTA_CACHE[key] = None
+        return None
     except Exception as e:
-        print(f"Error loading file for map generation: {e}")
-        return {}
-
-    # Filter to only include the assemblies we care about
-    df_filtered = df[df['assembly'].isin(target_assemblies)].copy()
-
-    # Group by assembly and collect all unique contigs into a list
-    contig_map = df_filtered.groupby('assembly')['contig'].unique().apply(list).to_dict()
-
-    # Check if all target assemblies were found
-    if len(contig_map) < len(target_assemblies):
-        missing = target_assemblies - set(contig_map.keys())
-        print(f"Warning: The following target assemblies were not found in the input file: {', '.join(missing)}")
-
-    print(f"Map generated for {len(contig_map)} assemblies.")
-    return contig_map
+        print(f"Error reading FASTA file {file_path}: {e}")
+        FASTA_CACHE[key] = None
+        return None
 
 
-def find_universal_primers(input_file, output_file, min_product_size, max_product_size, target_homology_map):
+# --- Main Analysis Function ---
+
+def find_universal_primers(input_file, output_file, min_product_size, max_product_size, fasta_dir, target_homology_map):
     """
-    Analyzes the k-mer position data to find pairs of k-mers that function
-    universally as (Forward, Reverse) primers across all target assemblies,
-    filtering for product sizes between min_product_size and max_product_size bp (inclusive).
+    Analyzes the k-mer position data to find universal primer pairs and extracts the amplicon sequence.
     """
     print(f"Loading data from {input_file}...")
     try:
@@ -110,8 +115,8 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
             for assembly, homologous_contigs in target_homology_map.items():
 
                 # Get the relevant data points for this specific assembly/contig group
-                fwd_match = fwd_df[(fwd_df['assembly'] == assembly) & (fwd_df['contig'].isin(homologous_contigs))]
-                rev_match = rev_df[(rev_df['assembly'] == assembly) & (rev_df['contig'].isin(homologous_contigs))]
+                fwd_match = fwd_df[(fwd_df['assembly'] == assembly) & (df_filtered['contig'].isin(homologous_contigs))]
+                rev_match = rev_df[(rev_df['assembly'] == assembly) & (df_filtered['contig'].isin(homologous_contigs))]
 
                 # Condition 1 & 2: Kmer F must be + and Kmer R must be - in this assembly/contig
                 if fwd_match.empty or rev_match.empty:
@@ -142,15 +147,38 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
 
                             # Condition B: Filter by MINIMUM and MAXIMUM length
                             if min_product_size <= product_size <= max_product_size:
-                                all_valid_matches_for_assembly.append({
+
+                                # 1. Load the sequence
+                                sequence = load_fasta_sequence(assembly, fwd_contig_id, fasta_dir)
+
+                                amplicon_sequence = ""
+                                if sequence:
+                                    # 2. Extract the amplicon sequence using 0-based indexing for Python slicing
+                                    # Fwd_pos is 1-based start. Python slice start is fwd_pos - 1.
+                                    # Amplicon ends at Rev_pos + kmer_len - 1. Python slice end is exclusive.
+                                    start_idx = fwd_pos - 1
+                                    end_idx = rev_pos + kmer_len - 1
+
+                                    # Ensure indices are valid before slicing
+                                    if end_idx <= len(sequence):
+                                        amplicon_sequence = sequence[start_idx:end_idx]
+                                    else:
+                                        amplicon_sequence = "ERROR_SEQUENCE_INDEX_OUT_OF_BOUNDS"
+                                else:
+                                    amplicon_sequence = "FASTA_LOAD_FAILED"
+
+                                # Found a valid match!
+                                match_dict = {
                                     'Fwd_Kmer': kmer_fwd_seq,
                                     'Rev_Kmer': kmer_rev_seq,
                                     'Assembly': assembly,
                                     'Contig': fwd_contig_id,
                                     'Fwd_Start_Pos': fwd_pos,
                                     'Rev_Start_Pos': rev_pos,
-                                    'Calculated_Size': product_size
-                                })
+                                    'Calculated_Size': product_size,
+                                    'Amplicon_Sequence': amplicon_sequence
+                                }
+                                all_valid_matches_for_assembly.append(match_dict)
 
                 if not all_valid_matches_for_assembly:
                     is_universal_pair = False
@@ -186,6 +214,7 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
         # Define final columns for TSV output
         final_columns = [
             'Fwd_Kmer', 'Rev_Kmer', 'Product_Size_Avg', 'Product_Size_Min', 'Product_Size_Max',
+            'Amplicon_Sequence',
             'Assembly', 'Contig', 'Fwd_Start_Pos', 'Rev_Start_Pos', 'Calculated_Size'
         ]
 
@@ -249,6 +278,12 @@ def main():
         default=150,
         help='Minimum allowed PCR product size in base pairs (default: 150)'
     )
+    parser.add_argument(
+        '--fasta_dir',
+        type=str,
+        default='./assembly/',
+        help='Directory containing the FASTA files named <assembly>.<contig>.fasta. (default: ./assembly/)'
+    )
 
     # Parse arguments
     args = parser.parse_args()
@@ -272,6 +307,7 @@ def main():
         args.output_file,
         args.min_product_size,
         args.max_product_size,
+        args.fasta_dir,  # Pass the FASTA directory
         TARGET_HOMOLOGY_MAP
     )
 
