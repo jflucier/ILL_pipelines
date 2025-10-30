@@ -103,6 +103,9 @@ def generate_homology_map_from_file(input_file, target_assemblies):
 def find_universal_primers(input_file, output_file, min_product_size, max_product_size, fasta_dir, target_homology_map):
     """
     Analyzes the k-mer position data to find universal primer pairs and extracts the amplicon sequence.
+    Refactored to use DataFrame merges for efficiency, following the logic:
+    1. Find all valid amplicons (Fwd(+) < Rev(-) on same contig, within size constraints)
+    2. Filter these amplicons to find pairs that are universal across ALL assemblies.
     """
     print(f"Loading data from {input_file}...")
     try:
@@ -111,179 +114,153 @@ def find_universal_primers(input_file, output_file, min_product_size, max_produc
         print(f"Error loading file: {e}")
         return
 
-    # Filter data to only include the target assemblies/contigs for efficiency
+    # 1. Filter data to only include the target assemblies/contigs for efficiency
     target_assemblies = set(target_homology_map.keys())
     df_filtered = df[df['assembly'].isin(target_assemblies)].copy()
 
-    # Store results (list of lists of match dictionaries)
-    universal_pairs_groups = []
+    # 2. Separate Fwd (+) and Rev (-) k-mers
+    fwd_kmers_df = df_filtered[df_filtered['strand'] == '+'].rename(
+        columns={'seq': 'Fwd_Kmer', 'position': 'Fwd_Start_Pos'}
+    ).drop(columns=['strand']).copy()
 
-    # Get all unique k-mers found in this dataset
-    unique_kmers = df_filtered['seq'].unique()
+    rev_kmers_df = df_filtered[df_filtered['strand'] == '-'].rename(
+        columns={'seq': 'Rev_Kmer', 'position': 'Rev_Start_Pos'}
+    ).drop(columns=['strand']).copy()
 
-    print(f"Found {len(unique_kmers)} unique k-mers to check.")
-    print(f"Filtering for product size between {min_product_size} and {max_product_size} bp.")
-    print(f"Searching for universal pairs across {len(target_homology_map)} assemblies...")
+    # Determine k-mer length (assume all kmers are the same length, use the first one)
+    kmer_len = len(fwd_kmers_df['Fwd_Kmer'].iloc[0]) if not fwd_kmers_df.empty else 0
+    if kmer_len == 0:
+        print("Error: No forward k-mers found or k-mer length is zero. Exiting analysis.")
+        return None
 
-    # Iterate through all possible pairs of k-mers (Kmer_F, Kmer_R)
-    for i in range(len(unique_kmers)):
-        kmer_fwd_seq = unique_kmers[i]
+    print(f"k-mer length determined to be {kmer_len}.")
+    print("Finding all valid Fwd(+) < Rev(-) pairings on the same contig...")
 
-        # Kmer_Fwd will be the candidate for the Forward primer (+)
-        fwd_df = df_filtered[(df_filtered['seq'] == kmer_fwd_seq) & (df_filtered['strand'] == '+')]
+    # 3. Merge Fwd and Rev dataframes on (assembly, contig) to find all possible pairs on the same segment.
+    # This efficiently creates the list of k-mer pairs on different strands on the same contig (User Step 1).
+    all_pairs_df = pd.merge(
+        fwd_kmers_df,
+        rev_kmers_df,
+        on=['assembly', 'contig'],
+        how='inner'
+    )
 
-        # Optimization: Skip if Fwd is not found on '+' strand in all target assemblies
-        if fwd_df.empty or len(fwd_df['assembly'].unique()) < len(target_assemblies):
-            continue
+    # Filter out cases where the kmer is paired with itself
+    all_pairs_df = all_pairs_df[all_pairs_df['Fwd_Kmer'] != all_pairs_df['Rev_Kmer']]
 
-        for j in range(len(unique_kmers)):
-            if i == j:  # Cannot be the same k-mer
-                continue
+    # 4. Apply PCR conditions (Order and Size)
 
-            kmer_rev_seq = unique_kmers[j]
+    # Condition A: Correct Order (Fwd start must be before Rev start on the forward strand)
+    valid_order_df = all_pairs_df[all_pairs_df['Fwd_Start_Pos'] < all_pairs_df['Rev_Start_Pos']].copy()
 
-            # Kmer_Rev will be the candidate for the Reverse primer (-)
-            rev_df = df_filtered[(df_filtered['seq'] == kmer_rev_seq) & (df_filtered['strand'] == '-')]
+    # Calculate product size
+    valid_order_df['Calculated_Size'] = valid_order_df['Rev_Start_Pos'] - valid_order_df['Fwd_Start_Pos'] + kmer_len
 
-            # Optimization: Skip if Rev is not found on '-' strand in all target assemblies
-            if rev_df.empty or len(rev_df['assembly'].unique()) < len(target_assemblies):
-                continue
+    # Condition B: Filter by MINIMUM and MAXIMUM length
+    valid_amplicons_df = valid_order_df[
+        (valid_order_df['Calculated_Size'] >= min_product_size) &
+        (valid_order_df['Calculated_Size'] <= max_product_size)
+        ].reset_index(drop=True)
 
-            is_universal_pair = True
-            all_valid_universal_matches = []  # List to store ALL valid match dicts (one for each valid product)
-
-            # Check all target strains for the conditions
-            for assembly, homologous_contigs in target_homology_map.items():
-
-                # Get the relevant data points for this specific assembly/contig group
-                fwd_match = fwd_df[(fwd_df['assembly'] == assembly) & (fwd_df['contig'].isin(homologous_contigs))]
-                rev_match = rev_df[(rev_df['assembly'] == assembly) & (rev_df['contig'].isin(homologous_contigs))]
-
-                # Condition 1 & 2: Kmer F must be + and Kmer R must be - in this assembly/contig
-                if fwd_match.empty or rev_match.empty:
-                    is_universal_pair = False
-                    break  # Kmers are not present in the required orientation in this strain
-
-                # --- Find ALL valid matches (Fwd < Rev & Product Size between MIN and MAX) ---
-                all_valid_matches_for_assembly = []
-                kmer_len = len(kmer_fwd_seq)  # k-mer length correction
-
-                # Iterate through all possible forward matches
-                for _, fwd_row in fwd_match.iterrows():
-                    fwd_pos = fwd_row['position']
-                    fwd_contig_id = fwd_row['contig']
-
-                    # Iterate through all possible reverse matches
-                    for _, rev_row in rev_match.iterrows():
-                        rev_pos = rev_row['position']
-                        rev_contig_id = rev_row['contig']
-
-                        # Only allow pairing if they are on the same specific contig
-                        if fwd_contig_id != rev_contig_id:
-                            continue
-
-                        # Condition A: Correct Order (Fwd start must be before Rev start on the forward strand)
-                        if fwd_pos < rev_pos:
-                            product_size = rev_pos - fwd_pos + kmer_len
-
-                            # Condition B: Filter by MINIMUM and MAXIMUM length
-                            if min_product_size <= product_size <= max_product_size:
-
-                                # 1. Load the sequence
-                                sequence = load_fasta_sequence(assembly, fwd_contig_id, fasta_dir)
-
-                                amplicon_sequence = ""
-                                if sequence:
-                                    # 2. Extract the amplicon sequence using 0-based indexing for Python slicing
-                                    # Fwd_pos is 1-based start. Python slice start is fwd_pos - 1.
-                                    # Amplicon ends at Rev_pos + kmer_len - 1. Python slice end is exclusive.
-                                    start_idx = fwd_pos - 1
-                                    end_idx = rev_pos + kmer_len - 1
-
-                                    # Ensure indices are valid before slicing
-                                    if end_idx <= len(sequence):
-                                        amplicon_sequence = sequence[start_idx:end_idx]
-                                    else:
-                                        # Sequence is loaded, but indices are wrong
-                                        amplicon_sequence = f"ERROR_INDEX_OUT_OF_BOUNDS (Contig Len: {len(sequence)}, End Index: {end_idx})"
-                                else:
-                                    amplicon_sequence = "FASTA_LOAD_FAILED"
-
-                                # Found a valid match!
-                                match_dict = {
-                                    'Fwd_Kmer': kmer_fwd_seq,
-                                    'Rev_Kmer': kmer_rev_seq,
-                                    'Assembly': assembly,
-                                    'Contig': fwd_contig_id,
-                                    'Fwd_Start_Pos': fwd_pos,
-                                    'Rev_Start_Pos': rev_pos,
-                                    'Calculated_Size': product_size,
-                                    'Amplicon_Sequence': amplicon_sequence
-                                }
-                                all_valid_matches_for_assembly.append(match_dict)
-
-                if not all_valid_matches_for_assembly:
-                    is_universal_pair = False
-                    break  # No match (of length min-max) found for this specific assembly
-
-                all_valid_universal_matches.extend(all_valid_matches_for_assembly)
-
-            if is_universal_pair and all_valid_universal_matches:
-                # Store all matches found across all strains for this kmer pair
-                universal_pairs_groups.append(all_valid_universal_matches)
-
-    # Convert results to a presentable DataFrame
-    if universal_pairs_groups:
-        # Flatten the list of lists into a single list of dictionaries
-        flat_results = [match for sublist in universal_pairs_groups for match in sublist]
-
-        # Convert to DataFrame
-        results_df = pd.DataFrame(flat_results)
-
-        # Calculate consistency metrics.
-        metrics = results_df.groupby(['Fwd_Kmer', 'Rev_Kmer'])['Calculated_Size'].agg(
-            # Calculate Avg Size (convert to int)
-            Product_Size_Avg=lambda x: int(x.mean()),
-            # Calculate Min Size (convert to int)
-            Product_Size_Min=lambda x: int(x.min()),
-            # Calculate Max Size (convert to int)
-            Product_Size_Max=lambda x: int(x.max())
-        ).reset_index()
-
-        # Merge the metrics back into the main results DataFrame
-        results_df = results_df.merge(metrics, on=['Fwd_Kmer', 'Rev_Kmer'])
-
-        # Define final columns for TSV output
-        final_columns = [
-            'Fwd_Kmer', 'Rev_Kmer', 'Product_Size_Avg', 'Product_Size_Min', 'Product_Size_Max',
-            'Amplicon_Sequence',
-            'Assembly', 'Contig', 'Fwd_Start_Pos', 'Rev_Start_Pos', 'Calculated_Size'
-        ]
-
-        # Use the new output file name
-        results_df.to_csv(output_file, sep='\t', index=False, columns=final_columns)
-
-        print(f"\n--- Analysis Complete ---")
-        print(
-            f"Found universal primer pair groups that yield products between {min_product_size} and {max_product_size} bp.")
-        print(f"Details saved to {output_file}")
-
-        # Print a summary table to the console
-        summary_df = results_df[
-            ['Fwd_Kmer', 'Rev_Kmer', 'Product_Size_Avg', 'Product_Size_Min',
-             'Product_Size_Max']].drop_duplicates().reset_index(drop=True)
-        print(
-            f"\nSummary of Universal Primer Pairs (All products between {min_product_size} and {max_product_size} bp):")
-
-        # Display the summary in markdown for the user
-        print(summary_df.to_markdown(index=False))
-
-        return results_df
-    else:
+    if valid_amplicons_df.empty:
         print("\n--- Analysis Complete ---")
         print(
-            f"No universal primer pairs found that consistently maintain the Fwd(+) < Rev(-) position AND yield a product size between {min_product_size} and {max_product_size} bp in all {len(target_homology_map)} target strains on the homologous contigs.")
+            f"No valid k-mer pairings found meeting the size and order criteria ({min_product_size}-{max_product_size} bp).")
         return None
+
+    print(f"Found {len(valid_amplicons_df)} potential valid amplicons across all assemblies.")
+
+    # 5. Check Universality: Filter for pairs that are present in ALL target assemblies (User Step 2).
+
+    # Group by the primer pair and count how many unique assemblies they hit
+    pair_assembly_counts = valid_amplicons_df.groupby(['Fwd_Kmer', 'Rev_Kmer'])['assembly'].nunique().reset_index(
+        name='Assembly_Count')
+
+    # Identify the universal pairs (count must equal the total number of target assemblies)
+    universal_pair_sequences = pair_assembly_counts[pair_assembly_counts['Assembly_Count'] == len(target_assemblies)]
+
+    if universal_pair_sequences.empty:
+        print("\n--- Analysis Complete ---")
+        print(
+            f"No universal primer pairs found that consistently maintain the Fwd(+) < Rev(-) position AND yield a product size between {min_product_size} and {max_product_size} bp in all {len(target_homology_map)} target strains.")
+        return None
+
+    # Merge the universal pairs list back into the full list of valid amplicons to get the final results
+    universal_results_df = pd.merge(
+        valid_amplicons_df,
+        universal_pair_sequences[['Fwd_Kmer', 'Rev_Kmer']],
+        on=['Fwd_Kmer', 'Rev_Kmer'],
+        how='inner'
+    ).sort_values(by=['Fwd_Kmer', 'Rev_Kmer', 'assembly']).reset_index(drop=True)
+
+    # 6. Calculate consistency metrics
+    metrics = universal_results_df.groupby(['Fwd_Kmer', 'Rev_Kmer'])['Calculated_Size'].agg(
+        Product_Size_Avg=lambda x: int(x.mean()),
+        Product_Size_Min=lambda x: int(x.min()),
+        Product_Size_Max=lambda x: int(x.max())
+    ).reset_index()
+
+    # Merge the metrics into the results DataFrame
+    universal_results_df = universal_results_df.merge(metrics, on=['Fwd_Kmer', 'Rev_Kmer'])
+
+    print(f"Found {len(universal_pair_sequences)} universal primer pairs.")
+    print("Extracting amplicon sequences for universal pairs...")
+
+    # 7. Extract Amplicon Sequence (Apply this function row-wise)
+    def extract_amplicon(row, fasta_dir):
+        """Helper function to load sequence and extract amplicon."""
+        sequence = load_fasta_sequence(row['assembly'], row['contig'], fasta_dir)
+
+        amplicon_sequence = ""
+        if sequence:
+            # Fwd_pos is 1-based start. Python slice start is Fwd_Start_Pos - 1.
+            # Amplicon ends at Rev_Start_Pos + kmer_len - 1. Python slice end is exclusive.
+            start_idx = row['Fwd_Start_Pos'] - 1
+            end_idx = row['Rev_Start_Pos'] + kmer_len - 1
+
+            if end_idx <= len(sequence):
+                amplicon_sequence = sequence[start_idx:end_idx]
+            else:
+                amplicon_sequence = f"ERROR_INDEX_OUT_OF_BOUNDS (Contig Len: {len(sequence)}, End Index: {end_idx})"
+        else:
+            amplicon_sequence = "FASTA_LOAD_FAILED"
+
+        return amplicon_sequence
+
+    # Apply the extraction function
+    # NOTE: The original map filtering on homologous contigs is implicitly handled here because the
+    # initial dataframe df_filtered contains only k-mer hits (assembly, contig) that were present
+    # in the input file, which is used to generate the TARGET_HOMOLOGY_MAP.
+    universal_results_df['Amplicon_Sequence'] = universal_results_df.apply(
+        extract_amplicon, axis=1, fasta_dir=fasta_dir
+    )
+
+    # 8. Final Output
+    final_columns = [
+        'Fwd_Kmer', 'Rev_Kmer', 'Product_Size_Avg', 'Product_Size_Min', 'Product_Size_Max',
+        'Amplicon_Sequence',
+        'Assembly', 'Contig', 'Fwd_Start_Pos', 'Rev_Start_Pos', 'Calculated_Size'
+    ]
+
+    # Save final results
+    universal_results_df.to_csv(output_file, sep='\t', index=False, columns=final_columns)
+
+    print(f"\n--- Analysis Complete ---")
+    print(
+        f"Found universal primer pair groups that yield products between {min_product_size} and {max_product_size} bp.")
+    print(f"Details saved to {output_file}")
+
+    # Print a summary table to the console
+    summary_df = universal_results_df[
+        ['Fwd_Kmer', 'Rev_Kmer', 'Product_Size_Avg', 'Product_Size_Min',
+         'Product_Size_Max']].drop_duplicates().reset_index(drop=True)
+    print(
+        f"\nSummary of Universal Primer Pairs (All products between {min_product_size} and {max_product_size} bp):")
+
+    # Display the summary in markdown for the user
+    print(summary_df.to_markdown(index=False))
+
+    return universal_results_df
 
 
 def main():
@@ -344,6 +321,14 @@ def main():
 
     # 2. Dynamically generate TARGET_HOMOLOGY_MAP based on the newly defined TARGET_ASSEMBLIES
     TARGET_HOMOLOGY_MAP = generate_homology_map_from_file(args.input_file, TARGET_ASSEMBLIES)
+
+    # --- START: Added printing for debugging ---
+    print("\n--- TARGET_HOMOLOGY_MAP Content (Assembly ID -> Contigs) ---")
+    # Loop through the dictionary to print each item clearly
+    for assembly, contigs in TARGET_HOMOLOGY_MAP.items():
+        print(f"  {assembly}: {', '.join(contigs)}")
+    print("----------------------------------------------------------\n")
+    # --- END: Added printing for debugging ---
 
     # Check if the generated map is usable
     if not TARGET_HOMOLOGY_MAP:
