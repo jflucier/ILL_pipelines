@@ -1,0 +1,56 @@
+# build new image using this command:
+# singularity build --force --fakeroot roary.v3.13.0.sif roary.v3.13.0.def
+
+BootStrap: docker
+From: ubuntu:22.04
+
+%environment
+    export PATH=$PATH:/prokka/bin:/opt/roary_scripts/roary_plots
+#    export PERL5LIB=$PERL5LIB:/sanger-pathogens-Roary-21ffb84/lib
+%post
+    apt-get update && apt-get -y upgrade
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends locales
+
+    # Uncomment or add the required locale (en_CA.UTF-8 and en_US.UTF-8 for robustness)
+    echo "en_CA.UTF-8 UTF-8" >> /etc/locale.gen
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+
+    # Generate the locales
+    locale-gen
+
+    # Set the default locale environment variables inside the container
+    echo 'export LANG="en_CA.UTF-8"' >> /etc/bash.bashrc
+    echo 'export LC_ALL="en_CA.UTF-8"' >> /etc/bash.bashrc
+
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    build-essential \
+    wget \
+    bzip2 \
+    ca-certificates \
+    git \
+    less \
+    unzip \
+    python3 \
+    python3-pip \
+    perl cpanminus \
+    hmmer hmmer2 libbio-searchio-hmmer-perl \
+    libdatetime-perl libxml-simple-perl libdigest-md5-perl git default-jre bioperl ncbi-tools-bin libidn11-dev roary
+
+    cd /
+    git clone https://github.com/tseemann/prokka.git /prokka
+    /prokka/bin/prokka --setupdb
+
+    wget https://github.com/sanger-pathogens/Roary/archive/refs/tags/v3.13.0.tar.gz -O /tmp/roary_v3.13.0.tar.gz
+
+    # 2. Extract only the 'contrib' folder and its contents to /opt/roary_scripts
+    # The extracted directory name will be Roary-3.13.0/
+    mkdir -p /opt/roary_scripts
+    tar -xzvf /tmp/roary_v3.13.0.tar.gz -C /opt/roary_scripts/ --strip-components=2 Roary-3.13.0/contrib
+
+    # 3. Clean up the temporary file
+    rm /tmp/roary_v3.13.0.tar.gz
+
+    # 4. Make the main script executable for convenience
+    chmod +x /opt/roary_scripts/roary_plots/roary_plots.py
+
+    pip3 install matplotlib seaborn Bio
