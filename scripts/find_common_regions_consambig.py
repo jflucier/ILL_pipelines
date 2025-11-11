@@ -1,23 +1,26 @@
 import sys
 from collections import Counter
+import statistics
+from Bio.SeqUtils import MeltingTemp as mt  # <-- USING BIOPYTHON MT MODULE
+from Bio.Seq import Seq
 
 # --- Configuration Parameters ---
 WINDOW_SIZE = 20
 UPPER_THRESHOLD = 18
-ENRICHMENT_THRESHOLD = 15
+# ENRICHMENT_THRESHOLD is now passed as a command-line argument
 CANONICAL_BASES = {'A', 'T', 'C', 'G'}
 
-# Set 1: Ambiguity codes for NBDHV_Count
+# Ambiguity Sets for Counting
 NBDHV_BASES = {'N', 'B', 'D', 'H', 'V'}
-# Set 2: Ambiguity codes for RYSWKM_Count
 RYSWKM_BASES = {'R', 'Y', 'S', 'W', 'K', 'M'}
 
 
+# Note: Biopython mt.Tm_NN will handle the ambiguity mapping internally
+# using the 'table' parameter.
+
 def analyze_consensus(file_path, enrichment_threshold):
     """
-    Reads a FASTA consensus sequence, slides a window, and outputs windows that
-    meet high uppercase (confidence) and canonical base (enrichment) thresholds,
-    including separate counts for two groups of ambiguity codes (NBDHV and RYSWKM).
+    Main analysis function using Biopython's MeltingTemp for accurate Tm calculation.
     """
     header = ''
     sequence = ''
@@ -35,6 +38,9 @@ def analyze_consensus(file_path, enrichment_threshold):
     except FileNotFoundError:
         print(f"Error: File not found at {file_path}", file=sys.stderr)
         return
+    except ImportError:
+        print("Error: Biopython is required. Please install it (e.g., pip install biopython).", file=sys.stderr)
+        return
 
     sequence_length = len(sequence)
     if sequence_length < WINDOW_SIZE:
@@ -47,10 +53,11 @@ def analyze_consensus(file_path, enrichment_threshold):
     print(f"## Sequence length: {sequence_length}")
     print(f"## 20 NT Window Analysis: {header}")
     print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
-    print("-" * 140)
-    # UPDATED HEADER: Includes NBDHV_Count and RYSWKM_Count as separate columns
-    print("Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence")
-    print("-" * 140)
+    print("-" * 160)
+    # Final Output Header
+    print(
+        "Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence\tMin_Tm\tAvg_Tm\tMax_Tm")
+    print("-" * 160)
 
     # 2. Slide the window across the sequence
     max_i = sequence_length - WINDOW_SIZE + 1
@@ -59,21 +66,18 @@ def analyze_consensus(file_path, enrichment_threshold):
 
         upper_count = 0
         canonical_bases = []
-        nbdhv_count = 0  # Counter for N, B, D, H, V
-        ryswkm_count = 0  # Counter for R, Y, S, W, K, M
+        nbdhv_count = 0
+        ryswkm_count = 0
 
-        # 3. Analyze the window character by character
+        # 3. Analyze the window character by character (for filters and counts)
         for char in window:
             if 'A' <= char <= 'Z':
                 upper_count += 1
 
             base = char.upper()
 
-            # Check for NBDHV characters
             if base in NBDHV_BASES:
                 nbdhv_count += 1
-
-            # Check for RYSWKM characters
             elif base in RYSWKM_BASES:
                 ryswkm_count += 1
 
@@ -84,28 +88,62 @@ def analyze_consensus(file_path, enrichment_threshold):
         counts = Counter(canonical_bases)
         total_canonical_count = len(canonical_bases)
 
-        # 4. Check thresholds (Conditions remain based on confidence and enrichment)
+        # 4. Check thresholds
         if upper_count >= UPPER_THRESHOLD:
             if total_canonical_count >= enrichment_threshold:
-                # 5. Print the results for the current window
+
+                # --- 5. Tm Calculation using Biopython ---
+                tm_values = []
+                min_tm, avg_tm, max_tm = "N/A", "N/A", "N/A"
+
+                # Biopython requires a Seq object
+                seq_obj = Seq(window.upper())
+
+                # Tm_NN_ambiguous returns a list of Tm values for all possible combinations.
+                try:
+                    # Use default parameters for NN model (salt, DNA conc.)
+                    tm_values = mt.Tm_NN_ambiguous(seq_obj)
+
+                    if tm_values:
+                        min_tm = min(tm_values)
+                        max_tm = max(tm_values)
+                        avg_tm = statistics.mean(tm_values)
+
+                        # Format Tm values to two decimal places
+                        min_tm = f"{min_tm:.2f}"
+                        max_tm = f"{max_tm:.2f}"
+                        avg_tm = f"{avg_tm:.2f}"
+
+                except ValueError as e:
+                    # Catches errors like non-IUPAC characters (e.g., gaps '-')
+                    if "Cannot calculate Tm for sequences containing non-IUPAC" in str(e):
+                        min_tm, avg_tm, max_tm = "NON_IUPAC", "NON_IUPAC", "NON_IUPAC"
+                    else:
+                        min_tm, avg_tm, max_tm = "ERROR", "ERROR", "ERROR"
+                except Exception:
+                    min_tm, avg_tm, max_tm = "ERROR", "ERROR", "ERROR"
+
+                # 6. Print the results for the current window
                 position = i + 1
 
-                # UPDATED PRINT: Includes two new ambiguity count columns
                 print(f"{position}\t"
                       f"{counts.get('A', 0)}\t"
                       f"{counts.get('T', 0)}\t"
                       f"{counts.get('C', 0)}\t"
                       f"{counts.get('G', 0)}\t"
                       f"{upper_count}\t"
-                      f"{nbdhv_count}\t"  # <--- NBDHV COUNT (Column 7)
-                      f"{ryswkm_count}\t"  # <--- RYSWKM COUNT (Column 8)
-                      f"{window}"
+                      f"{nbdhv_count}\t"
+                      f"{ryswkm_count}\t"
+                      f"{window}\t"
+                      f"{min_tm}\t"  # <--- Min Tm (NN Model)
+                      f"{avg_tm}\t"  # <--- Avg Tm (NN Model)
+                      f"{max_tm}"  # <--- Max Tm (NN Model)
                       )
                 matching_windows += 1
 
-    print("-" * 140)
+    print("-" * 160)
     print(f"## Analysis Complete. Total windows checked: {max_i}. Matching windows found: {matching_windows}")
-    print("-" * 140)
+    print("-" * 160)
 
 
 if __name__ == '__main__':
