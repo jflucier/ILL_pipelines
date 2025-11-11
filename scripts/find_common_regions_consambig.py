@@ -3,21 +3,20 @@ from collections import Counter
 
 # --- Configuration Parameters ---
 WINDOW_SIZE = 20
-UPPER_THRESHOLD = 18
-ENRICHMENT_THRESHOLD = 15
+UPPER_THRESHOLD = 18  # Fixed for this script, but easily made an argument
 CANONICAL_BASES = {'A', 'T', 'C', 'G'}
-# Set of all ambiguity codes to specifically count (N, B, D, H, V)
 NBDHV_BASES = {'N', 'B', 'D', 'H', 'V'}
 
 
-def analyze_consensus(file_path):
+def analyze_consensus(file_path, enrichment_threshold):
     """
     Reads a FASTA consensus sequence, slides a window, and outputs windows that
     meet high uppercase (confidence) and canonical base (enrichment) thresholds.
-    Outputs the specific count of N, B, D, H, and V characters in the second-to-last column.
     """
     header = ''
     sequence = ''
+
+    # 1. File Reading
     try:
         with open(file_path, 'r') as f:
             for line in f:
@@ -41,9 +40,8 @@ def analyze_consensus(file_path):
     # --- Print Header Information ---
     print(f"## Sequence length: {sequence_length}")
     print(f"## 20 NT Window Analysis: {header}")
-    print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {ENRICHMENT_THRESHOLD}")
+    print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
     print("-" * 120)
-    # UPDATED HEADER: Now specifically indicates NBDHV_Count
     print("Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tWindow_Sequence")
     print("-" * 120)
 
@@ -54,7 +52,7 @@ def analyze_consensus(file_path):
 
         upper_count = 0
         canonical_bases = []
-        nbdhv_count = 0  # 🎯 NEW: Counter for N, B, D, H, V characters
+        nbdhv_count = 0
 
         # 3. Analyze the window character by character
         for char in window:
@@ -63,8 +61,7 @@ def analyze_consensus(file_path):
 
             base = char.upper()
 
-            # Check for N, B, D, H, V characters
-            if base in NBDHV_BASES:  # 🎯 NEW LOGIC: Counts N, B, D, H, V
+            if base in NBDHV_BASES:
                 nbdhv_count += 1
 
             if base in CANONICAL_BASES:
@@ -74,20 +71,20 @@ def analyze_consensus(file_path):
         counts = Counter(canonical_bases)
         total_canonical_count = len(canonical_bases)
 
-        # 4. Check thresholds (Conditions remain based on confidence and enrichment)
+        # 4. Check thresholds (using the passed parameter)
         if upper_count >= UPPER_THRESHOLD:
-            if total_canonical_count >= ENRICHMENT_THRESHOLD:
-                # 5. Print the results for the current window
+            # Check canonical count against the user-defined ENRICHMENT_THRESHOLD
+            if total_canonical_count >= enrichment_threshold:
+                # 5. Print the results
                 position = i + 1
 
-                # UPDATED PRINT: nbdhv_count is used in the 7th column
                 print(f"{position}\t"
                       f"{counts.get('A', 0)}\t"
                       f"{counts.get('T', 0)}\t"
                       f"{counts.get('C', 0)}\t"
                       f"{counts.get('G', 0)}\t"
                       f"{upper_count}\t"
-                      f"{nbdhv_count}\t"  # <--- NBDHV COUNT
+                      f"{nbdhv_count}\t"
                       f"{window}"
                       )
                 matching_windows += 1
@@ -98,9 +95,19 @@ def analyze_consensus(file_path):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage: python script_name.py <consensus_fasta_file>", file=sys.stderr)
+    # 1. Check for exactly two arguments (script name + file + threshold)
+    if len(sys.argv) != 3:
+        print("Usage: python script_name.py <consensus_fasta_file> <ENRICHMENT_THRESHOLD>", file=sys.stderr)
         sys.exit(1)
 
     file_path = sys.argv[1]
-    analyze_consensus(file_path)
+
+    # 2. Attempt to parse the threshold argument
+    try:
+        # The threshold must be an integer
+        enrichment_threshold = int(sys.argv[2])
+    except ValueError:
+        print("Error: ENRICHMENT_THRESHOLD must be an integer.", file=sys.stderr)
+        sys.exit(1)
+
+    analyze_consensus(file_path, enrichment_threshold)
