@@ -3,15 +3,21 @@ from collections import Counter
 
 # --- Configuration Parameters ---
 WINDOW_SIZE = 20
-UPPER_THRESHOLD = 18  # Fixed for this script, but easily made an argument
+UPPER_THRESHOLD = 18
+ENRICHMENT_THRESHOLD = 15
 CANONICAL_BASES = {'A', 'T', 'C', 'G'}
+
+# Set 1: Ambiguity codes for NBDHV_Count
 NBDHV_BASES = {'N', 'B', 'D', 'H', 'V'}
+# Set 2: Ambiguity codes for RYSWKM_Count
+RYSWKM_BASES = {'R', 'Y', 'S', 'W', 'K', 'M'}
 
 
 def analyze_consensus(file_path, enrichment_threshold):
     """
     Reads a FASTA consensus sequence, slides a window, and outputs windows that
-    meet high uppercase (confidence) and canonical base (enrichment) thresholds.
+    meet high uppercase (confidence) and canonical base (enrichment) thresholds,
+    including separate counts for two groups of ambiguity codes (NBDHV and RYSWKM).
     """
     header = ''
     sequence = ''
@@ -41,9 +47,10 @@ def analyze_consensus(file_path, enrichment_threshold):
     print(f"## Sequence length: {sequence_length}")
     print(f"## 20 NT Window Analysis: {header}")
     print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
-    print("-" * 120)
-    print("Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tWindow_Sequence")
-    print("-" * 120)
+    print("-" * 140)
+    # UPDATED HEADER: Includes NBDHV_Count and RYSWKM_Count as separate columns
+    print("Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence")
+    print("-" * 140)
 
     # 2. Slide the window across the sequence
     max_i = sequence_length - WINDOW_SIZE + 1
@@ -52,7 +59,8 @@ def analyze_consensus(file_path, enrichment_threshold):
 
         upper_count = 0
         canonical_bases = []
-        nbdhv_count = 0
+        nbdhv_count = 0  # Counter for N, B, D, H, V
+        ryswkm_count = 0  # Counter for R, Y, S, W, K, M
 
         # 3. Analyze the window character by character
         for char in window:
@@ -61,8 +69,13 @@ def analyze_consensus(file_path, enrichment_threshold):
 
             base = char.upper()
 
+            # Check for NBDHV characters
             if base in NBDHV_BASES:
                 nbdhv_count += 1
+
+            # Check for RYSWKM characters
+            elif base in RYSWKM_BASES:
+                ryswkm_count += 1
 
             if base in CANONICAL_BASES:
                 canonical_bases.append(base)
@@ -71,27 +84,28 @@ def analyze_consensus(file_path, enrichment_threshold):
         counts = Counter(canonical_bases)
         total_canonical_count = len(canonical_bases)
 
-        # 4. Check thresholds (using the passed parameter)
+        # 4. Check thresholds (Conditions remain based on confidence and enrichment)
         if upper_count >= UPPER_THRESHOLD:
-            # Check canonical count against the user-defined ENRICHMENT_THRESHOLD
             if total_canonical_count >= enrichment_threshold:
-                # 5. Print the results
+                # 5. Print the results for the current window
                 position = i + 1
 
+                # UPDATED PRINT: Includes two new ambiguity count columns
                 print(f"{position}\t"
                       f"{counts.get('A', 0)}\t"
                       f"{counts.get('T', 0)}\t"
                       f"{counts.get('C', 0)}\t"
                       f"{counts.get('G', 0)}\t"
                       f"{upper_count}\t"
-                      f"{nbdhv_count}\t"
+                      f"{nbdhv_count}\t"  # <--- NBDHV COUNT (Column 7)
+                      f"{ryswkm_count}\t"  # <--- RYSWKM COUNT (Column 8)
                       f"{window}"
                       )
                 matching_windows += 1
 
-    print("-" * 120)
+    print("-" * 140)
     print(f"## Analysis Complete. Total windows checked: {max_i}. Matching windows found: {matching_windows}")
-    print("-" * 120)
+    print("-" * 140)
 
 
 if __name__ == '__main__':
@@ -104,7 +118,6 @@ if __name__ == '__main__':
 
     # 2. Attempt to parse the threshold argument
     try:
-        # The threshold must be an integer
         enrichment_threshold = int(sys.argv[2])
     except ValueError:
         print("Error: ENRICHMENT_THRESHOLD must be an integer.", file=sys.stderr)
