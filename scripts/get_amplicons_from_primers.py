@@ -3,6 +3,8 @@ import os
 import argparse
 from glob import glob
 import csv
+from Bio.Seq import Seq
+from Bio.SeqUtils import MeltingTemp as mt
 
 # Define the IUPAC degeneracy mapping for use in regex
 IUPAC_MAPPING = {
@@ -191,22 +193,34 @@ def find_and_extract(header, sequence, regex_start, regex_end, primer_start, pri
 
             # If P_end was the UPSTREAM motif in this match:
             else:  # up_primer_input == primer_end
-                fwd_match_seq = m[
-                    'end_motif_seq']  # The sequence that matched regex_start (now P_end) is mapped to P_end
-                rev_match_seq = m[
-                    'start_motif_seq']  # The sequence that matched regex_end (now P_start) is mapped to P_start
+                fwd_match_seq = m['end_motif_seq']
+                rev_match_seq = m['start_motif_seq']
 
             all_results.append({
                 "header": header,
                 "strand": strand,
                 "start_pos": start_pos,
                 "end_pos": end_pos,
-                "fwd_match_seq": fwd_match_seq,  # Sequence that matched primer_start
-                "rev_match_seq": rev_match_seq,  # Sequence that matched primer_end
+                "fwd_match_seq": fwd_match_seq,  # Sequence that matched primer_start (P1)
+                "rev_match_seq": rev_match_seq,  # Sequence that matched primer_end (P2)
                 "amplicon_sequence": m['amplicon_sequence'],
             })
 
     return all_results
+
+
+def calculate_tm(sequence):
+    """Calculates the Melting Temperature (Tm) using the Nearest Neighbor method."""
+    try:
+        # Tm_NN requires a Bio.Seq object
+        tm_value = mt.Tm_NN(Seq(sequence), nn_table="DNA_NN4")
+        # Return the value rounded to 2 decimal places for clean output
+        return round(tm_value, 2)
+    except KeyError:
+        # Catches errors if the sequence contains characters not in the DNA_NN4 table (e.g., 'N')
+        return "N/A"
+    except Exception:
+        return "ERROR"
 
 
 def main():
@@ -241,9 +255,7 @@ def main():
     primer_start = args.primer_start
     primer_end = args.primer_end
 
-    # --- Modification: Get the output filename for the new column ---
     output_filename = os.path.basename(args.output)
-    # -----------------------------------------------------------------
 
     # Convert the degenerate sequences to their regex patterns
     regex_start = iupac_to_regex(primer_start)
@@ -262,7 +274,6 @@ def main():
     total_found = 0
 
     # Open the output file for TSV writing
-    # Changed from 'w' to 'a' and added header logic for multi-run workflows (like the bash script)
     file_exists = os.path.exists(args.output)
 
     with open(args.output, 'a', newline='') as outfile:
@@ -272,15 +283,17 @@ def main():
         # Write the header row ONLY if the file is new or empty
         if not file_exists or os.path.getsize(args.output) == 0:
             header_row = [
-                "output file", # NEW COLUMN ADDED HERE
+                "output file",
                 "filename",
                 "contig accession",
                 "strand",
                 "amplicon start",
                 "amplicon end",
-                # Note: fwd/rev here refers to the input primer variables, not strand
-                f"P1 ({primer_start}) matched sequence",  # Original "fwd matched window sequence"
-                f"P2 ({primer_end}) matched sequence",  # Original "rev matched window sequence"
+                "amplicon length", # <-- NEW HEADER
+                f"P1 ({primer_start}) matched sequence",
+                f"P2 ({primer_end}) matched sequence",
+                f"Tm P1 ({primer_start})",
+                f"Tm P2 ({primer_end})",
                 "amplicon sequence"
             ]
             tsv_writer.writerow(header_row)
@@ -292,27 +305,34 @@ def main():
             sequences = read_fasta_sequences(filepath)
 
             for header, sequence in sequences.items():
-                # find_and_extract now returns a list of ALL matches from all 4 searches
                 results = find_and_extract(header, sequence, regex_start, regex_end, primer_start, primer_end)
 
                 for result in results:
                     total_found += 1
 
+                    # --- TM and LENGTH CALCULATION ---
+                    tm_p1 = calculate_tm(result['fwd_match_seq'])
+                    tm_p2 = calculate_tm(result['rev_match_seq'])
+                    amplicon_length = len(result['amplicon_sequence'])
+                    # --------------------------------
+
                     # Write the data row to the TSV file
                     data_row = [
-                        output_filename, # NEW VALUE ADDED HERE
+                        output_filename,
                         filename,
                         result['header'],
                         result['strand'],
                         result['start_pos'],
                         result['end_pos'],
+                        amplicon_length, # <-- NEW VALUE
                         result['fwd_match_seq'],  # Matched P1
                         result['rev_match_seq'],  # Matched P2
+                        tm_p1,
+                        tm_p2,
                         result['amplicon_sequence']
                     ]
                     tsv_writer.writerow(data_row)
 
-            # Print a summary per file (kept for original script behavior)
             print(f"Finished processing {filename}. Matches found in this file.")
 
     print("-" * 50)

@@ -137,7 +137,7 @@ def analyze_consensus(file_path, enrichment_threshold):
                         for seq in all_sequences:
                             # Use the robust, foundational Tm_NN function
                             # Biopython's Tm_NN is the stable method for NN calculation
-                            tm_values.append(mt.Tm_NN(Seq(seq)))
+                            tm_values.append(mt.Tm_NN(Seq(seq), nn_table="DNA_NN4"))
 
                         if tm_values:
                             min_tm = min(tm_values)
