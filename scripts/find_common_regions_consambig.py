@@ -1,7 +1,6 @@
 import sys
 from collections import Counter
 import statistics
-# Corrected import: 'mt' is the alias for MeltingTemp
 from Bio.SeqUtils import MeltingTemp as mt
 from Bio.Seq import Seq
 
@@ -14,19 +13,45 @@ CANONICAL_BASES = {'A', 'T', 'C', 'G'}
 NBDHV_BASES = {'N', 'B', 'D', 'H', 'V'}
 RYSWKM_BASES = {'R', 'Y', 'S', 'W', 'K', 'M'}
 
-# Set of all valid IUPAC codes for robust checking
+# Set of all valid IUPAC codes
 VALID_IUPAC_CODES = CANONICAL_BASES.union(NBDHV_BASES, RYSWKM_BASES)
+
+# IUPAC Map for manual sequence expansion (used by the new function)
+IUPAC_MAP = {
+    'A': ['A'], 'T': ['T'], 'C': ['C'], 'G': ['G'],
+    'R': ['A', 'G'], 'Y': ['C', 'T'], 'S': ['G', 'C'], 'W': ['A', 'T'],
+    'K': ['G', 'T'], 'M': ['A', 'C'],
+    'B': ['C', 'G', 'T'], 'D': ['A', 'G', 'T'],
+    'H': ['A', 'C', 'T'], 'V': ['A', 'C', 'G'],
+    'N': ['A', 'T', 'C', 'G'],
+}
+
+
+def generate_all_sequences(ambiguous_seq):
+    """Recursively generates all unambiguous sequences from an ambiguous sequence."""
+    if not ambiguous_seq:
+        yield ""
+        return
+
+    first_base = ambiguous_seq[0]
+    remaining_seq = ambiguous_seq[1:]
+
+    # We already checked for validity, so this should not fail, but handled defensively.
+    possible_bases = IUPAC_MAP.get(first_base, [first_base])
+
+    for base in possible_bases:
+        for sub_sequence in generate_all_sequences(remaining_seq):
+            yield base + sub_sequence
 
 
 def analyze_consensus(file_path, enrichment_threshold):
     """
-    Main analysis function using Biopython's MeltingTemp for accurate Tm calculation,
-    with robust error logging to stderr.
+    Main analysis function using Tm_NN for stability and manual iteration for min/avg/max Tm.
     """
     header = ''
     sequence = ''
 
-    # File reading and setup (omitted for brevity, assume correct)
+    # File reading and setup (omitted for brevity)
     try:
         with open(file_path, 'r') as f:
             for line in f:
@@ -40,7 +65,6 @@ def analyze_consensus(file_path, enrichment_threshold):
         print(f"Error: File not found at {file_path}", file=sys.stderr)
         return
     except ImportError:
-        # NOTE: This error should be raised at the top of the file but kept here for completeness
         print("Error: Biopython is required. Please install it (e.g., pip install biopython).", file=sys.stderr)
         return
 
@@ -64,7 +88,6 @@ def analyze_consensus(file_path, enrichment_threshold):
     # 2. Slide the window across the sequence
     max_i = sequence_length - WINDOW_SIZE + 1
     for i in range(max_i):
-        # FIX 2: Define position at the start of the loop
         position = i + 1
         window = sequence[i: i + WINDOW_SIZE]
 
@@ -101,10 +124,9 @@ def analyze_consensus(file_path, enrichment_threshold):
         if upper_count >= UPPER_THRESHOLD:
             if total_canonical_count >= enrichment_threshold:
 
-                # --- 5. Tm Calculation using Biopython ---
+                # --- 5. Tm Calculation using Tm_NN ---
                 min_tm, avg_tm, max_tm = "N/A", "N/A", "N/A"
 
-                # Check for characters that Biopython will reject
                 has_invalid_char = any(base not in VALID_IUPAC_CODES for base in upper_window)
 
                 if has_invalid_char:
@@ -112,12 +134,14 @@ def analyze_consensus(file_path, enrichment_threshold):
                 elif has_gap:
                     min_tm, avg_tm, max_tm = "CONTAINS_GAP", "CONTAINS_GAP", "CONTAINS_GAP"
                 else:
-                    # Only proceed if the window is clean
-                    seq_obj = Seq(upper_window)
-
                     try:
-                        # FIX 1: Use the correct Biopython function name for ambiguous sequences
-                        tm_values = mt.Tm_for_AA(seq_obj)
+                        # Manually generate all sequences and calculate Tm for each
+                        all_sequences = list(generate_all_sequences(upper_window))
+                        tm_values = []
+
+                        for seq in all_sequences:
+                            # Use the robust, foundational Tm_NN function
+                            tm_values.append(mt.Tm_NN(Seq(seq)))
 
                         if tm_values:
                             min_tm = min(tm_values)
@@ -129,7 +153,6 @@ def analyze_consensus(file_path, enrichment_threshold):
                             avg_tm = f"{avg_tm:.2f}"
 
                     except Exception as e:
-                        # Log error to stderr
                         errors_logged += 1
                         error_type = type(e).__name__
                         print(f"Tm ERROR @ Position {position} ({window}): [{error_type}] {e}", file=sys.stderr)
