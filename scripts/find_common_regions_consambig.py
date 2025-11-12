@@ -7,12 +7,15 @@ from Bio.Seq import Seq
 # --- Configuration Parameters ---
 WINDOW_SIZE = 20
 UPPER_THRESHOLD = 18
-# ENRICHMENT_THRESHOLD is now passed as a command-line argument
+# ENRICHMENT_THRESHOLD is passed as a command-line argument
 CANONICAL_BASES = {'A', 'T', 'C', 'G'}
 
 # Ambiguity Sets for Counting
 NBDHV_BASES = {'N', 'B', 'D', 'H', 'V'}
 RYSWKM_BASES = {'R', 'Y', 'S', 'W', 'K', 'M'}
+
+# Set of all valid IUPAC codes for robust checking
+VALID_IUPAC_CODES = CANONICAL_BASES.union(NBDHV_BASES, RYSWKM_BASES)
 
 
 def analyze_consensus(file_path, enrichment_threshold):
@@ -51,6 +54,7 @@ def analyze_consensus(file_path, enrichment_threshold):
     print(f"## 20 NT Window Analysis: {header}")
     print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
     print("-" * 160)
+    # Final Output Header
     print(
         "Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence\tMin_Tm\tAvg_Tm\tMax_Tm")
     print("-" * 160)
@@ -64,12 +68,14 @@ def analyze_consensus(file_path, enrichment_threshold):
         canonical_bases = []
         nbdhv_count = 0
         ryswkm_count = 0
+        has_gap = False
+
+        upper_window = window.upper()
 
         # 3. Analyze the window character by character (for filters and counts)
-        has_gap = False  # New flag to check for gaps
         for char in window:
             if char == '-':
-                has_gap = True  # Set flag if a gap is found
+                has_gap = True
 
             if 'A' <= char <= 'Z':
                 upper_count += 1
@@ -94,12 +100,16 @@ def analyze_consensus(file_path, enrichment_threshold):
                 # --- 5. Tm Calculation using Biopython ---
                 min_tm, avg_tm, max_tm = "N/A", "N/A", "N/A"
 
-                if has_gap:
-                    # Skip Tm calculation and label clearly
+                # Check for characters that Biopython will reject
+                has_invalid_char = any(base not in VALID_IUPAC_CODES for base in upper_window)
+
+                if has_invalid_char:
+                    min_tm, avg_tm, max_tm = "INVALID_CHAR", "INVALID_CHAR", "INVALID_CHAR"
+                elif has_gap:
                     min_tm, avg_tm, max_tm = "CONTAINS_GAP", "CONTAINS_GAP", "CONTAINS_GAP"
                 else:
-                    # Biopython requires a Seq object, converted to UPPER for ambiguity handling
-                    seq_obj = Seq(window.upper())
+                    # Only proceed if the window is clean of gaps and invalid codes
+                    seq_obj = Seq(upper_window)
 
                     try:
                         # Tm_NN_ambiguous returns a list of Tm values for all possible combinations.
@@ -115,14 +125,10 @@ def analyze_consensus(file_path, enrichment_threshold):
                             max_tm = f"{max_tm:.2f}"
                             avg_tm = f"{avg_tm:.2f}"
 
-                    except ValueError as e:
-                        # Catch other unexpected non-IUPAC characters (should be rare)
-                        if "non-IUPAC" in str(e):
-                            min_tm, avg_tm, max_tm = "NON_IUPAC", "NON_IUPAC", "NON_IUPAC"
-                        else:
-                            min_tm, avg_tm, max_tm = "ERROR", "ERROR", "ERROR"
-                    except Exception:
-                        min_tm, avg_tm, max_tm = "ERROR", "ERROR", "ERROR"
+                    except Exception as e:
+                        # 🎯 KEY CHANGE: Log the actual error message
+                        error_msg = str(e).replace('\t', ' ').replace('\n', ' ')
+                        min_tm, avg_tm, max_tm = error_msg[:10], error_msg[:10], error_msg[:10]
 
                 # 6. Print the results for the current window
                 position = i + 1
@@ -148,14 +154,12 @@ def analyze_consensus(file_path, enrichment_threshold):
 
 
 if __name__ == '__main__':
-    # 1. Check for exactly two arguments (script name + file + threshold)
     if len(sys.argv) != 3:
         print("Usage: python script_name.py <consensus_fasta_file> <ENRICHMENT_THRESHOLD>", file=sys.stderr)
         sys.exit(1)
 
     file_path = sys.argv[1]
 
-    # 2. Attempt to parse the threshold argument
     try:
         enrichment_threshold = int(sys.argv[2])
     except ValueError:
