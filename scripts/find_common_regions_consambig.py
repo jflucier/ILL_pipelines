@@ -1,7 +1,7 @@
 import sys
 from collections import Counter
 import statistics
-from Bio.SeqUtils import MeltingTemp as mt  # <-- USING BIOPYTHON MT MODULE
+from Bio.SeqUtils import MeltingTemp as mt
 from Bio.Seq import Seq
 
 # --- Configuration Parameters ---
@@ -14,9 +14,6 @@ CANONICAL_BASES = {'A', 'T', 'C', 'G'}
 NBDHV_BASES = {'N', 'B', 'D', 'H', 'V'}
 RYSWKM_BASES = {'R', 'Y', 'S', 'W', 'K', 'M'}
 
-
-# Note: Biopython mt.Tm_NN will handle the ambiguity mapping internally
-# using the 'table' parameter.
 
 def analyze_consensus(file_path, enrichment_threshold):
     """
@@ -54,7 +51,6 @@ def analyze_consensus(file_path, enrichment_threshold):
     print(f"## 20 NT Window Analysis: {header}")
     print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
     print("-" * 160)
-    # Final Output Header
     print(
         "Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence\tMin_Tm\tAvg_Tm\tMax_Tm")
     print("-" * 160)
@@ -70,7 +66,11 @@ def analyze_consensus(file_path, enrichment_threshold):
         ryswkm_count = 0
 
         # 3. Analyze the window character by character (for filters and counts)
+        has_gap = False  # New flag to check for gaps
         for char in window:
+            if char == '-':
+                has_gap = True  # Set flag if a gap is found
+
             if 'A' <= char <= 'Z':
                 upper_count += 1
 
@@ -84,7 +84,6 @@ def analyze_consensus(file_path, enrichment_threshold):
             if base in CANONICAL_BASES:
                 canonical_bases.append(base)
 
-        # Calculate base counts and total canonical count (used for enrichment filter)
         counts = Counter(canonical_bases)
         total_canonical_count = len(canonical_bases)
 
@@ -93,35 +92,37 @@ def analyze_consensus(file_path, enrichment_threshold):
             if total_canonical_count >= enrichment_threshold:
 
                 # --- 5. Tm Calculation using Biopython ---
-                tm_values = []
                 min_tm, avg_tm, max_tm = "N/A", "N/A", "N/A"
 
-                # Biopython requires a Seq object
-                seq_obj = Seq(window.upper())
+                if has_gap:
+                    # Skip Tm calculation and label clearly
+                    min_tm, avg_tm, max_tm = "CONTAINS_GAP", "CONTAINS_GAP", "CONTAINS_GAP"
+                else:
+                    # Biopython requires a Seq object, converted to UPPER for ambiguity handling
+                    seq_obj = Seq(window.upper())
 
-                # Tm_NN_ambiguous returns a list of Tm values for all possible combinations.
-                try:
-                    # Use default parameters for NN model (salt, DNA conc.)
-                    tm_values = mt.Tm_NN_ambiguous(seq_obj)
+                    try:
+                        # Tm_NN_ambiguous returns a list of Tm values for all possible combinations.
+                        tm_values = mt.Tm_NN_ambiguous(seq_obj)
 
-                    if tm_values:
-                        min_tm = min(tm_values)
-                        max_tm = max(tm_values)
-                        avg_tm = statistics.mean(tm_values)
+                        if tm_values:
+                            min_tm = min(tm_values)
+                            max_tm = max(tm_values)
+                            avg_tm = statistics.mean(tm_values)
 
-                        # Format Tm values to two decimal places
-                        min_tm = f"{min_tm:.2f}"
-                        max_tm = f"{max_tm:.2f}"
-                        avg_tm = f"{avg_tm:.2f}"
+                            # Format Tm values to two decimal places
+                            min_tm = f"{min_tm:.2f}"
+                            max_tm = f"{max_tm:.2f}"
+                            avg_tm = f"{avg_tm:.2f}"
 
-                except ValueError as e:
-                    # Catches errors like non-IUPAC characters (e.g., gaps '-')
-                    if "Cannot calculate Tm for sequences containing non-IUPAC" in str(e):
-                        min_tm, avg_tm, max_tm = "NON_IUPAC", "NON_IUPAC", "NON_IUPAC"
-                    else:
+                    except ValueError as e:
+                        # Catch other unexpected non-IUPAC characters (should be rare)
+                        if "non-IUPAC" in str(e):
+                            min_tm, avg_tm, max_tm = "NON_IUPAC", "NON_IUPAC", "NON_IUPAC"
+                        else:
+                            min_tm, avg_tm, max_tm = "ERROR", "ERROR", "ERROR"
+                    except Exception:
                         min_tm, avg_tm, max_tm = "ERROR", "ERROR", "ERROR"
-                except Exception:
-                    min_tm, avg_tm, max_tm = "ERROR", "ERROR", "ERROR"
 
                 # 6. Print the results for the current window
                 position = i + 1
@@ -135,9 +136,9 @@ def analyze_consensus(file_path, enrichment_threshold):
                       f"{nbdhv_count}\t"
                       f"{ryswkm_count}\t"
                       f"{window}\t"
-                      f"{min_tm}\t"  # <--- Min Tm (NN Model)
-                      f"{avg_tm}\t"  # <--- Avg Tm (NN Model)
-                      f"{max_tm}"  # <--- Max Tm (NN Model)
+                      f"{min_tm}\t"
+                      f"{avg_tm}\t"
+                      f"{max_tm}"
                       )
                 matching_windows += 1
 
