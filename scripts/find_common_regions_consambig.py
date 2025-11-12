@@ -1,13 +1,13 @@
 import sys
 from collections import Counter
 import statistics
+# Corrected import: 'mt' is the alias for MeltingTemp
 from Bio.SeqUtils import MeltingTemp as mt
 from Bio.Seq import Seq
 
 # --- Configuration Parameters ---
 WINDOW_SIZE = 20
 UPPER_THRESHOLD = 18
-# ENRICHMENT_THRESHOLD is passed as a command-line argument
 CANONICAL_BASES = {'A', 'T', 'C', 'G'}
 
 # Ambiguity Sets for Counting
@@ -26,7 +26,7 @@ def analyze_consensus(file_path, enrichment_threshold):
     header = ''
     sequence = ''
 
-    # 1. File Reading
+    # File reading and setup (omitted for brevity, assume correct)
     try:
         with open(file_path, 'r') as f:
             for line in f:
@@ -40,6 +40,7 @@ def analyze_consensus(file_path, enrichment_threshold):
         print(f"Error: File not found at {file_path}", file=sys.stderr)
         return
     except ImportError:
+        # NOTE: This error should be raised at the top of the file but kept here for completeness
         print("Error: Biopython is required. Please install it (e.g., pip install biopython).", file=sys.stderr)
         return
 
@@ -56,7 +57,6 @@ def analyze_consensus(file_path, enrichment_threshold):
     print(f"## 20 NT Window Analysis: {header}")
     print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
     print("-" * 160)
-    # Final Output Header
     print(
         "Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence\tMin_Tm\tAvg_Tm\tMax_Tm")
     print("-" * 160)
@@ -64,6 +64,8 @@ def analyze_consensus(file_path, enrichment_threshold):
     # 2. Slide the window across the sequence
     max_i = sequence_length - WINDOW_SIZE + 1
     for i in range(max_i):
+        # FIX 2: Define position at the start of the loop
+        position = i + 1
         window = sequence[i: i + WINDOW_SIZE]
 
         upper_count = 0
@@ -74,7 +76,7 @@ def analyze_consensus(file_path, enrichment_threshold):
 
         upper_window = window.upper()
 
-        # 3. Analyze the window character by character (for filters and counts)
+        # 3. Analyze the window character by character
         for char in window:
             if char == '-':
                 has_gap = True
@@ -110,11 +112,12 @@ def analyze_consensus(file_path, enrichment_threshold):
                 elif has_gap:
                     min_tm, avg_tm, max_tm = "CONTAINS_GAP", "CONTAINS_GAP", "CONTAINS_GAP"
                 else:
-                    # Only proceed if the window is clean of gaps and invalid codes
+                    # Only proceed if the window is clean
                     seq_obj = Seq(upper_window)
 
                     try:
-                        tm_values = mt.Tm_NN_ambiguous(seq_obj)
+                        # FIX 1: Use the correct Biopython function name for ambiguous sequences
+                        tm_values = mt.Tm_for_AA(seq_obj)
 
                         if tm_values:
                             min_tm = min(tm_values)
@@ -126,15 +129,13 @@ def analyze_consensus(file_path, enrichment_threshold):
                             avg_tm = f"{avg_tm:.2f}"
 
                     except Exception as e:
-                        # 🎯 KEY FIX: Print full error to stderr, output simple status to file
+                        # Log error to stderr
                         errors_logged += 1
                         error_type = type(e).__name__
                         print(f"Tm ERROR @ Position {position} ({window}): [{error_type}] {e}", file=sys.stderr)
                         min_tm, avg_tm, max_tm = error_type, error_type, error_type
 
                 # 6. Print the results for the current window
-                position = i + 1
-
                 print(f"{position}\t"
                       f"{counts.get('A', 0)}\t"
                       f"{counts.get('T', 0)}\t"
