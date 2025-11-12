@@ -77,13 +77,13 @@ def analyze_consensus(file_path, enrichment_threshold):
     errors_logged = 0
 
     # --- Print Header Information ---
-    print(f"## Sequence length: {sequence_length}")
-    print(f"## 20 NT Window Analysis: {header}")
-    print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
-    print("-" * 160)
+    # print(f"## Sequence length: {sequence_length}")
+    # print(f"## 20 NT Window Analysis: {header}")
+    # print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
+    # print("-" * 160)
     print(
         "Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence\tMin_Tm\tAvg_Tm\tMax_Tm")
-    print("-" * 160)
+    # print("-" * 160)
 
     # 2. Slide the window across the sequence
     max_i = sequence_length - WINDOW_SIZE + 1
@@ -174,12 +174,12 @@ def analyze_consensus(file_path, enrichment_threshold):
                       )
                 matching_windows += 1
 
-    print("-" * 160, file=sys.stderr)
-    print(f"## Analysis Complete. Total windows checked: {max_i}. Matching windows found: {matching_windows}",
-          file=sys.stderr)
+    # print("-" * 160, file=sys.stderr)
+    # print(f"## Analysis Complete. Total windows checked: {max_i}. Matching windows found: {matching_windows}",
+    #       file=sys.stderr)
     if errors_logged > 0:
         print(f"## WARNING: {errors_logged} Tm errors were logged to standard error (above).", file=sys.stderr)
-    print("-" * 160, file=sys.stderr)
+    # print("-" * 160, file=sys.stderr)
 
 
 if __name__ == '__main__':
