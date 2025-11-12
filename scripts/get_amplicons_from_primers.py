@@ -216,11 +216,12 @@ def calculate_tm(sequence):
         tm_value = mt.Tm_NN(Seq(sequence), nn_table="DNA_NN4")
         # Return the value rounded to 2 decimal places for clean output
         return round(tm_value, 2)
-    except KeyError:
-        # Catches errors if the sequence contains characters not in the DNA_NN4 table (e.g., 'N')
-        return "N/A"
-    except Exception:
-        return "ERROR"
+    except KeyError as e:
+        # This often catches non-ACGT bases, or sometimes weird length issues
+        return f"KeyError: {e}"
+    except Exception as e:
+        # Catch any other runtime error and return the message
+        return f"Error: {e}"
 
 
 def main():
