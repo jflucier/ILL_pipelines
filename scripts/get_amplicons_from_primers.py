@@ -212,16 +212,32 @@ def find_and_extract(header, sequence, regex_start, regex_end, primer_start, pri
 def calculate_tm(sequence):
     """Calculates the Melting Temperature (Tm) using the Nearest Neighbor method."""
     try:
-        # Tm_NN requires a Bio.Seq object
-        tm_value = mt.Tm_NN(Seq(sequence), nn_table="DNA_NN4")
-        # Return the value rounded to 2 decimal places for clean output
+        # **CORRECTION: Explicitly pass the DNA_NN4 table dictionary from mt.**
+        # This bypasses potential issues where the internal lookup fails.
+        # We also need to explicitly pass the default standard conditions (1 M salt, 0 M Mg2+).
+
+        # Use the standard set of parameters defined in Biopython
+        tm_value = mt.Tm_NN(
+            Seq(sequence),
+            nn_table=mt.DNA_NN4,  # Use the explicit dictionary object
+            # Pass default salt and primer concentration parameters to be robust
+            Na=1000,  # 1 M Na+ (default for DNA_NN4)
+            Mg=0,
+            dnac=50,  # Typical default primer concentration in nM
+        )
+
+        # Return the value rounded to 2 decimal places
         return round(tm_value, 2)
+
     except KeyError as e:
-        # This often catches non-ACGT bases, or sometimes weird length issues
+        # This catches issues with sequence content (e.g., non-standard bases not handled
+        # by the sequence filtering in the main script).
         return f"KeyError: {e}"
+
     except Exception as e:
-        # Catch any other runtime error and return the message
-        return f"Error: {e}"
+        # Catch the generic error and return the specific exception type and message.
+        # This will now tell you why the internal Tm_NN logic is failing.
+        return f"Error: {type(e).__name__}: {e}"
 
 
 def main():
