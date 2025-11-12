@@ -51,7 +51,7 @@ def analyze_consensus(file_path, enrichment_threshold):
     header = ''
     sequence = ''
 
-    # File reading and setup (omitted for brevity)
+    # File reading and setup
     try:
         with open(file_path, 'r') as f:
             for line in f:
@@ -76,14 +76,9 @@ def analyze_consensus(file_path, enrichment_threshold):
     matching_windows = 0
     errors_logged = 0
 
-    # --- Print Header Information ---
-    # print(f"## Sequence length: {sequence_length}")
-    # print(f"## 20 NT Window Analysis: {header}")
-    # print(f"## Thresholds: Upper Case >= {UPPER_THRESHOLD}; Canonical Count Check >= {enrichment_threshold}")
-    # print("-" * 160)
+    # --- Print Header Information (Modified to include Filename) ---
     print(
-        "Position\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence\tMin_Tm\tAvg_Tm\tMax_Tm")
-    # print("-" * 160)
+        "Filename\tPosition\tA_Count\tT_Count\tC_Count\tG_Count\tUpper_Count\tNBDHV_Count\tRYSWKM_Count\tWindow_Sequence\tMin_Tm\tAvg_Tm\tMax_Tm")
 
     # 2. Slide the window across the sequence
     max_i = sequence_length - WINDOW_SIZE + 1
@@ -141,6 +136,7 @@ def analyze_consensus(file_path, enrichment_threshold):
 
                         for seq in all_sequences:
                             # Use the robust, foundational Tm_NN function
+                            # Biopython's Tm_NN is the stable method for NN calculation
                             tm_values.append(mt.Tm_NN(Seq(seq)))
 
                         if tm_values:
@@ -158,8 +154,9 @@ def analyze_consensus(file_path, enrichment_threshold):
                         print(f"Tm ERROR @ Position {position} ({window}): [{error_type}] {e}", file=sys.stderr)
                         min_tm, avg_tm, max_tm = error_type, error_type, error_type
 
-                # 6. Print the results for the current window
-                print(f"{position}\t"
+                # 6. Print the results for the current window (Modified to include Filename)
+                print(f"{file_path}\t"
+                      f"{position}\t"
                       f"{counts.get('A', 0)}\t"
                       f"{counts.get('T', 0)}\t"
                       f"{counts.get('C', 0)}\t"
@@ -174,12 +171,8 @@ def analyze_consensus(file_path, enrichment_threshold):
                       )
                 matching_windows += 1
 
-    # print("-" * 160, file=sys.stderr)
-    # print(f"## Analysis Complete. Total windows checked: {max_i}. Matching windows found: {matching_windows}",
-    #       file=sys.stderr)
     if errors_logged > 0:
         print(f"## WARNING: {errors_logged} Tm errors were logged to standard error (above).", file=sys.stderr)
-    # print("-" * 160, file=sys.stderr)
 
 
 if __name__ == '__main__':
