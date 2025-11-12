@@ -220,10 +220,6 @@ def calculate_tm(sequence):
         tm_value = mt.Tm_NN(
             Seq(sequence),
             nn_table=mt.DNA_NN4,  # Use the explicit dictionary object
-            # Pass default salt and primer concentration parameters to be robust
-            Na=1000,  # 1 M Na+ (default for DNA_NN4)
-            Mg=0,
-            dnac=50,  # Typical default primer concentration in nM
         )
 
         # Return the value rounded to 2 decimal places
