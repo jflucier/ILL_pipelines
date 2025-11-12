@@ -95,7 +95,7 @@ def find_all_matches_single_strand(sequence, regex_start, regex_end):
     seq_len = len(sequence)
 
     while current_search_start < seq_len:
-        # 1. Search for the start primer
+        # 1. Search for the start primer (regex_start)
         match_start = re.search(regex_start, sequence[current_search_start:])
 
         if not match_start:
@@ -105,7 +105,7 @@ def find_all_matches_single_strand(sequence, regex_start, regex_end):
         start_index_0_based = current_search_start + match_start.start()
         search_for_end_from_index = current_search_start + match_start.end()
 
-        # 2. Search for the end primer, starting immediately after the current start match
+        # 2. Search for the end primer (regex_end), starting immediately after the current start match
         match_end_in_substring = re.search(regex_end, sequence[search_for_end_from_index:])
 
         if match_end_in_substring:
@@ -140,78 +140,78 @@ def find_all_matches_single_strand(sequence, regex_start, regex_end):
     return matches
 
 
-def find_and_extract(header, sequence, regex_start, regex_end):
+def find_and_extract(header, sequence, regex_start, regex_end, primer_start, primer_end):
     """
-    Finds all non-overlapping regions on both forward and reverse strands.
+    Finds all non-overlapping regions on both forward and reverse strands, checking both motif orders (P1..P2 and P2..P1).
     Reports coordinates relative to the original (forward) sequence.
     """
     all_results = []
     L = len(sequence)
-
-    # --- 1. Search Forward Strand ---
-    forward_matches = find_all_matches_single_strand(sequence, regex_start, regex_end)
-    for m in forward_matches:
-        all_results.append({
-            "header": header,
-            "strand": "FORWARD",
-            # Coordinates are 1-based inclusive/exclusive
-            "start_pos": m['start_0'] + 1,
-            "end_pos": m['end_0'],
-            "fwd_motif_seq": m['start_motif_seq'],
-            "rev_motif_seq": m['end_motif_seq'],
-            "amplicon_sequence": m['amplicon_sequence'],
-        })
-
-    # --- 2. Search Reverse Complement Strand ---
-    # The primers are assumed to be oriented start->end relative to the template being amplified.
-    # On the reverse complement sequence, the start primer matches the reverse end template,
-    # and the end primer matches the reverse start template.
-    # Therefore, we swap the regexes when searching the reverse complement sequence.
     rev_comp = reverse_complement(sequence)
-    reverse_matches = find_all_matches_single_strand(rev_comp, regex_end, regex_start)
 
-    for m in reverse_matches:
-        # Calculate coordinates in the original (forward) sequence (1-based)
-        # Match (R_start to R_end) in rev_comp corresponds to segment
-        # (L - R_end) to (L - R_start) in the forward sequence.
+    # Define the four search combinations: (Template, Upstream_Regex, Downstream_Regex, Strand, Upstream_Primer_Input, Downstream_Primer_Input)
+    search_combinations = [
+        # 1. Forward Template, Order P_start..P_end
+        (sequence, regex_start, regex_end, "FORWARD", primer_start, primer_end),
 
-        original_start_pos = L - m['end_0'] + 1
-        original_end_pos = L - m['start_0']
+        # 2. Forward Template, Order P_end..P_start
+        (sequence, regex_end, regex_start, "FORWARD", primer_end, primer_start),
 
-        # The extracted sequence is the reverse complement amplicon, which is what the user wants.
-        # Note: The start motif in the rev_comp search (regex_end) corresponds to the
-        # reverse primer in the original sequence, and vice versa.
+        # 3. Reverse Template, Order P_start..P_end (RC matches)
+        (rev_comp, regex_start, regex_end, "REVERSE", primer_start, primer_end),
 
-        all_results.append({
-            "header": header,
-            "strand": "REVERSE",
-            "start_pos": original_start_pos,
-            "end_pos": original_end_pos,
-            "fwd_motif_seq": m['end_motif_seq'],  # Start motif (regex_end) matches the reverse primer
-            "rev_motif_seq": m['start_motif_seq'],  # End motif (regex_start) matches the forward primer
-            "amplicon_sequence": m['amplicon_sequence'],
-        })
+        # 4. Reverse Template, Order P_end..P_start (RC matches)
+        (rev_comp, regex_end, regex_start, "REVERSE", primer_end, primer_start),
+    ]
 
-    # NOTE on Reverse Match Motif Labeling:
-    # On the REVERSE strand, the 'primer_end' (TCNGCN...) acts as the FORWARD match,
-    # and 'primer_start' (TTYRTN...) acts as the REVERSE match.
-    # The labels in the output are based on the sequence they MATCHED in the original context:
-    #   - fwd_matched_window_sequence: The sequence matching the TTYRTN... primer.
-    #   - rev_matched_window_sequence: The sequence matching the TCNGCN... primer.
-    # Since the coordinates are reported on the forward strand, we should report the actual
-    # matched sequence in the context of the amplicon structure.
-    # To keep the labels consistent with the user's columns:
-    # 1. Fwd match: The sequence that matched the 'primer_start' regex.
-    # 2. Rev match: The sequence that matched the 'primer_end' regex.
-    # The current implementation correctly handles this by swapping the motif sequences
-    # for the reverse match (since the order of regexes was swapped).
+    for template, up_regex, down_regex, strand, up_primer_input, down_primer_input in search_combinations:
+
+        current_matches = find_all_matches_single_strand(template, up_regex, down_regex)
+
+        for m in current_matches:
+
+            # --- Coordinate Calculation ---
+            if strand == "FORWARD":
+                # Coordinates are 1-based inclusive/exclusive
+                start_pos = m['start_0'] + 1
+                end_pos = m['end_0']
+            else:  # strand == "REVERSE"
+                # Calculate coordinates in the original (forward) sequence (1-based)
+                # Match (R_start to R_end) in RC corresponds to segment (L - R_end) to (L - R_start) in FWD sequence.
+                start_pos = L - m['end_0'] + 1
+                end_pos = L - m['start_0']
+
+            # --- Matched Sequence Mapping ---
+            # Map the motif sequences back to the original input primers (primer_start / primer_end)
+
+            # If P_start was the UPSTREAM motif in this match:
+            if up_primer_input == primer_start:
+                fwd_match_seq = m['start_motif_seq']
+                rev_match_seq = m['end_motif_seq']
+
+            # If P_end was the UPSTREAM motif in this match:
+            else:  # up_primer_input == primer_end
+                fwd_match_seq = m[
+                    'end_motif_seq']  # The sequence that matched regex_start (now P_end) is mapped to P_end
+                rev_match_seq = m[
+                    'start_motif_seq']  # The sequence that matched regex_end (now P_start) is mapped to P_start
+
+            all_results.append({
+                "header": header,
+                "strand": strand,
+                "start_pos": start_pos,
+                "end_pos": end_pos,
+                "fwd_match_seq": fwd_match_seq,  # Sequence that matched primer_start
+                "rev_match_seq": rev_match_seq,  # Sequence that matched primer_end
+                "amplicon_sequence": m['amplicon_sequence'],
+            })
 
     return all_results
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Search for all non-overlapping regions defined by two degenerate DNA sequences in FASTA files. Reports metadata (including matched sequences) in a TSV file."
+        description="Search for all non-overlapping regions defined by two degenerate DNA sequences in FASTA files. Performs a symmetrical search (P1..P2 and P2..P1) on both strands. Reports metadata (including matched sequences) in a TSV file."
     )
     # Required positional arguments
     parser.add_argument(
@@ -227,12 +227,12 @@ def main():
     parser.add_argument(
         "primer_start",
         type=str,
-        help="The degenerate sequence for the start motif (e.g., 'TTYRTNGAYAAYATCTWYCG')."
+        help="The degenerate sequence for the START motif (P1)."
     )
     parser.add_argument(
         "primer_end",
         type=str,
-        help="The degenerate sequence for the end motif (e.g., 'TCNGCNGTNGGNTAYCARCC')."
+        help="The degenerate sequence for the END motif (P2)."
     )
 
     args = parser.parse_args()
@@ -245,9 +245,7 @@ def main():
     regex_start = iupac_to_regex(primer_start)
     regex_end = iupac_to_regex(primer_end)
 
-    print(f"Searching for regions defined by:")
-    print(f"  Start Motif: {primer_start} -> Regex: {regex_start}")
-    print(f"  End Motif:   {primer_end} -> Regex: {regex_end}")
+    print(f"Searching for regions defined by motifs P1: '{primer_start}' and P2: '{primer_end}'")
 
     # Find all matching files
     file_paths = glob(args.fasta_pattern)
@@ -271,8 +269,9 @@ def main():
             "strand",
             "amplicon start",
             "amplicon end",
-            "fwd matched window sequence",
-            "rev matched window sequence",
+            # Note: fwd/rev here refers to the input primer variables, not strand
+            f"P1 ({primer_start}) matched sequence",  # Original "fwd matched window sequence"
+            f"P2 ({primer_end}) matched sequence",  # Original "rev matched window sequence"
             "amplicon sequence"
         ]
         tsv_writer.writerow(header_row)
@@ -280,13 +279,12 @@ def main():
         for filepath in file_paths:
             # Extract only the filename from the path
             filename = os.path.basename(filepath)
-            print(f"Processing {filename}...")
 
             sequences = read_fasta_sequences(filepath)
 
             for header, sequence in sequences.items():
-                # find_and_extract now returns a list of ALL matches
-                results = find_and_extract(header, sequence, regex_start, regex_end)
+                # find_and_extract now returns a list of ALL matches from all 4 searches
+                results = find_and_extract(header, sequence, regex_start, regex_end, primer_start, primer_end)
 
                 for result in results:
                     total_found += 1
@@ -298,14 +296,14 @@ def main():
                         result['strand'],
                         result['start_pos'],
                         result['end_pos'],
-                        result['fwd_motif_seq'],
-                        result['rev_motif_seq'],
+                        result['fwd_match_seq'],  # Matched P1
+                        result['rev_match_seq'],  # Matched P2
                         result['amplicon_sequence']
                     ]
                     tsv_writer.writerow(data_row)
 
-                    print(
-                        f"  -> Match found in {result['header']} (Strand: {result['strand']}, Position: {result['start_pos']}-{result['end_pos']})")
+            # Print a summary per file
+            print(f"Finished processing {filename}. Matches found in this file.")
 
     print("-" * 50)
     print(f"Done. Found {total_found} total extracted regions across {len(file_paths)} files.")
