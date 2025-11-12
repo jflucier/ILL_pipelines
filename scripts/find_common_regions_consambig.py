@@ -20,7 +20,8 @@ VALID_IUPAC_CODES = CANONICAL_BASES.union(NBDHV_BASES, RYSWKM_BASES)
 
 def analyze_consensus(file_path, enrichment_threshold):
     """
-    Main analysis function using Biopython's MeltingTemp for accurate Tm calculation.
+    Main analysis function using Biopython's MeltingTemp for accurate Tm calculation,
+    with robust error logging to stderr.
     """
     header = ''
     sequence = ''
@@ -48,6 +49,7 @@ def analyze_consensus(file_path, enrichment_threshold):
         return
 
     matching_windows = 0
+    errors_logged = 0
 
     # --- Print Header Information ---
     print(f"## Sequence length: {sequence_length}")
@@ -112,7 +114,6 @@ def analyze_consensus(file_path, enrichment_threshold):
                     seq_obj = Seq(upper_window)
 
                     try:
-                        # Tm_NN_ambiguous returns a list of Tm values for all possible combinations.
                         tm_values = mt.Tm_NN_ambiguous(seq_obj)
 
                         if tm_values:
@@ -120,15 +121,16 @@ def analyze_consensus(file_path, enrichment_threshold):
                             max_tm = max(tm_values)
                             avg_tm = statistics.mean(tm_values)
 
-                            # Format Tm values to two decimal places
                             min_tm = f"{min_tm:.2f}"
                             max_tm = f"{max_tm:.2f}"
                             avg_tm = f"{avg_tm:.2f}"
 
                     except Exception as e:
-                        # 🎯 KEY CHANGE: Log the actual error message
-                        error_msg = str(e).replace('\t', ' ').replace('\n', ' ')
-                        min_tm, avg_tm, max_tm = error_msg[:10], error_msg[:10], error_msg[:10]
+                        # 🎯 KEY FIX: Print full error to stderr, output simple status to file
+                        errors_logged += 1
+                        error_type = type(e).__name__
+                        print(f"Tm ERROR @ Position {position} ({window}): [{error_type}] {e}", file=sys.stderr)
+                        min_tm, avg_tm, max_tm = error_type, error_type, error_type
 
                 # 6. Print the results for the current window
                 position = i + 1
@@ -148,9 +150,12 @@ def analyze_consensus(file_path, enrichment_threshold):
                       )
                 matching_windows += 1
 
-    print("-" * 160)
-    print(f"## Analysis Complete. Total windows checked: {max_i}. Matching windows found: {matching_windows}")
-    print("-" * 160)
+    print("-" * 160, file=sys.stderr)
+    print(f"## Analysis Complete. Total windows checked: {max_i}. Matching windows found: {matching_windows}",
+          file=sys.stderr)
+    if errors_logged > 0:
+        print(f"## WARNING: {errors_logged} Tm errors were logged to standard error (above).", file=sys.stderr)
+    print("-" * 160, file=sys.stderr)
 
 
 if __name__ == '__main__':
