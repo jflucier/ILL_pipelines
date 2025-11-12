@@ -241,6 +241,10 @@ def main():
     primer_start = args.primer_start
     primer_end = args.primer_end
 
+    # --- Modification: Get the output filename for the new column ---
+    output_filename = os.path.basename(args.output)
+    # -----------------------------------------------------------------
+
     # Convert the degenerate sequences to their regex patterns
     regex_start = iupac_to_regex(primer_start)
     regex_end = iupac_to_regex(primer_end)
@@ -258,23 +262,28 @@ def main():
     total_found = 0
 
     # Open the output file for TSV writing
-    with open(args.output, 'w', newline='') as outfile:
+    # Changed from 'w' to 'a' and added header logic for multi-run workflows (like the bash script)
+    file_exists = os.path.exists(args.output)
+
+    with open(args.output, 'a', newline='') as outfile:
         # Create a CSV writer that uses a tab ('\t') as a delimiter
         tsv_writer = csv.writer(outfile, delimiter='\t')
 
-        # Write the header row
-        header_row = [
-            "filename",
-            "contig accession",
-            "strand",
-            "amplicon start",
-            "amplicon end",
-            # Note: fwd/rev here refers to the input primer variables, not strand
-            f"P1 ({primer_start}) matched sequence",  # Original "fwd matched window sequence"
-            f"P2 ({primer_end}) matched sequence",  # Original "rev matched window sequence"
-            "amplicon sequence"
-        ]
-        tsv_writer.writerow(header_row)
+        # Write the header row ONLY if the file is new or empty
+        if not file_exists or os.path.getsize(args.output) == 0:
+            header_row = [
+                "output file", # NEW COLUMN ADDED HERE
+                "filename",
+                "contig accession",
+                "strand",
+                "amplicon start",
+                "amplicon end",
+                # Note: fwd/rev here refers to the input primer variables, not strand
+                f"P1 ({primer_start}) matched sequence",  # Original "fwd matched window sequence"
+                f"P2 ({primer_end}) matched sequence",  # Original "rev matched window sequence"
+                "amplicon sequence"
+            ]
+            tsv_writer.writerow(header_row)
 
         for filepath in file_paths:
             # Extract only the filename from the path
@@ -291,6 +300,7 @@ def main():
 
                     # Write the data row to the TSV file
                     data_row = [
+                        output_filename, # NEW VALUE ADDED HERE
                         filename,
                         result['header'],
                         result['strand'],
@@ -302,7 +312,7 @@ def main():
                     ]
                     tsv_writer.writerow(data_row)
 
-            # Print a summary per file
+            # Print a summary per file (kept for original script behavior)
             print(f"Finished processing {filename}. Matches found in this file.")
 
     print("-" * 50)
