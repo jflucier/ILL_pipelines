@@ -55,5 +55,8 @@ From: ubuntu:22.04
 #  echo "loading motus help for test purpose"
 #  motus --help
 #  echo "done testing motus"
+#  ln -s /net/nfs-ip34/jbod2/def-ilafores/ref_dbs/motus4/db_mOTU /miniconda3/envs/mOTUs4/lib/python3.12/site-packages/motus/db_mOTU
+#  touch /miniconda3/envs/mOTUs4/lib/python3.12/site-packages/motus/db_mOTU.downloaded
+  motus downloadMGDB
 
   conda deactivate
