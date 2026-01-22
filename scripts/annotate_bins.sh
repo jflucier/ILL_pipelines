@@ -154,7 +154,7 @@ gtdbtk classify_wf --cpus $threads --genome_dir $tmp/drep --out_dir $tmp/gtdbtk_
 echo "copying results back to $out/"
 mkdir -p $out/
 cp -r $tmp/metawrap_out $out
-#cp -r $tmp/microbeannotator_out $out
+cp -r $tmp/microbeannotator_out $out
 cp -r $tmp/gtdbtk_out $out
 
 echo "annotate pipeline done"
