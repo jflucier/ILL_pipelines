@@ -156,7 +156,7 @@ rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "Combining reads to a single fastq"
 zcat $tmp/*.fastq* > $tmp/all_reads.fastq
-
+rm $tmp/$fq1 $tmp/$fq2 $tmp/$fq1_single $tmp/$fq2_single
 
 echo "analysing sample $sample using metaphlan against $db index"
 db_index=$(basename $db)
@@ -172,7 +172,7 @@ metaphlan \
 -x $db_index \
 --nproc $threads \
 -o $tmp/${sample}_profile.txt \
-$tmp/all_reads.fastq.gz
+$tmp/all_reads.fastq
 # --mapout $tmp/${sample}.bowtie2.txt is removed for now, add back if needed for Humann transition (not compatible as of humann 3.6)
 
 echo "copying results to $out with throttling"
