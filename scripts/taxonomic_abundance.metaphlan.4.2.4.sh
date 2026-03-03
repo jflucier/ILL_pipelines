@@ -138,28 +138,17 @@ done
 # add to throttle list
 touch ${base_out}/.throttle/throttle.start.${sample}.txt
 
-echo "upload $fq1 to $tmp/fq1.fastq"
-cp $fq1 $tmp
-echo "upload $fq2 to $tmp/fq2.fastq"
-cp $fq2 $tmp
-echo "upload $fq1_single to $tmp/fq1_single.fastq"
-cp $fq1_single $tmp
-echo "upload $fq2_single to $tmp/fq2_single.fastq"
-cp $fq2_single $tmp
-echo "copying singularity containers to $tmp"
-cp /net/nfs-ip34/jbod2/def-ilafores/programs/ILL_pipelines/containers/metaphlan.4.2.4.sif $tmp/
+echo "Copying/combining reads to a single fastq"
+zcat $fq1 $fq2 $fq1_single $fq2_single | gzip > $tmp/all_reads.fastq.gz
 
 # remove from throttle list
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
-echo "Combining reads to a single fastq"
-zcat $tmp/*.fastq* > $tmp/all_reads.fastq
-
 echo "analysing sample $sample using metaphlan against $db index"
 db_index=$(basename $db)
 db_path=$(dirname $db)
-singularity exec --writable-tmpfs -e \
--B $tmp:$tmp \
+singularity exec -e \
+-B /net/nfs-ip34/fast_tmp:/$tmp \
 -B $db_path:$db_path \
 $tmp/metaphlan.4.2.4.sif \
 metaphlan \
@@ -170,7 +159,7 @@ metaphlan \
 -x $db_index \
 --nproc $threads \
 -o $tmp/${sample}_profile.txt \
-$tmp/all_reads.fastq
+$tmp/all_reads.fastq.gz
 # --mapout $tmp/${sample}.bowtie2.txt is removed for now, add back if needed for Humann transition (not compatible as of humann 3.6)
 
 echo "copying results to $out with throttling"
