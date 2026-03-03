@@ -38,7 +38,7 @@ From: ubuntu:22.04
   rm -rf /var/lib/apt/lists/*
   apt-get clean
 
-  pip3 install MetaPhlAn==4.2.4
+  pip3 install MetaPhlAn==4.0.4
 
   pip3 install humann==3.6
 
