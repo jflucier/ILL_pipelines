@@ -163,6 +163,7 @@ echo "analysing sample $sample using metaphlan against $db index"
 db_index=$(basename $db)
 db_path=$(dirname $db)
 singularity exec -e \
+-B $tmp:$tmp \
 -B $db_path:$db_path \
 $tmp/metaphlan.4.2.4.sif \
 metaphlan \
