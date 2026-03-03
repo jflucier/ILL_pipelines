@@ -156,7 +156,8 @@ rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "Combining reads to a single fastq"
 zcat $tmp/*.fastq* > $tmp/all_reads.fastq
-rm $tmp/$fq1 $tmp/$fq2 $tmp/$fq1_single $tmp/$fq2_single
+
+rm "$tmp/$(basename "$fq1")" "$tmp/$(basename "$fq2")" "$tmp/$(basename "$fq1_single")" "$tmp/$(basename "$fq2_single")"
 
 echo "analysing sample $sample using metaphlan against $db index"
 db_index=$(basename $db)
