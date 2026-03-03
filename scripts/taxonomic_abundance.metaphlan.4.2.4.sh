@@ -147,7 +147,7 @@ cp $fq1_single $tmp
 echo "upload $fq2_single to $tmp/fq2_single.fastq"
 cp $fq2_single $tmp
 echo "copying singularity containers to $tmp"
-cp /net/nfs-ip34/jbod2/def-ilafores/programs/ILL_pipelines/containers/humann.3.6.sif $tmp/
+cp /net/nfs-ip34/jbod2/def-ilafores/programs/ILL_pipelines/containers/metaphlan.4.2.4.sif $tmp/
 
 # remove from throttle list
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
