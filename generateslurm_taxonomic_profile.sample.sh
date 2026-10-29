@@ -12,7 +12,7 @@ help_message () {
   echo "	--out STR	path to output dir"
   echo "	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
   echo "	--bracken_readlen	bracken read length option (default 150)"
-  echo "  --confidence    kraken confidence level to reduce false-positive rate (default 0.05)"
+  echo "  --confidence    kraken confidence level to reduce false-positive rate (default 0.1)"
 
   echo ""
   echo "Slurm options:"
@@ -43,7 +43,7 @@ sample_tsv="false";
 out="false";
 kraken_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517"
 bracken_readlen="150"
-confidence="0.05"
+confidence="0.1"
 
 # load in params
 SHORT_OPTS="h"
