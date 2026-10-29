@@ -147,6 +147,9 @@ else
     zcat $tmp/$fq2_name > $tmp/paired_sorted_2.fastq
 fi
 
+echo "removing raw fastq copies from $tmp"
+rm -f $tmp/$fq1_name $tmp/$fq2_name
+
 echo "running kneaddata. kneaddata ouptut: $tmp/"
 ###### pas de decontamine, output = $tmp/${sample}/*repeats* --> peut changer etape pour fastp et cutadapt
 basepath=$(perl -e '
@@ -180,6 +183,17 @@ rm $tmp/${sample}*repeats* $tmp/${sample}*trimmed* ##changer ici si pas de decon
 echo "moving contaminants fastqs to subdir"
 mkdir -p $tmp/${sample}_contaminants
 mv $tmp/${sample}*contam*.fastq $tmp/${sample}_contaminants/
+
+echo "removing kneaddata input fastqs"
+rm -f $tmp/paired_sorted_1.fastq $tmp/paired_sorted_2.fastq
+
+echo "compressing all output fastqs (incl. contaminants)"
+if command -v pigz > /dev/null; then
+    gz_cmd="pigz -p ${threads}"
+else
+    gz_cmd="gzip"
+fi
+find $tmp/${sample}* -name '*.fastq' -exec $gz_cmd {} +
 
 echo "copying results to $out with throttling"
 
