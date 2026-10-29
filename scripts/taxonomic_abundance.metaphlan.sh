@@ -139,21 +139,21 @@ done
 touch ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "upload $fq1 to $tmp/fq1.fastq"
-cp $fq1 $tmp/fq1.fastq
+cp $fq1 $tmp
 echo "upload $fq2 to $tmp/fq2.fastq"
-cp $fq2 $tmp/fq2.fastq
+cp $fq2 $tmp
 echo "upload $fq1_single to $tmp/fq1_single.fastq"
-cp $fq1_single $tmp/fq1_single.fastq
+cp $fq1_single $tmp
 echo "upload $fq2_single to $tmp/fq2_single.fastq"
-cp $fq2_single $tmp/fq2_single.fastq
+cp $fq2_single $tmp
 echo "copying singularity containers to $tmp"
-cp ${EXE_PATH}/../containers/humann.3.6.sif $tmp/
+cp /net/nfs-ip34/jbod2/def-ilafores/programs/ILL_pipelines/containers/humann.3.6.sif $tmp/
 
 # remove from throttle list
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "Combining reads to a single fastq"
-cat $tmp/fq1.fastq $tmp/fq2.fastq $tmp/fq1_single.fastq $tmp/fq2_single.fastq > $tmp/all_reads.fastq
+zcat $tmp/*.fastq* > $tmp/all_reads.fastq
 
 echo "analysing sample $sample using metaphlan against $db index"
 db_index=$(basename $db)
