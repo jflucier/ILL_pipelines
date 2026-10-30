@@ -169,7 +169,7 @@ $tmp/metaphlan.4.2.4.sif \
 metaphlan \
 -t rel_ab \
 --input_type fastq --offline \
---tmp_dir /jbod2/def-ilafores/tmp \
+--tmp_dir $tmp \
 --db_dir $db_path \
 -x $db_index \
 --nproc $threads \
