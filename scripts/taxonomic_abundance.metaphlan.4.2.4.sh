@@ -181,9 +181,12 @@ metaphlan \
 --db_dir $db_path \
 -x $db_index \
 --nproc $threads \
+--mapout $tmp/${sample}.mapout.txt \
 -o $tmp/${sample}_profile.txt \
 $tmp/all_reads.fastq
-# --mapout $tmp/${sample}.bowtie2.txt is removed for now, add back if needed for Humann transition (not compatible as of humann 3.6)
+# --mapout must be explicit: metaphlan 4.2.4 otherwise writes fifo_map.mapout.txt in the cwd,
+# which is the shared output dir for every array task, so concurrent samples clobber each other.
+# The mapout stays in $tmp; copy it to $out if needed for Humann transition (not compatible as of humann 3.6)
 
 echo "copying results to $out with throttling"
 

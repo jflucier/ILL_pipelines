@@ -1,0 +1,154 @@
+loading env on cv3401.m at Sat 31 Oct 2026 02:14:51 PM EDT
+
+The following have been reloaded with a version change:
+  1) apptainer/1.2.4 => apptainer/1.1.5
+
+
+Currently Loaded Modules:
+  1) CCconfig                  8) openmpi/4.0.3   (m)
+  2) gentoo/2020      (S)      9) flexiblas/3.0.4
+  3) gcccore/.9.3.0   (H)     10) blis/0.8.1
+  4) imkl/2020.1.217  (math)  11) StdEnv/2020     (S)
+  5) intel/2020.1.217 (t)     12) mii/1.1.2
+  6) ucx/1.8.0                13) apptainer/1.1.5
+  7) libfabric/1.10.1
+
+  Where:
+   H:     Hidden Module
+   S:     Module is Sticky, requires --force to unload or purge
+   m:     MPI implementations / Implémentations MPI
+   math:  Mathematical libraries / Bibliothèques mathématiques
+   t:     Tools for development / Outils de développement
+
+ 
+
+singularity after module load: /cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/apptainer/1.1.5/bin/singularity
++ trap '__error_handing__ $?' ERR
+++ dirname /net/nfs-bio/jbod2/def-ilafores/programs/ILL_pipelines/scripts/taxonomic_abundance.metaphlan.4.2.4.sh
++ export EXE_PATH=/net/nfs-bio/jbod2/def-ilafores/programs/ILL_pipelines/scripts
++ EXE_PATH=/net/nfs-bio/jbod2/def-ilafores/programs/ILL_pipelines/scripts
++ threads=4
++ sample=false
++ base_out=false
++ tmp=false
++ fq1=false
++ fq1_single=false
++ fq2=false
++ fq2_single=false
++ db=/cvmfs/datahub.genap.ca/vhost34/def-ilafores/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212
++ SHORT_OPTS=ht:o:s:fq1:fq1_single:fq2:fq2_single:db:tmp:
++ LONG_OPTS=help
+++ getopt -o ht:o:s:fq1:fq1_single:fq2:fq2_single:db:tmp: --long help -- -o /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022/ -tmp /localscratch/ronj2303.396446.0 -t 12 -s 130_1_WGS_20250513 -fq1 /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz -fq2 /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz -fq1_single /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz -fq2_single /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz -db /net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212
++ OPTS=' -o '\''/net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022/'\'' -t '\''mp'\'' -t '\''12'\'' -s '\''130_1_WGS_20250513'\'' -f -q -1 '\''/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz'\'' -f -q -2 '\''/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz'\'' -f -q -1 '\''_single'\'' -f -q -2 '\''_single'\'' -d -b '\''/net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212'\'' -- '\''/localscratch/ronj2303.396446.0'\'' '\''/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz'\'' '\''/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz'\'''
++ '[' 0 -ne 0 ']'
++ true
++ case "$1" in
++ base_out=/net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022/
++ shift 2
++ true
++ case "$1" in
++ tmp=/localscratch/ronj2303.396446.0
++ shift 2
++ true
++ case "$1" in
++ threads=12
++ shift 2
++ true
++ case "$1" in
++ sample=130_1_WGS_20250513
++ shift 2
++ true
++ case "$1" in
++ fq1=/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz
++ shift 2
++ true
++ case "$1" in
++ fq2=/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz
++ shift 2
++ true
++ case "$1" in
++ fq1_single=/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz
++ shift 2
++ true
++ case "$1" in
++ fq2_single=/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz
++ shift 2
++ true
++ case "$1" in
++ db=/net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212
++ shift 2
++ true
++ case "$1" in
++ break
++ '[' 130_1_WGS_20250513 = false ']'
++ echo '## Sample name: 130_1_WGS_20250513'
+## Sample name: 130_1_WGS_20250513
++ '[' /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022/ = false ']'
++ mkdir -p /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//130_1_WGS_20250513
++ out=/net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//130_1_WGS_20250513
++ echo '## Results wil be stored to this path: /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//130_1_WGS_20250513'
+## Results wil be stored to this path: /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//130_1_WGS_20250513
++ '[' /localscratch/ronj2303.396446.0 = false ']'
++ '[' /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz = false ']'
++ '[' /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz = false ']'
++ '[' /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz = false ']'
++ '[' /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz = false ']'
++ command -v singularity
++ mkdir -p /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//.throttle
++ sleep 7s
+++ wc -l
+++ ls /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//.throttle/throttle.start.168_1_WGS_20250513.txt
++ l_nbr=1
++ '[' 1 -ge 5 ']'
++ touch /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//.throttle/throttle.start.130_1_WGS_20250513.txt
++ echo 'Copying/combining reads to a single fastq'
+Copying/combining reads to a single fastq
++ echo 'upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz to /localscratch/ronj2303.396446.0/fq1.fastq'
+upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz to /localscratch/ronj2303.396446.0/fq1.fastq
++ cp /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz /localscratch/ronj2303.396446.0
++ echo 'upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz to /localscratch/ronj2303.396446.0/fq2.fastq'
+upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz to /localscratch/ronj2303.396446.0/fq2.fastq
++ cp /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz /localscratch/ronj2303.396446.0
++ echo 'upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz to /localscratch/ronj2303.396446.0/fq1_single.fastq'
+upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz to /localscratch/ronj2303.396446.0/fq1_single.fastq
++ cp /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz /localscratch/ronj2303.396446.0
++ echo 'upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz to /localscratch/ronj2303.396446.0/fq2_single.fastq'
+upload /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz to /localscratch/ronj2303.396446.0/fq2_single.fastq
++ cp /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz /localscratch/ronj2303.396446.0
++ echo 'copying singularity containers to /localscratch/ronj2303.396446.0'
+copying singularity containers to /localscratch/ronj2303.396446.0
++ cp /net/nfs-ip34/jbod2/def-ilafores/programs/ILL_pipelines/containers/metaphlan.4.2.4.sif /localscratch/ronj2303.396446.0/
++ rm /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//.throttle/throttle.start.130_1_WGS_20250513.txt
++ echo 'Combining reads to a single fastq'
+Combining reads to a single fastq
++ zcat /localscratch/ronj2303.396446.0/130_1_WGS_20250513_paired_1.fastq.gz /localscratch/ronj2303.396446.0/130_1_WGS_20250513_paired_2.fastq.gz /localscratch/ronj2303.396446.0/130_1_WGS_20250513_unmatched_1.fastq.gz /localscratch/ronj2303.396446.0/130_1_WGS_20250513_unmatched_2.fastq.gz
+++ basename /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_1.fastq.gz
+++ basename /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_paired_2.fastq.gz
+++ basename /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_1.fastq.gz
+++ basename /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/130_1_WGS_20250513/130_1_WGS_20250513_unmatched_2.fastq.gz
++ rm /localscratch/ronj2303.396446.0/130_1_WGS_20250513_paired_1.fastq.gz /localscratch/ronj2303.396446.0/130_1_WGS_20250513_paired_2.fastq.gz /localscratch/ronj2303.396446.0/130_1_WGS_20250513_unmatched_1.fastq.gz /localscratch/ronj2303.396446.0/130_1_WGS_20250513_unmatched_2.fastq.gz
++ echo 'analysing sample 130_1_WGS_20250513 using metaphlan against /net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 index'
+analysing sample 130_1_WGS_20250513 using metaphlan against /net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 index
+++ basename /net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212
++ db_index=mpa_vOct22_CHOCOPhlAnSGB_202212
+++ dirname /net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212
++ db_path=/net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022
++ singularity exec -e -B /localscratch/ronj2303.396446.0:/localscratch/ronj2303.396446.0 -B /net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022:/net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022 /localscratch/ronj2303.396446.0/metaphlan.4.2.4.sif metaphlan -t rel_ab --input_type fastq --offline --tmp_dir /localscratch/ronj2303.396446.0 --db_dir /net/nfs-bio/fast/def-ilafores/metaphlan4_db/2022 -x mpa_vOct22_CHOCOPhlAnSGB_202212 --nproc 12 -o /localscratch/ronj2303.396446.0/130_1_WGS_20250513_profile.txt /localscratch/ronj2303.396446.0/all_reads.fastq
+INFO:    underlay of /usr/share/zoneinfo/America/New_York required more than 50 (52) bind mounts
+Traceback (most recent call last):
+  File "/usr/local/bin/metaphlan", line 8, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python3.10/dist-packages/metaphlan/metaphlan.py", line 2318, in main
+    metaphlan_runner.run_metaphlan()
+  File "/usr/local/lib/python3.10/dist-packages/metaphlan/metaphlan.py", line 1918, in run_metaphlan
+    self.parse_mapping()
+  File "/usr/local/lib/python3.10/dist-packages/metaphlan/metaphlan.py", line 1834, in parse_mapping
+    self.total_metagenome, self.avg_read_length, reads2markers, reads2nbases = self.mapping_controller.get_reads2markers()
+  File "/usr/local/lib/python3.10/dist-packages/metaphlan/metaphlan.py", line 910, in get_reads2markers
+    for r, c in ras(inpf):
+ValueError: too many values to unpack (expected 2)
+++ __error_handing__ 1
+++ local last_status_code=1
+++ rm -f /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//.throttle/throttle.start.130_1_WGS_20250513.txt
+++ rm -f /net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/Maple/MPA_db2022//.throttle/throttle.end.130_1_WGS_20250513.txt
+++ exit 1
