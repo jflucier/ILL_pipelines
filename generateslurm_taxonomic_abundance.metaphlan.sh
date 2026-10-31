@@ -133,7 +133,7 @@ export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 export __fastq_file1_single=$(echo -e "$__sample_line" | cut -f4)
 export __fastq_file2_single=$(echo -e "$__sample_line" | cut -f5)
 
-bash -l '${EXE_PATH}'/scripts/taxonomic_abundance.metaphlan.sh \
+bash '${EXE_PATH}'/scripts/taxonomic_abundance.metaphlan.sh \
 -o '${out}'/ \
 -tmp $SLURM_TMPDIR \
 -t '${threads}' \
