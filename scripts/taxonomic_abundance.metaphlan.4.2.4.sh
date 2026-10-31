@@ -121,6 +121,14 @@ if [ "$fq2_single" = "false" ]; then
     fq2_single=$tmp/fq2_single.fastq
 fi
 
+# fail early: a missing singularity is otherwise swallowed by command_not_found_handle
+if ! command -v singularity > /dev/null; then
+    echo "singularity not found in PATH on $(hostname). Make sure the apptainer module is loaded."
+    module list 2>&1
+    echo "PATH=$PATH"
+    exit 1
+fi
+
 # throttling
 mkdir -p $base_out/.throttle
 

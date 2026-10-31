@@ -123,8 +123,10 @@ echo '
 fi
 
 echo '
-echo "loading env"
+echo "loading env on $(hostname) at $(date)"
 module load StdEnv/2020 apptainer/1.1.5
+module list 2>&1
+echo "singularity after module load: $(command -v singularity || echo NOT FOUND)"
 
 export __sample_line=$(cat '${sample_tsv}' | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
