@@ -87,7 +87,7 @@ Options:
 
 	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)
 	--out STR	path to output dir
-	--db	kneaddata database path (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--db	kneaddata database path(s), quoted and space-separated if several (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
 	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
 	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
 
@@ -145,7 +145,7 @@ Options:
 	-m	memory (default 40G)
 	-fq1	path to fastq1
 	-fq2	path to fastq2
-	--db	kneaddata database path (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
+	--db	kneaddata database path(s), quoted and space-separated if several (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)
 	--trimmomatic_options	options to pass to trimmomatic (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10 SLIDINGWINDOW:4:30 MINLEN:100)
 	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)
 

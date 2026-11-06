@@ -148,24 +148,25 @@ touch ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "Copying/combining reads to a single fastq"
 
-echo "upload $fq1 to $tmp/fq1.fastq"
-cp $fq1 $tmp
-echo "upload $fq2 to $tmp/fq2.fastq"
-cp $fq2 $tmp
-echo "upload $fq1_single to $tmp/fq1_single.fastq"
-cp $fq1_single $tmp
-echo "upload $fq2_single to $tmp/fq2_single.fastq"
-cp $fq2_single $tmp
+echo "copying reads to $tmp"
+reads=()
+for f in "$fq1" "$fq2" "$fq1_single" "$fq2_single"; do
+  t=$tmp/$(basename "$f")
+  # a single-end file that was not provided is already an empty file in $tmp
+  [[ "$f" -ef "$t" ]] || cp "$f" "$t"
+  reads+=("$t")
+done
 echo "copying singularity containers to $tmp"
-cp /net/nfs-ip34/jbod2/def-ilafores/programs/ILL_pipelines/containers/metaphlan.4.2.4.sif $tmp/
+cp ${EXE_PATH}/../containers/metaphlan.4.2.4.sif $tmp/
 
 # remove from throttle list
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "Combining reads to a single fastq"
-zcat $tmp/*.fastq* > $tmp/all_reads.fastq
+# -f: passes plain fastq and empty files through unchanged, so gzipped and unzipped inputs both work
+zcat -f "${reads[@]}" > $tmp/all_reads.fastq
 
-rm "$tmp/$(basename "$fq1")" "$tmp/$(basename "$fq2")" "$tmp/$(basename "$fq1_single")" "$tmp/$(basename "$fq2_single")"
+rm "${reads[@]}"
 
 echo "analysing sample $sample using metaphlan against $db index"
 db_index=$(basename $db)

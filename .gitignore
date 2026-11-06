@@ -2,3 +2,5 @@
 *.old
 *.bak
 .idea/
+.DS_Store
+*.slurm.out

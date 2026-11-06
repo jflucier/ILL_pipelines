@@ -10,7 +10,7 @@ help_message () {
 	echo ""
 	echo "	--sample_tsv STR	path to sample tsv (3 columns: sample name<tab>fastq1 path<tab>fastq2 path)"
     echo "	--out STR	path to output dir"
-    echo "	--db	path(s) to contaminant genome(s) (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)"
+    echo "	--db	path(s) to contaminant genome(s), quoted and space-separated if several (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)"
     echo "	--trimmomatic_adapters	adapter file default (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10)"
     echo "	--trimmomatic_options	quality trimming options (default SLIDINGWINDOW:4:30 MINLEN:100)"
     echo "	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)"
@@ -150,7 +150,7 @@ bash '${EXE_PATH}'/scripts/preprocess.kneaddata.sh \
 --trimmomatic_options "'${trimmomatic_options}'" \
 --trimmomatic_adapters "'${trimmomatic_adapters}'" \
 --bowtie2_options "'$bowtie2_options'" \
---db '$db'
+--db "'$db'"
 ' >> ${out}/preprocess.kneaddata.slurm.sh
 
 echo "Generate preprocessed reads sample tsv: ${out}/preprocessed_reads.sample.tsv"

@@ -191,7 +191,8 @@ cp ${EXE_PATH}/../containers/humann.3.6.sif $tmp/
 rm ${base_out}/.throttle/throttle.start.${sample}.txt
 
 echo "Combining reads to a single fastq"
-cat $tmp/fq1.fastq $tmp/fq2.fastq $tmp/fq1_single.fastq $tmp/fq2_single.fastq > $tmp/all_reads.fastq
+# -f: gzipped or plain inputs
+zcat -f $tmp/fq1.fastq $tmp/fq2.fastq $tmp/fq1_single.fastq $tmp/fq2_single.fastq > $tmp/all_reads.fastq
 
 mkdir -p $tmp/out
 

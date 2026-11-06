@@ -23,7 +23,7 @@ help_message () {
     echo "	-m	memory (default 30G)"
     echo "	-fq1	path to fastq1"
     echo "	-fq2	path to fastq2"
-    echo "	--db	path(s) to contaminant genome(s) (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)"
+    echo "	--db	path(s) to contaminant genome(s), quoted and space-separated if several (default /nfs3_ib/nfs-ip34/fast/def-ilafores/host_genomes/GRCh38_index/grch38_1kgmaj)"
     echo "  --trimmomatic_adapters  adapter file default (default ILLUMINACLIP:/cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10)"
     echo "  --trimmomatic_options   quality trimming options (default SLIDINGWINDOW:4:30 MINLEN:100)"
     echo "	--bowtie2_options	options to pass to trimmomatic (default --very-sensitive-local)"
@@ -100,7 +100,6 @@ echo "Will use $mem memory"
 
 fq1_name=$(basename $fq1)
 fq2_name=$(basename $fq2)
-db_name=$(basename $db)
 
 mkdir -p $base_out/.throttle
 
@@ -152,22 +151,26 @@ rm -f $tmp/$fq1_name $tmp/$fq2_name
 
 echo "running kneaddata. kneaddata ouptut: $tmp/"
 ###### pas de decontamine, output = $tmp/${sample}/*repeats* --> peut changer etape pour fastp et cutadapt
-basepath=$(perl -e '
-  my $a = "'$db'";
-  my @t = split("/",$a);
-  print "/" . $t[1] . "\n";
-')
+# --db can hold several indexes, each kneaddata -db adds one. Bind the root of each.
+db_args=""
+db_binds=""
+for d in $db; do
+  db_args+=" -db ${d}"
+done
+for root in $(printf '%s\n' $db | cut -d/ -f2 | sort -u); do
+  db_binds+=" -B /${root}:/${root}"
+done
 
 singularity exec --writable-tmpfs -e \
 -B $tmp:/temp \
 -B ${out}:/out \
--B ${basepath}:${basepath} \
+${db_binds} \
 $tmp/kneaddata.0.12.0.sif \
 kneaddata -v \
 --log /out/kneaddata-${sample}.log \
 --input1 /temp/paired_sorted_1.fastq \
 --input2 /temp/paired_sorted_2.fastq \
--db ${db} \
+${db_args} \
 --bowtie2-options="${bowtie2_options}" \
 -o /temp/ \
 --output-prefix ${sample} \
